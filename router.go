@@ -57,7 +57,6 @@ func route(ctx *Context) {
 
 		} else if message.NewChatMembers != nil {
 			//New user(s)
-			newGroup := false
 			log.Println("User joined!\n Users' Nickname: ")
 			for _, user := range *ctx.Update.Message.NewChatMembers {
 				log.Println(user.UserName)
@@ -66,7 +65,7 @@ func route(ctx *Context) {
 				log.Println("This is a group just created! ")
 			}
 
-			UserJoined(ctx)
+			//User joined
 		} else if message.VideoNote != nil {
 			//Video circoare
 
