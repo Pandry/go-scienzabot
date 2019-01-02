@@ -1,0 +1,56 @@
+package database
+
+//GetBotSettingValue searches for the value in the database
+func (db *SQLiteDB) GetBotSettingValue(key string) (string, error) {
+	//We're prepaing a query to execute later
+	stmt, err := db.Prepare("SELECT Value FROM `BotSettings` WHERE Key = ?")
+	if err != nil {
+		return "", err
+	}
+	//We want to close the connection to the database once we stop using it
+	defer stmt.Close()
+	//The setting value will go on this string
+	var val string
+	//Then we execute the query passing the key to the scan function
+	err = stmt.QueryRow(key).Scan(&val)
+	if err != nil {
+		return "", err
+	}
+	//Finally, we return the result
+	return val, nil
+}
+
+//SetBotSettingValue sets a value in the bot settings table
+func (db *SQLiteDB) SetBotSettingValue(key string, value string) error {
+	//here we're starting a transaction with the database.
+	//This is becase we are changing the database and we want to write the changes to
+	//the file in a permanent way after we're done
+	//
+	// ACTUALLY the lib automacically starts a transaction, so it is not needed,
+	// but I'm keeping the comments anyway
+	//
+	/*tx, err := db.Begin()
+	if err != nil {
+		return false, err
+	}*/
+
+	//stmt, err := tx.Prepare("INSERT INTO BotSettings (Key,Value) VALUES (?, ?) ON DUPLICATE KEY UPDATE Value=VALUES(Value)")
+	//Then we prepare the query
+	//The above statement is how it should be done in a MySQL-like DB using a transaction
+	stmt, err := db.Prepare("INSERT INTO BotSettings (Key,Value) VALUES (?, ?) ON CONFLICT(Key) DO UPDATE SET Key = Key;")
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	//And we execute it passing the parameters
+	_, err = stmt.Exec(key, value)
+
+	if err != nil {
+		return err
+	}
+	//Finally, if everything went good, we commit the database
+	//Still, this is old code, but it's the siggested practice
+	//err = tx.Commit()
+	return err
+}

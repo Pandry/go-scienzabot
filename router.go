@@ -2,14 +2,15 @@ package main
 
 import (
 	"log"
+	"strconv"
 	"strings"
 
-	"github.com/go-telegram-bot-api/telegram-bot-api"
+	tba "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
-func route(ctx *Context) {
+func (ctx *Context) route() {
 
-	//Return messager if there's no update
+	//Return message if there's no update
 	if ctx.Update == nil {
 		return
 	}
@@ -29,12 +30,64 @@ func route(ctx *Context) {
 					break
 
 				case "/help":
-					msg := tgbotapi.NewMessage(ctx.Update.Message.Chat.ID, "Help text!")
-					msg.ReplyToMessageID = ctx.Update.Message.MessageID
+				case "/aiuto":
+				case "/aiutami":
+					ctx.SendHelpMessage()
+					break
 
-					ctx.Bot.Send(msg)
+				case "/info":
+				case "/informazioni":
+				case "/about":
+				case "/github":
 
 					break
+
+				case "/version":
+				case "/v":
+					val, err := ctx.Database.GetBotSettingValue("test")
+					if err != nil {
+
+						msg := "error bla bla committing..."
+						ctx.Bot.Send(tba.NewMessage(message.Chat.ID, msg))
+						if ctx.Bot.Debug {
+							log.Println("No read blabla...", err)
+						}
+
+						err := ctx.Database.SetBotSettingValue("test", strconv.Itoa(ctx.Update.Message.From.ID))
+						if err != nil {
+							msg = "dafuq, error..."
+							if ctx.Bot.Debug {
+								log.Println("Error doing commit...", err)
+							}
+						} else {
+							msg = "done..."
+						}
+						ctx.Bot.Send(tba.NewMessage(message.Chat.ID, msg))
+					} else {
+						ctx.Bot.Send(tba.NewMessage(message.Chat.ID, val))
+					}
+					break
+
+				case "/gdpr":
+
+					break
+
+				case "/registrazione":
+				case "/registra":
+				case "/registrami":
+				case "/signup":
+
+					break
+
+				case "/iscrivi":
+				case "/iscrivimi":
+				case "/join":
+				case "/iscrizione":
+				case "/entra":
+				case "/sottoscrivi":
+
+					break
+
 				}
 
 			}
@@ -67,12 +120,12 @@ func route(ctx *Context) {
 
 			//User joined
 		} else if message.VideoNote != nil {
-			//Video circoare
+			//Video circolare
 
 		} else if message.Video != nil {
 
 		} else if message.Venue != nil {
-			//NO IDEA
+			//NO IDEA     <--- non capisco (Bhez)
 		} else if message.LeftChatMember != nil {
 			//User removed (could be the bot)
 		} else if message.PinnedMessage != nil {
