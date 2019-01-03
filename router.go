@@ -29,6 +29,15 @@ func (ctx *Context) route() {
 				case "/start":
 					break
 
+				case "/exists":
+					msg := "You do "
+					if !ctx.Database.UserExists(ctx.Update.Message.From.ID) {
+						msg += "not "
+					}
+					msg += "exist."
+					ctx.Bot.Send(tba.NewMessage(message.Chat.ID, msg))
+					break
+
 				case "/help":
 				case "/aiuto":
 				case "/aiutami":
