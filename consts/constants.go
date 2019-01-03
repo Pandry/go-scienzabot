@@ -14,20 +14,22 @@ The Users table is supposed to contain all the users subscribed to the bot
 */
 CREATE TABLE IF NOT EXISTS 'Users' (
 	'ID'  INTEGER NOT NULL PRIMARY KEY,
-	'Nickname'  TEXT NOT NULL UNIQUE,
+	'Nickname'  TEXT UNIQUE,
 	'Biography'  TEXT,
 	'Status'  INTEGER DEFAULT 0,
-	'LastSeen'  TEXT DEFAULT '0000-00-00 00:00:00'
+	'LastSeen'  TIMESTAMP
 );
 
 /*
 The Groups table is supposed to contain all the groups the bot is added to.
+Status refers if the bot was kicked form the group, not used atm
 */
 CREATE TABLE IF NOT EXISTS 'Groups' (
 	'ID'  INTEGER NOT NULL PRIMARY KEY,
 	'Title'  TEXT NOT NULL,
 	'Ref'	TEXT NOT NULL,
-	'Locale'	TEXT DEFAULT ` + DefaultLocale + `
+	'Locale'	TEXT DEFAULT ` + DefaultLocale + `,
+	'Status'	INTEGER NOT NULL
 );
 
 /*
@@ -50,9 +52,10 @@ CREATE TABLE IF NOT EXISTS 'Permissions' (
 	'ID'  INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 	'User'	INTEGER NOT NULL,
 	'Group'	INTEGER,
+	'Permission' INTEGER DEFAULT 0,
 	FOREIGN KEY('User') REFERENCES Users('ID'),
 	FOREIGN KEY('Group') REFERENCES Groups('ID'),
-	CONSTRAINT con_perm_user_group_perm_unique UNIQUE ('User','Group','Permissions')
+	CONSTRAINT con_perm_user_group_perm_unique UNIQUE ('User','Group','Permission')
 );
 
 /*
@@ -81,8 +84,8 @@ CREATE TABLE IF NOT EXISTS 'Bookmarks' (
 	'Group'  INTEGER NOT NULL,
 	'MessageID'	INTEGER NOT NULL,
 	'Alias'	TEXT,
-	'Deleted' TEXT,
-	'MessageContent'TEXT, 
+	'Status' INTEGER,
+	'MessageContent' TEXT, 
 	FOREIGN KEY('User') REFERENCES Users('ID'),
 	FOREIGN KEY('Group') REFERENCES Groups('ID'),
 	CONSTRAINT con_bookm_user_group_unique UNIQUE ('User','Group')
@@ -199,16 +202,18 @@ The BotAdministrators table will contain the bot aministrator, which will manage
 */
 CREATE TABLE IF NOT EXISTS 'BotAdministrators' (
 	'User'			TEXT NOT NULL PRIMARY KEY,
-	'Permission'	TEXT NOT NULL DEFAULT 0,
-	FOREIGN KEY('User') REFERENCES Users('ID'),
-
+	'Permissions'	TEXT NOT NULL DEFAULT 0,
+	FOREIGN KEY('User') REFERENCES Users('ID')
 );
 
 -- Inserting the default locale in DB
-INSERT INTO BotSettings (Key, Value ) VALUES ( "DefaultLocale", "` + DefaultLocale + `" ) ON CONFLICT("Key") IGNORE"
+INSERT OR IGNORE INTO BotSettings (Key, Value ) VALUES ( "DefaultLocale", "` + DefaultLocale + `" );
+
+-- Inserting Pandry and AndreaIdini as users
+INSERT OR IGNORE INTO Users (ID, Nickname) VALUES (14092073, "Pandry"), (44917659, "AndreaIdini");
 
 -- Inserting 							     Pandry's ID and  Idini's one as bot administrators
-INSERT INTO BotAdministrators (User) VALUES (14092073),     (44917659) ON CONFLICT("User") IGNORE"
+INSERT OR IGNORE INTO BotAdministrators (User) VALUES (14092073),     (44917659);
 
 
 `
