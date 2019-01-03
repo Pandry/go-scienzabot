@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS 'Groups' (
 	'ID'  INTEGER NOT NULL PRIMARY KEY,
 	'Title'  TEXT NOT NULL,
 	'Ref'	TEXT NOT NULL,
-	'Locale'	TEXT DEFAULT 'it'
+	'Locale'	TEXT DEFAULT ` + DefaultLocale + `
 );
 
 /*
@@ -124,7 +124,7 @@ CREATE TABLE IF NOT EXISTS 'Strings' (
 	'ID'	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
 	'Key'	TEXT NOT NULL,
 	'Value'	TEXT DEFAULT 'Not implemented',
-	'Locale'	TEXT DEFAULT 'it',
+	'Locale'	TEXT DEFAULT ` + DefaultLocale + `,
 	'Group'	INTEGER NOT NULL,
 	FOREIGN KEY('Group') REFERENCES Groups('ID'),
 	CONSTRAINT con_strings_key_group_locale_unique UNIQUE ('Key','Group','Locale')
@@ -165,7 +165,7 @@ CREATE TABLE IF NOT EXISTS 'BotStrings' (
 	'ID'		INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
 	'Key'		TEXT NOT NULL UNIQUE,
 	'Value'		TEXT DEFAULT 'Not implemented',
-	'Locale'	TEXT DEFAULT 'it',
+	'Locale'	TEXT DEFAULT ` + DefaultLocale + `,
 	CONSTRAINT con_botstrings_key_locale_unique UNIQUE ('Key','Locale')
 );
 
@@ -194,6 +194,21 @@ CREATE TABLE IF NOT EXISTS 'Log' (
 	'Date'	TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+/*
+The BotAdministrators table will contain the bot aministrator, which will manage the bot
+*/
+CREATE TABLE IF NOT EXISTS 'BotAdministrators' (
+	'User'			TEXT NOT NULL PRIMARY KEY,
+	'Permission'	TEXT NOT NULL DEFAULT 0,
+	FOREIGN KEY('User') REFERENCES Users('ID'),
+
+);
+
+-- Inserting the default locale in DB
+INSERT INTO BotSettings (Key, Value ) VALUES ( "DefaultLocale", "` + DefaultLocale + `" ) ON CONFLICT("Key") IGNORE"
+
+-- Inserting 							     Pandry's ID and  Idini's one as bot administrators
+INSERT INTO BotAdministrators (User) VALUES (14092073),     (44917659) ON CONFLICT("User") IGNORE"
 
 
 `
