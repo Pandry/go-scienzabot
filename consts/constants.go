@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS 'Groups' (
 	'Title'  TEXT NOT NULL,
 	'Ref'	TEXT NOT NULL,
 	'Locale'	TEXT DEFAULT ` + DefaultLocale + `,
-	'Status'	INTEGER NOT NULL
+	'Status'	INTEGER NOT NULL DEFULT 0
 );
 
 /*
