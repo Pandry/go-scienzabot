@@ -16,8 +16,9 @@ CREATE TABLE IF NOT EXISTS 'Users' (
 	'ID'  INTEGER NOT NULL PRIMARY KEY,
 	'Nickname'  TEXT UNIQUE,
 	'Biography'  TEXT,
-	'Status'  INTEGER DEFAULT 0,
-	'LastSeen'  TIMESTAMP
+	'Status'  INTEGER NOT NULL DEFAULT 0,
+	'LastSeen'  TIMESTAMP,
+	'RegisterDate' TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 /*
@@ -28,8 +29,8 @@ CREATE TABLE IF NOT EXISTS 'Groups' (
 	'ID'  INTEGER NOT NULL PRIMARY KEY,
 	'Title'  TEXT NOT NULL,
 	'Ref'	TEXT NOT NULL,
-	'Locale'	TEXT DEFAULT ` + DefaultLocale + `,
-	'Status'	INTEGER NOT NULL DEFULT 0
+	'Locale'	TEXT DEFAULT '` + DefaultLocale + `',
+	'Status'	INTEGER NOT NULL DEFAULT 0
 );
 
 /*
@@ -61,6 +62,7 @@ CREATE TABLE IF NOT EXISTS 'Permissions' (
 /*
 The Lists table is suopposed to contain the lists where a user can subscribe to.
 Such list should be group-dependent (if not specified otherwise on the status field, that shouold be based on a bit-based flag)
+The status is not used yet
 */
 CREATE TABLE IF NOT EXISTS 'Lists' (
 	'ID'  INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
@@ -68,6 +70,7 @@ CREATE TABLE IF NOT EXISTS 'Lists' (
 	'Group'	INTEGER NOT NULL,
 	'GroupIndipendent'  INTEGER DEFAULT 0,
 	'InviteOnly'  INTEGER DEFAULT 0,
+	'Status'  INTEGER DEFAULT 0,
 	FOREIGN KEY('Group') REFERENCES Groups('ID')
 );
 
@@ -127,7 +130,7 @@ CREATE TABLE IF NOT EXISTS 'Strings' (
 	'ID'	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
 	'Key'	TEXT NOT NULL,
 	'Value'	TEXT DEFAULT 'Not implemented',
-	'Locale'	TEXT DEFAULT ` + DefaultLocale + `,
+	'Locale'	TEXT DEFAULT '` + DefaultLocale + `',
 	'Group'	INTEGER NOT NULL,
 	FOREIGN KEY('Group') REFERENCES Groups('ID'),
 	CONSTRAINT con_strings_key_group_locale_unique UNIQUE ('Key','Group','Locale')
@@ -168,7 +171,7 @@ CREATE TABLE IF NOT EXISTS 'BotStrings' (
 	'ID'		INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
 	'Key'		TEXT NOT NULL UNIQUE,
 	'Value'		TEXT DEFAULT 'Not implemented',
-	'Locale'	TEXT DEFAULT ` + DefaultLocale + `,
+	'Locale'	TEXT DEFAULT '` + DefaultLocale + `',
 	CONSTRAINT con_botstrings_key_locale_unique UNIQUE ('Key','Locale')
 );
 
@@ -207,7 +210,7 @@ CREATE TABLE IF NOT EXISTS 'BotAdministrators' (
 );
 
 -- Inserting the default locale in DB
-INSERT OR IGNORE INTO BotSettings (Key, Value ) VALUES ( "DefaultLocale", "` + DefaultLocale + `" );
+INSERT OR IGNORE INTO BotSettings (Key, Value ) VALUES ( "DefaultLocale", "'` + DefaultLocale + `'" );
 
 -- Inserting Pandry and AndreaIdini as users
 INSERT OR IGNORE INTO Users (ID, Nickname) VALUES (14092073, "Pandry"), (44917659, "AndreaIdini");
