@@ -71,6 +71,8 @@ CREATE TABLE IF NOT EXISTS 'Lists' (
 	'GroupIndipendent'  INTEGER DEFAULT 0,
 	'InviteOnly'  INTEGER DEFAULT 0,
 	'Status'  INTEGER DEFAULT 0,
+	'CreationDate' TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+	'LatestInvocationDate' TIMESTAMP
 	FOREIGN KEY('Group') REFERENCES Groups('ID')
 );
 
