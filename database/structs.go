@@ -2,11 +2,12 @@ package database
 
 //User represent the respective table in the database
 type User struct {
-	ID        int64
-	Nickname  string
-	Biography string
-	Status    int64
-	LastSeen  string
+	ID           int64
+	Nickname     string
+	Biography    string
+	Status       int64
+	LastSeen     string
+	RegisterDate string
 }
 
 //Group represent the respective table in the database
@@ -15,6 +16,7 @@ type Group struct {
 	Title  string
 	Ref    string
 	Locale string
+	Status int64
 }
 
 //Channel represent the respective table in the database
@@ -35,12 +37,12 @@ type Permission struct {
 
 //List represent the respective table in the database
 type List struct {
-	ID               int64
-	Name             string
-	GroupID          int64
-	GroupIndipendent int64
-	InviteOnly       int64
-	Status           int64
+	ID                   int64
+	Name                 string
+	GroupID              int64
+	Properties           int64
+	CreationDate         string
+	LatestInvocationDate string
 }
 
 //Bookmark represent the respective table in the database
