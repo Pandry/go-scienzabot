@@ -1,4 +1,4 @@
-package main
+package utils
 
 // Bitwise operations introduction
 //   Bitwise operations are operations that can be performed on a bit level
@@ -27,8 +27,8 @@ package main
 //   Comparing the result, we can see if the the user has the permission we requested or not.
 
 //HasPermission checks if the given user permission has the permission necessary to do an action (passed as permission in the 2nd arg)
-func HasPermission(userPermission int, permissionToCheck int) bool {
-	if userPermission&permissionToCheck == permissionToCheck {
+func HasPermission(actualPermission int, permissionToCheck int) bool {
+	if actualPermission&permissionToCheck == permissionToCheck {
 		return true
 	}
 	return false
@@ -36,11 +36,11 @@ func HasPermission(userPermission int, permissionToCheck int) bool {
 
 //SetPermission returns the new user permission value after assigning the new user.
 //Needs the initial user permission and the permission we want to add
-func SetPermission(userPermission int, permissionToSet int) int {
-	return userPermission | permissionToSet
+func SetPermission(actualPermission int, permissionToSet int) int {
+	return actualPermission | permissionToSet
 }
 
 //RemovePermission returns a user's new permission, removing the permissiopn passed as 2nd arg
-func RemovePermission(userPermission int, permissionToRemove int) int {
-	return userPermission &^ permissionToRemove
+func RemovePermission(actualPermission int, permissionToRemove int) int {
+	return actualPermission &^ permissionToRemove
 }
