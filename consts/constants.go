@@ -39,11 +39,11 @@ from a group to a channel referring to a particular message
 */
 CREATE TABLE IF NOT EXISTS 'Channels' (
 	'ID'  INTEGER NOT NULL PRIMARY KEY,
-	'Group'  INTEGER NOT NULL,
+	'GroupID'  INTEGER NOT NULL,
 	'Name'	TEXT NOT NULL,
 	'Ref'	TEXT NOT NULL,	
-	FOREIGN KEY('Group') REFERENCES Groups('ID'),
-	CONSTRAINT con_channels_channel_group__unique UNIQUE ('ID','Group')
+	FOREIGN KEY('GroupID') REFERENCES Groups('ID'),
+	CONSTRAINT con_channels_channel_group__unique UNIQUE ('ID','GroupID')
 );
 
 /*
@@ -51,12 +51,12 @@ The Permissions table is supposed to contain the permissions for each user in ea
 */
 CREATE TABLE IF NOT EXISTS 'Permissions' (
 	'ID'  INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-	'User'	INTEGER NOT NULL,
-	'Group'	INTEGER,
+	'UserID'	INTEGER NOT NULL,
+	'GroupID'	INTEGER,
 	'Permission' INTEGER DEFAULT 0,
-	FOREIGN KEY('User') REFERENCES Users('ID'),
-	FOREIGN KEY('Group') REFERENCES Groups('ID'),
-	CONSTRAINT con_perm_user_group_perm_unique UNIQUE ('User','Group','Permission')
+	FOREIGN KEY('UserID') REFERENCES Users('ID'),
+	FOREIGN KEY('GroupID') REFERENCES Groups('ID'),
+	CONSTRAINT con_perm_user_group_perm_unique UNIQUE ('UserID','GroupID','Permission')
 );
 
 /*
@@ -67,11 +67,11 @@ The status is not used yet
 CREATE TABLE IF NOT EXISTS 'Lists' (
 	'ID'  INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 	'Name'  TEXT NOT NULL UNIQUE,
-	'Group'	INTEGER NOT NULL,
+	'GroupID'	INTEGER NOT NULL,
 	'Properties'  INTEGER DEFAULT 0,
 	'CreationDate' TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	'LatestInvocationDate' TIMESTAMP,
-	FOREIGN KEY('Group') REFERENCES Groups('ID')
+	FOREIGN KEY('GroupID') REFERENCES Groups('ID')
 );
 
 /*
@@ -83,15 +83,15 @@ TODO: Remembere to check if the message still exists
 */
 CREATE TABLE IF NOT EXISTS 'Bookmarks' (
 	'ID'  INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-	'User'  INTEGER NOT NULL,
-	'Group'  INTEGER NOT NULL,
+	'UserID'  INTEGER NOT NULL,
+	'GroupID'  INTEGER NOT NULL,
 	'MessageID'	INTEGER NOT NULL,
 	'Alias'	TEXT,
-	'Status' INTEGER,
+	'Status' INTEGER DEFAULT 0,
 	'MessageContent' TEXT, 
-	FOREIGN KEY('User') REFERENCES Users('ID'),
-	FOREIGN KEY('Group') REFERENCES Groups('ID'),
-	CONSTRAINT con_bookm_user_group_unique UNIQUE ('User','Group')
+	FOREIGN KEY('UserID') REFERENCES Users('ID'),
+	FOREIGN KEY('GroupID') REFERENCES Groups('ID'),
+	CONSTRAINT con_bookm_user_group_unique UNIQUE ('UserID','GroupID')
 
 );
 
@@ -100,11 +100,11 @@ The Subscriptions table is used to subscribe a specific user to a "list" where h
 */
 CREATE TABLE IF NOT EXISTS 'Subscriptions' (
 	'ID'  INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-	'List'  INTEGER NOT NULL,
-	'User'  INTEGER NOT NULL,
-	FOREIGN KEY('User') REFERENCES Users('ID'),
-	FOREIGN KEY('List') REFERENCES 'Lists'('ID'),
-	CONSTRAINT con_subs_user_list_unique UNIQUE ('User','List')
+	'ListID'  INTEGER NOT NULL,
+	'UserID'  INTEGER NOT NULL,
+	FOREIGN KEY('UserID') REFERENCES Users('ID'),
+	FOREIGN KEY('ListID') REFERENCES 'Lists'('ID'),
+	CONSTRAINT con_subs_user_list_unique UNIQUE ('UserID','ListID')
 );
 
 /*
@@ -113,12 +113,12 @@ This allows the bot to count the message of a specific user on a multitude of gr
 */
 CREATE TABLE IF NOT EXISTS 'MessageCount' (
 	'ID'  INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-	'User'  INTEGER NOT NULL,
-	'Group'  INTEGER NOT NULL,
+	'UserID'  INTEGER NOT NULL,
+	'GroupID'  INTEGER NOT NULL,
 	'MessageCount'  INTEGER NOT NULL,
-	FOREIGN KEY('User') REFERENCES Users('ID'),
-	FOREIGN KEY('Group') REFERENCES Groups('ID'),
-	CONSTRAINT con_msgcoubt_user_group_unique UNIQUE ('User','Group')
+	FOREIGN KEY('UserID') REFERENCES Users('ID'),
+	FOREIGN KEY('GroupID') REFERENCES Groups('ID'),
+	CONSTRAINT con_msgcoubt_user_group_unique UNIQUE ('UserID','GroupID')
 );
 
 /*
@@ -131,9 +131,9 @@ CREATE TABLE IF NOT EXISTS 'Strings' (
 	'Key'	TEXT NOT NULL,
 	'Value'	TEXT DEFAULT 'Not implemented',
 	'Locale'	TEXT DEFAULT '` + DefaultLocale + `',
-	'Group'	INTEGER NOT NULL,
-	FOREIGN KEY('Group') REFERENCES Groups('ID'),
-	CONSTRAINT con_strings_key_group_locale_unique UNIQUE ('Key','Group','Locale')
+	'GroupID'	INTEGER NOT NULL,
+	FOREIGN KEY('GroupID') REFERENCES Groups('ID'),
+	CONSTRAINT con_strings_key_group_locale_unique UNIQUE ('Key','GroupID','Locale')
 );
 
 /*
@@ -145,9 +145,9 @@ CREATE TABLE IF NOT EXISTS 'Settings' (
 	'ID'	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
 	'Key'	TEXT NOT NULL,
 	'Value'	TEXT DEFAULT 'Not implemented',
-	'Group'	INTEGER NOT NULL,
-	FOREIGN KEY('Group') REFERENCES Groups('ID'),
-	CONSTRAINT con_setting_key_group_unique UNIQUE ('Key','Group')
+	'GroupID'	INTEGER NOT NULL,
+	FOREIGN KEY('GroupID') REFERENCES Groups('ID'),
+	CONSTRAINT con_setting_key_group_unique UNIQUE ('Key','GroupID')
 );
 
 /*
@@ -204,9 +204,9 @@ CREATE TABLE IF NOT EXISTS 'Log' (
 The BotAdministrators table will contain the bot aministrator, which will manage the bot
 */
 CREATE TABLE IF NOT EXISTS 'BotAdministrators' (
-	'User'			TEXT NOT NULL PRIMARY KEY,
+	'UserID'			TEXT NOT NULL PRIMARY KEY,
 	'Permissions'	TEXT NOT NULL DEFAULT 0,
-	FOREIGN KEY('User') REFERENCES Users('ID')
+	FOREIGN KEY('UserID') REFERENCES Users('ID')
 );
 
 -- Inserting the default locale in DB
