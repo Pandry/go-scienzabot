@@ -40,7 +40,7 @@ type List struct {
 	GroupID          int64
 	GroupIndipendent int64
 	InviteOnly       int64
-	status           int64
+	Status           int64
 }
 
 //Bookmark represent the respective table in the database
