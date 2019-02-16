@@ -20,7 +20,7 @@ const (
 )
 
 //UserPermissionAdmin is the admin privilege. It allows to do admin stuff
-//TODO determine what admins can do and what not.
+//TODO: determine what admins can do and what not.
 //UserPermissionCanAddAdmins is the privilege that allows an admin to add another one
 //UserPermissionCanRemoveAdmins is the privilege that allows an admin to remove another one - dangerous!
 //UserPermissionCanForwardToChannel is the privilege that allows an user to forward to a channel
@@ -34,4 +34,11 @@ const (
 	UserPermissionCanForwardToChannel
 	UserPermissionCanCreateList
 	UserPermissionCanRemoveList
+)
+
+//ListPropertyGroupIndipendent is the property that defines a list that is available in any group
+//ListPropertyGroupLocked is the property that defines a list that is joinable only via invite
+const (
+	ListPropertyGroupIndipendent = 1 << iota
+	ListPropertyGroupLocked
 )
