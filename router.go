@@ -10,15 +10,22 @@ import (
 
 func (ctx *Context) route() {
 
+	switch {
 	//Return message if there's no update
-	if ctx.Update == nil {
+	case ctx.Update == nil:
 		return
-	}
-
-	if ctx.Update.Message != nil {
+	case ctx.Update.Message != nil:
 		//General message
 
 		message := ctx.Update.Message
+		userIsInGroup := message.Chat.IsSuperGroup() || message.Chat.IsGroup()
+		_, err := ctx.Database.GetUser(int64(message.From.ID))
+		userIsRegistred := err == nil
+
+		//Count last time the user was seen in a group
+		if userIsInGroup && userIsRegistred {
+			ctx.Database.UpdateUserLastSeen(message.From.ID, message.Time())
+		}
 
 		if message.Text != "" {
 			//Text message
@@ -98,77 +105,118 @@ func (ctx *Context) route() {
 					break
 
 				}
-
 			}
 
-		} else if message.Sticker != nil {
-			//Sticker
+		} else {
+			switch {
 
-		} else if message.Photo != nil {
-			//Photo
+			case message.Sticker != nil:
+				//Sticker
 
-		} else if message.Voice != nil {
-			//Voice audio file
+				break
 
-		} else if message.Document != nil {
-			//Document
+			case message.Photo != nil:
+				//Photo
 
-		} else if message.Location != nil {
+				break
 
-		} else if message.Contact != nil {
+			case message.Voice != nil:
+				//Voice audio file
 
-		} else if message.NewChatMembers != nil {
-			//New user(s)
-			log.Println("User joined!\n Users' Nickname: ")
-			for _, user := range *ctx.Update.Message.NewChatMembers {
-				log.Println(user.UserName)
+				break
+
+			case message.Document != nil:
+				//Document
+
+				break
+
+			case message.Location != nil:
+
+				break
+
+			case message.Contact != nil:
+
+				break
+
+			case message.NewChatMembers != nil:
+				//New user(s)
+				log.Println("User joined!\n Users' Nickname: ")
+				for _, user := range *ctx.Update.Message.NewChatMembers {
+					log.Println(user.UserName)
+				}
+				if ctx.Update.Message.GroupChatCreated {
+					log.Println("This is a group just created! ")
+				}
+
+				//User joined
+				break
+
+			case message.VideoNote != nil:
+				//Video circolare
+
+				break
+
+			case message.Video != nil:
+
+				break
+
+			case message.Venue != nil:
+				//NO IDEA     <--- non capisco (Bhez)
+				break
+
+			case message.LeftChatMember != nil:
+				//User removed (could be the bot)
+				break
+
+			case message.PinnedMessage != nil:
+
+				break
+
+			case message.NewChatPhoto != nil:
+
+				break
+
+			case message.NewChatTitle != "":
+
+				break
+
+			case message.MigrateToChatID != 0:
+
+				break
 			}
-			if ctx.Update.Message.GroupChatCreated {
-				log.Println("This is a group just created! ")
-			}
-
-			//User joined
-		} else if message.VideoNote != nil {
-			//Video circolare
-
-		} else if message.Video != nil {
-
-		} else if message.Venue != nil {
-			//NO IDEA     <--- non capisco (Bhez)
-		} else if message.LeftChatMember != nil {
-			//User removed (could be the bot)
-		} else if message.PinnedMessage != nil {
-
-		} else if message.NewChatPhoto != nil {
-
-		} else if message.NewChatTitle != "" {
-
-		} else if message.MigrateToChatID != 0 {
-
 		}
 
-	} else if ctx.Update.EditedMessage != nil {
+	case ctx.Update.EditedMessage != nil:
 		//Edited text message
-	} else if ctx.Update.CallbackQuery != nil {
+		break
+
+	case ctx.Update.CallbackQuery != nil:
 		//Callback query
-	} else if ctx.Update.InlineQuery != nil {
+		break
+
+	case ctx.Update.InlineQuery != nil:
 		//Inline query
 		return
-	} else if ctx.Update.ChannelPost != nil {
+
+	case ctx.Update.ChannelPost != nil:
 		//Channel post
 		return
-	} else if ctx.Update.EditedChannelPost != nil {
+
+	case ctx.Update.EditedChannelPost != nil:
 		//Edited channel post
 		return
-	} else if ctx.Update.PreCheckoutQuery != nil {
+
+	case ctx.Update.PreCheckoutQuery != nil:
 		//Pre checkoput query - useless for now
 		return
-	} else if ctx.Update.ShippingQuery != nil {
+
+	case ctx.Update.ShippingQuery != nil:
 		//Pre shipping query
 		return
-	} else if ctx.Update.ChosenInlineResult != nil {
+
+	case ctx.Update.ChosenInlineResult != nil:
 		//Chosen inline result -> Chosen inline element?
 		return
+
 	}
-	return
 }
