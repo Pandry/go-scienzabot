@@ -1,6 +1,9 @@
 package database
 
-import "errors"
+import (
+	"database/sql"
+	"errors"
+)
 
 /*
 CREATE TABLE IF NOT EXISTS 'Permissions' (
@@ -15,8 +18,27 @@ CREATE TABLE IF NOT EXISTS 'Permissions' (
 */
 
 //SetPermissions sets the permissions of  user in a group
-func (db *SQLiteDB) SetPermissions(userID int, groupID int, permissions int) error {
-	stmt, err := db.Prepare("INSERT INTO Permissions (`User`, `Group` , `Permission`) VALUES (?,?,?) ON CONFLICT(`User`,`Group`,`Permission`) DO UPDATE SET `Permission` = Excluded.Permission")
+func (db *SQLiteDB) SetPermissions(prm Permission) error {
+
+	query, err := db.Exec("INSERT INTO Permissions (`UserID`, `GroupID` , `Permission`) VALUES (?,?,?) "+
+		"ON CONFLICT(`User`,`Group`,`Permission`) DO UPDATE "+
+		"SET `Permission` = Excluded.Permission", prm.UserID, prm.GroupID, prm.Permission)
+	if err != nil {
+		db.AddLogEvent(Log{Event: "SetPermissions_QueryFailed", Message: "Impossible to create the execute the query", Error: err.Error()})
+		return err
+	}
+	rows, err := query.RowsAffected()
+	if err != nil {
+		db.AddLogEvent(Log{Event: "SetPermissions_RowsInfoNotGot", Message: "Impossible to get afftected rows", Error: err.Error()})
+		return err
+	}
+	if rows < 1 {
+		db.AddLogEvent(Log{Event: "SetPermissions_NoRowsAffected", Message: "No rows affected", Error: err.Error()})
+		return NoRowsAffected{error: errors.New("No rows affected from the query")}
+	}
+	return err
+
+	/*stmt, err := db.Prepare("INSERT INTO Permissions (`User`, `Group` , `Permission`) VALUES (?,?,?) ON CONFLICT(`User`,`Group`,`Permission`) DO UPDATE SET `Permission` = Excluded.Permission")
 	if err != nil {
 		db.AddLogEvent(Log{Event: "SetPermissions_QueryFailed", Message: "The query for the SetPermissions function failed", Error: err.Error()})
 		return err
@@ -41,5 +63,21 @@ func (db *SQLiteDB) SetPermissions(userID int, groupID int, permissions int) err
 		return nil
 	}
 	db.AddLogEvent(Log{Event: "SetPermissions_NotChangesMade", Message: "No changes was made to the database!", Error: err.Error()})
-	return errors.New("No changes to the database was made")
+	return errors.New("No changes to the database was made")*/
+}
+
+//GetPermission returns the permission of a user given its id and the group
+func (db *SQLiteDB) GetPermission(userID int64, groupID int64) (int64, error) {
+	var perm int64
+	err := db.QueryRow("SELECT `Permission` FROM Permissions WHERE `ID`=?", "a").Scan(&perm)
+	switch {
+	case err == sql.ErrNoRows:
+		db.AddLogEvent(Log{Event: "GetPermission_ErrorNoRows", Message: "Impossible to get rows", Error: err.Error()})
+		return perm, err
+	case err != nil:
+		db.AddLogEvent(Log{Event: "GetPermission_ErrorUnknown", Message: "Uknown error verified", Error: err.Error()})
+		return perm, err
+	default:
+		return perm, nil
+	}
 }

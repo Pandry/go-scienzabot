@@ -4,3 +4,8 @@ package database
 type NoRowsAffected struct {
 	error
 }
+
+//ParameterError is an error thrown when a parameter misses or is invalid
+type ParameterError struct {
+	error
+}

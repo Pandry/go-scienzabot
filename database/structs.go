@@ -91,8 +91,8 @@ type Settings struct {
 	GroupID int64
 }
 
-//BotSettings represent the respective table in the database
-type BotSettings struct {
+//BotSetting represent the respective table in the database
+type BotSetting struct {
 	ID    int64
 	Key   string
 	Value string

@@ -1,5 +1,49 @@
 package database
 
+import (
+	"database/sql"
+	"errors"
+)
+
+//GetStringValue searches for the string value in the database
+func (db *SQLiteDB) GetStringValue(key string, group int, locale string) (string, error) {
+	res := ""
+	err := db.QueryRow("SELECT Value FROM `Strings` WHERE `Key` = ? AND `Group` = ? AND `Locale` = ?",
+		key, group, locale).Scan(&res)
+	switch {
+	case err == sql.ErrNoRows:
+		db.AddLogEvent(Log{Event: "GetStringValue_ErrorNoRows", Message: "Impossible to get rows", Error: err.Error()})
+		return res, err
+	case err != nil:
+		db.AddLogEvent(Log{Event: "GetStringValue_ErrorUnknown", Message: "Uknown error verified", Error: err.Error()})
+		return res, err
+	default:
+		return res, err
+	}
+}
+
+//SetStringValue sets a value in the bot settings table
+func (db *SQLiteDB) SetStringValue(key string, value string, group int, locale string) error {
+	query, err := db.Exec(
+		"INSERT INTO Settings (`Key`, `Value` , `Group`) VALUES (?,?,?) "+
+			"ON CONFLICT(`Key`, `Group`) DO UPDATE SET `Value` = Excluded.Value",
+		key, value, group)
+	if err != nil {
+		db.AddLogEvent(Log{Event: "SetStringValue_QueryFailed", Message: "Impossible to create the execute the query", Error: err.Error()})
+		return err
+	}
+	rows, err := query.RowsAffected()
+	if err != nil {
+		db.AddLogEvent(Log{Event: "SetStringValue_RowsInfoNotGot", Message: "Impossible to get afftected rows", Error: err.Error()})
+		return err
+	}
+	if rows < 1 {
+		db.AddLogEvent(Log{Event: "SetStringValue_NoRowsAffected", Message: "No rows affected", Error: err.Error()})
+		return NoRowsAffected{error: errors.New("No rows affected from the query")}
+	}
+	return err
+}
+
 /*
 
 import (
