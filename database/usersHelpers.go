@@ -23,8 +23,8 @@ CREATE TABLE IF NOT EXISTS 'Users' (
 //AddUser takes a a database.User struct as parameter and insert it in the database
 //Only ID, Nickname and Status will be considered since other ones are supposed to be setted later
 func (db *SQLiteDB) AddUser(usr User) error {
-	query, err := db.Exec("INSERT INTO Users (`ID`, `Nickname`, `Status`) VALUES (?,?,?)",
-		usr.ID, usr.Nickname, usr.Status)
+	query, err := db.Exec("INSERT INTO Users (`ID`, `Nickname`, `Status`, `Permissions`) VALUES (?,?,?,?)",
+		usr.ID, usr.Nickname, usr.Status, usr.Permissions)
 	if err != nil {
 		db.AddLogEvent(Log{Event: "AddUser_QueryFailed", Message: "Impossible to create the execute the query", Error: err.Error()})
 		return err
@@ -47,9 +47,9 @@ func (db *SQLiteDB) GetUser(userID int64) (User, error) {
 		usr User
 		bio sql.NullString
 	)
-	err := db.QueryRow("SELECT `ID`, `Nickname`, `Biography`, `Status`, `LastSeen`, `RegisterDate` "+
+	err := db.QueryRow("SELECT `ID`, `Nickname`, `Biography`, `Status`, `LastSeen`, `RegisterDate`, `Permissions` "+
 		"FROM Table WHERE `ID`=?", userID).Scan(
-		&usr.ID, &usr.Nickname, &bio, &usr.Status, &usr.LastSeen, &usr.RegisterDate)
+		&usr.ID, &usr.Nickname, &bio, &usr.Status, &usr.LastSeen, &usr.RegisterDate, &usr.Permissions)
 
 	if bio.Valid {
 		usr.Biography = bio.String
@@ -70,8 +70,8 @@ func (db *SQLiteDB) GetUser(userID int64) (User, error) {
 //All the fields will be used, so make sure that every field of the user struct contains something!
 func (db *SQLiteDB) UpdateUser(user User) error {
 
-	query, err := db.Exec("UPDATE Users SET `Nickname` = ?,`Biography` = ?, `Status` = ?, `LastSeen` = ?  WHERE `ID`=?",
-		user.Nickname, user.Biography, user.Status, user.LastSeen, user.ID)
+	query, err := db.Exec("UPDATE Users SET `Nickname` = ?,`Biography` = ?, `Status` = ?, `LastSeen` = ?, `Permissions` = ?  WHERE `ID`=?",
+		user.Nickname, user.Biography, user.Status, user.LastSeen, user.Permissions, user.ID)
 	if err != nil {
 		db.AddLogEvent(Log{Event: "UpdateUser_QueryFailed", Message: "Impossible to create the execute the query", Error: err.Error()})
 		return err
@@ -90,7 +90,7 @@ func (db *SQLiteDB) UpdateUser(user User) error {
 }
 
 //UserExists returs a bool that indicates if the user exists or not
-func (db *SQLiteDB) UserExists(userID int) bool {
+func (db *SQLiteDB) UserExists(userID int64) bool {
 	err := db.QueryRow("SELECT 1 FROM `Users` WHERE `ID`=?", userID).Scan()
 	switch {
 	case err == sql.ErrNoRows:
@@ -124,7 +124,7 @@ func (db *SQLiteDB) GetUserIDByNickname(nickname string) (int64, error) {
 }
 
 //SetUserBiography sets the biography of a user
-func (db *SQLiteDB) SetUserBiography(userID int, bio string) error {
+func (db *SQLiteDB) SetUserBiography(userID int64, bio string) error {
 	query, err := db.Exec("UPDATE Users SET `Biography` = ? WHERE `ID` = ?", bio, userID)
 	if err != nil {
 		db.AddLogEvent(Log{Event: "SetUserBiography_QueryFailed", Message: "Impossible to create the execute the query", Error: err.Error()})
@@ -143,7 +143,7 @@ func (db *SQLiteDB) SetUserBiography(userID int, bio string) error {
 }
 
 //GetUserBiography returns the biography of a user
-func (db *SQLiteDB) GetUserBiography(userID int) (string, error) {
+func (db *SQLiteDB) GetUserBiography(userID int64) (string, error) {
 	var bio sql.NullString
 	err := db.QueryRow("SELECT `Biography` FROM Users WHERE `ID` = ?", userID).Scan(&bio)
 	switch {
@@ -158,8 +158,43 @@ func (db *SQLiteDB) GetUserBiography(userID int) (string, error) {
 	}
 }
 
+//SetUserPermissions sets the permissions of a user
+func (db *SQLiteDB) SetUserPermissions(userID int64, perm int64) error {
+	query, err := db.Exec("UPDATE Users SET `Permissions` = ? WHERE `ID` = ?", perm, userID)
+	if err != nil {
+		db.AddLogEvent(Log{Event: "SetUserPermissions_QueryFailed", Message: "Impossible to create the execute the query", Error: err.Error()})
+		return err
+	}
+	rows, err := query.RowsAffected()
+	if err != nil {
+		db.AddLogEvent(Log{Event: "SetUserPermissions_RowsInfoNotGot", Message: "Impossible to get afftected rows", Error: err.Error()})
+		return err
+	}
+	if rows < 1 {
+		db.AddLogEvent(Log{Event: "SetUserPermissions_NoRowsAffected", Message: "No rows affected", Error: err.Error()})
+		return NoRowsAffected{error: errors.New("No rows affected from the query")}
+	}
+	return err
+}
+
+//GetUserPermissions returns the permissions of a user
+func (db *SQLiteDB) GetUserPermissions(userID int64) (int64, error) {
+	var perm int64
+	err := db.QueryRow("SELECT `Permissions` FROM Users WHERE `ID` = ?", userID).Scan(&perm)
+	switch {
+	case err == sql.ErrNoRows:
+		db.AddLogEvent(Log{Event: "GetUserPermissions_ErrorNoRows", Message: "Impossible to get rows", Error: err.Error()})
+		return perm, err
+	case err != nil:
+		db.AddLogEvent(Log{Event: "GetUserPermissions_ErrorUnknown", Message: "Uknown error verified", Error: err.Error()})
+		return perm, err
+	default:
+		return perm, err
+	}
+}
+
 //SetUserNickname sets the nickname of a user
-func (db *SQLiteDB) SetUserNickname(userID int, userNickname string) error {
+func (db *SQLiteDB) SetUserNickname(userID int64, userNickname string) error {
 	query, err := db.Exec("UPDATE Users SET `Nickname` = ? WHERE `ID` = ?", userNickname, userID)
 	if err != nil {
 		db.AddLogEvent(Log{Event: "SetUserNickname_QueryFailed", Message: "Impossible to create the execute the query", Error: err.Error()})
@@ -178,7 +213,7 @@ func (db *SQLiteDB) SetUserNickname(userID int, userNickname string) error {
 }
 
 //UpdateUserLastSeen updates the lastseen field
-func (db *SQLiteDB) UpdateUserLastSeen(userID int, lastSeen time.Time) error {
+func (db *SQLiteDB) UpdateUserLastSeen(userID int64, lastSeen time.Time) error {
 	lastSeenString := lastSeen.Unix()
 	query, err := db.Exec("UPDATE Users SET `LastSeen` = ? WHERE `ID` = ?", lastSeenString, userID)
 	if err != nil {
@@ -198,6 +233,6 @@ func (db *SQLiteDB) UpdateUserLastSeen(userID int, lastSeen time.Time) error {
 }
 
 //UpdateUserLastSeenToNow updates the lastseen field to the actual time
-func (db *SQLiteDB) UpdateUserLastSeenToNow(userID int) error {
+func (db *SQLiteDB) UpdateUserLastSeenToNow(userID int64) error {
 	return db.UpdateUserLastSeen(userID, time.Now())
 }
