@@ -6,6 +6,7 @@ type User struct {
 	Nickname     string
 	Biography    string
 	Status       int64
+	Permissions  int64
 	LastSeen     string
 	RegisterDate string
 }
@@ -117,10 +118,4 @@ type Log struct {
 	Error          string
 	Severity       int64
 	Date           string
-}
-
-//BotAdministrator represent the respective table in the database
-type BotAdministrator struct {
-	UserID      int64
-	Permissions int64
 }
