@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS 'Groups' (
 	'ID'  INTEGER NOT NULL PRIMARY KEY,
 	'Title'  TEXT NOT NULL,
 	'Ref'	TEXT NOT NULL,
-	'Locale'	TEXT DEFAULT '` + DefaultLocale + `',
+	'Locale'	TEXT NOT NULL DEFAULT '` + DefaultLocale + `',
 	'Status'	INTEGER NOT NULL DEFAULT 0
 );
 
@@ -45,7 +45,7 @@ The Permissions table is supposed to contain the permissions for each user in ea
 CREATE TABLE IF NOT EXISTS 'Permissions' (
 	'ID'  INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 	'UserID'	INTEGER NOT NULL,
-	'GroupID'	INTEGER,
+	'GroupID'	INTEGER NOT NULL,
 	'Permission' INTEGER DEFAULT 0,
 	FOREIGN KEY('UserID') REFERENCES Users('ID'),
 	FOREIGN KEY('GroupID') REFERENCES Groups('ID'),
@@ -64,7 +64,9 @@ CREATE TABLE IF NOT EXISTS 'Lists' (
 	'Properties'  INTEGER DEFAULT 0,
 	'CreationDate' TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	'LatestInvocationDate' TIMESTAMP,
-	FOREIGN KEY('GroupID') REFERENCES Groups('ID')
+	'Parent' INTEGER,
+	FOREIGN KEY('GroupID') REFERENCES Groups('ID'),
+    FOREIGN KEY('Parent') REFERENCES Lists('ID')
 );
 
 /*
@@ -82,6 +84,8 @@ CREATE TABLE IF NOT EXISTS 'Bookmarks' (
 	'Alias'	TEXT,
 	'Status' INTEGER DEFAULT 0,
 	'MessageContent' TEXT, 
+	'CreationDate' TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	'LastAccessDate' TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	FOREIGN KEY('UserID') REFERENCES Users('ID'),
 	FOREIGN KEY('GroupID') REFERENCES Groups('ID'),
 	CONSTRAINT con_bookm_user_group_unique UNIQUE ('UserID','GroupID')
@@ -209,7 +213,7 @@ INSERT OR IGNORE INTO BotSettings (Key, Value ) VALUES ( "DefaultLocale", "'` + 
 INSERT OR IGNORE INTO Users (ID, Nickname) VALUES (14092073, "Pandry"), (44917659, "AndreaIdini");
 
 -- Inserting 							     Pandry's ID and  Idini's one as bot administrators
-INSERT OR IGNORE INTO BotAdministrators (User) VALUES (14092073),     (44917659);
+INSERT OR IGNORE INTO BotAdministrators (UserID) VALUES (14092073),     (44917659);
 
 
 `
