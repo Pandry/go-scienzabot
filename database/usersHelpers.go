@@ -12,6 +12,8 @@ import (
 'Status'  INTEGER DEFAULT 0,
 'LastSeen*/
 
+//TODO: Remove user
+
 //AddUser takesa a database.User struct as parameter and insert it in the database
 //Only ID, Nickname and Status will be considered since other ones are supposed to be setted later
 func (db *SQLiteDB) AddUser(usr User) error {
@@ -24,9 +26,11 @@ func (db *SQLiteDB) AddUser(usr User) error {
 	defer stmt.Close()
 
 	//And we execute it passing the parameters
-	stmt.Exec(usr.ID, usr.Nickname, usr.Status)
-
-	return nil
+	_, err = stmt.Exec(usr.ID, usr.Nickname, usr.Status)
+	if err != nil {
+		db.AddLogEvent(Log{Event: "AddUser_ExecutionQueryFailed", Message: "Impossible to execute the AddUser query", Error: err.Error()})
+	}
+	return err
 }
 
 //GetUser returns a user using the database.user struct
