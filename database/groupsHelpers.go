@@ -87,7 +87,7 @@ func (db *SQLiteDB) GroupExists(userID int) bool {
 
 	default:
 		//Success
-		if res.Valid && res.Int64 == 1 {
+		if res.Valid && res.Int64 > 0 {
 			return true
 		}
 		return false
@@ -253,4 +253,66 @@ func (db *SQLiteDB) UpdateGroupStatus(groupID int, status int) error {
 		//Success
 		return nil
 	}
+}
+
+//GetGroups returns a slice containing all the groups in the database
+func (db *SQLiteDB) GetGroups() ([]Group, error) {
+	var result []Group
+
+	stmt, err := db.Prepare("SELECT `ID`,`Title`,`Status`,`Locale`,`Ref` FROM Groups")
+	if err != nil {
+		//Log the error
+		db.AddLogEvent(Log{Event: "GetGroups_QueryFailed", Message: "Impossible to create the GetGroups preparation query", Error: err.Error()})
+		return nil, err
+	}
+	//We want to close the connection to the database once we stop using it
+	defer stmt.Close()
+
+	//Then we execute the query passing the userID to the scan function
+	query, err := stmt.Query()
+
+	if err != nil {
+		db.AddLogEvent(Log{Event: "GetGroups_QueryExecutionFailed", Message: "Impossible execute the GetGroups query", Error: err.Error()})
+		return nil, err
+	}
+
+	//We than create some types that are nullable (some filends in the DB can be null and the default types
+	//Does not support null values)
+
+	var title, locale, ref sql.NullString
+	var id, status int64
+
+	for query.Next() {
+		var grp Group
+		//We then scan the query
+		err = query.Scan(&id, &title, &status, &locale, &ref)
+		grp.ID = id
+		grp.Status = status
+		//And check for errors
+		switch {
+		case err == sql.ErrNoRows:
+			//Group does not exist - DAFUQ?!
+			db.AddLogEvent(Log{Event: "GetGroups_NoRows", Message: "Group not gound in database - this should NEVER happen, something's wrong!", Error: err.Error()})
+			//return result, err
+
+		case err != nil:
+			db.AddLogEvent(Log{Event: "GetGroups_UncaughtError", Message: "A error happened and it was not identified", Error: err.Error()})
+			//return result, err
+
+		default:
+			//result.LastSeen, err = time.Parse("2006-01-02 20:50:59", lastseen)
+			//Success
+			if title.Valid {
+				grp.Title = title.String
+			}
+			if locale.Valid {
+				grp.Title = locale.String
+			}
+			if ref.Valid {
+				grp.Title = ref.String
+			}
+			result = append(result, grp)
+		}
+	}
+	return result, err
 }
