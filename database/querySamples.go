@@ -3,6 +3,7 @@ package database
 import (
 	"database/sql"
 	"errors"
+	"log"
 )
 
 func (db *SQLiteDB) insertQuery() error {
@@ -78,23 +79,25 @@ func (db *SQLiteDB) selectSingleQuery() error {
 }
 
 func (db *SQLiteDB) selectMultipleQuery() error {
-	query, err := db.Query("SELECT * FROM Table WHERE `a`=?", "a")
-	defer query.Close()
+	rows, err := db.Query("SELECT * FROM Table WHERE `a`=?", "a")
+	defer rows.Close()
 	if err != nil {
 		db.AddLogEvent(Log{Event: "_ErorExecutingTheQuery", Message: "Impossible to get afftected rows", Error: err.Error()})
 		return err
 	}
 	strings := make([]string, 0)
-	for query.Next() {
+	for rows.Next() {
 		var name string
-		if err := query.Scan(&name); err != nil {
+		if err := rows.Scan(&name); err != nil {
 			db.AddLogEvent(Log{Event: "_RowQueryFetchResultFailed", Message: "Impossible to get data from the row", Error: err.Error()})
 		}
 		strings = append(strings, name)
 	}
-	if !query.NextResultSet() {
+	if !rows.NextResultSet() {
 		db.AddLogEvent(Log{Event: "_RowNotFetched", Message: "Some rows in the query were not fetched", Error: err.Error()})
-
+	}
+	if err := rows.Err(); err != nil {
+		log.Fatal(err)
 	}
 
 	return err
