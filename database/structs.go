@@ -43,6 +43,7 @@ type List struct {
 	Properties           int64
 	CreationDate         string
 	LatestInvocationDate string
+	Parent               int64
 }
 
 //Bookmark represent the respective table in the database
@@ -54,6 +55,8 @@ type Bookmark struct {
 	Alias          string
 	Status         int64
 	MessageContent string
+	CreationDate   string
+	LastAccessDate string
 }
 
 //Subscription represent the respective table in the database
