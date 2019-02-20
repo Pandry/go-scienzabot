@@ -3,11 +3,15 @@ package database
 import (
 	"database/sql"
 	"errors"
+	"scienzabot/consts"
 )
 
 //GetStringValue searches for the string value in the database
 func (db *SQLiteDB) GetStringValue(key string, group int, locale string) (string, error) {
 	res := ""
+	if locale == "" {
+		locale = consts.DefaultLocale
+	}
 	err := db.QueryRow("SELECT Value FROM `Strings` WHERE `Key` = ? AND `Group` = ? AND `Locale` = ?",
 		key, group, locale).Scan(&res)
 	switch {
@@ -24,6 +28,9 @@ func (db *SQLiteDB) GetStringValue(key string, group int, locale string) (string
 
 //SetStringValue sets a value in the bot settings table
 func (db *SQLiteDB) SetStringValue(key string, value string, group int, locale string) error {
+	if locale == "" {
+		locale = consts.DefaultLocale
+	}
 	query, err := db.Exec(
 		"INSERT INTO Settings (`Key`, `Value` , `Group`) VALUES (?,?,?) "+
 			"ON CONFLICT(`Key`, `Group`) DO UPDATE SET `Value` = Excluded.Value",
