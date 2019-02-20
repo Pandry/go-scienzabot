@@ -18,10 +18,6 @@ CREATE TABLE IF NOT EXISTS 'Lists' (
 );
 */
 
-// TODO:
-//ListIsGroupIndipendent
-//ListIsInviteOnly
-
 //GetLists returns an array of lists given a group
 func (db *SQLiteDB) GetLists(groupID int64) ([]List, error) {
 
