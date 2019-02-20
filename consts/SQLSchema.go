@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS 'Users' (
 	'Nickname'  TEXT UNIQUE,
 	'Biography'  TEXT,
 	'Status'  INTEGER NOT NULL DEFAULT 0,
+	'Permissions'  INTEGER NOT NULL DEFAULT 0,
 	'LastSeen'  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	'RegisterDate' TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -198,23 +199,10 @@ CREATE TABLE IF NOT EXISTS 'Log' (
 	'Date'	TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-/*
-The BotAdministrators table will contain the bot aministrator, which will manage the bot
-*/
-CREATE TABLE IF NOT EXISTS 'BotAdministrators' (
-	'UserID'			TEXT NOT NULL PRIMARY KEY,
-	'Permissions'	TEXT NOT NULL DEFAULT 0,
-	FOREIGN KEY('UserID') REFERENCES Users('ID')
-);
-
 -- Inserting the default locale in DB
 INSERT OR IGNORE INTO BotSettings (Key, Value ) VALUES ( "DefaultLocale", "'` + DefaultLocale + `'" );
 
 -- Inserting Pandry and AndreaIdini as users
-INSERT OR IGNORE INTO Users (ID, Nickname) VALUES (14092073, "Pandry"), (44917659, "AndreaIdini");
-
--- Inserting 							     Pandry's ID and  Idini's one as bot administrators
-INSERT OR IGNORE INTO BotAdministrators (UserID) VALUES (14092073),     (44917659);
-
+INSERT OR IGNORE INTO Users (ID, Nickname, Permisssions) VALUES (14092073, "Pandry", 1), (44917659, "AndreaIdini", 1);
 
 `
