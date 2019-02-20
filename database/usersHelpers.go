@@ -42,7 +42,7 @@ func (db *SQLiteDB) AddUser(usr User) error {
 }
 
 //GetUser returns a user using the database.user struct
-func (db *SQLiteDB) GetUser(userID int64) (User, error) {
+func (db *SQLiteDB) GetUser(userID int) (User, error) {
 	var (
 		usr User
 		bio sql.NullString
@@ -90,7 +90,7 @@ func (db *SQLiteDB) UpdateUser(user User) error {
 }
 
 //UserExists returs a bool that indicates if the user exists or not
-func (db *SQLiteDB) UserExists(userID int64) bool {
+func (db *SQLiteDB) UserExists(userID int) bool {
 	err := db.QueryRow("SELECT 1 FROM `Users` WHERE `ID`=?", userID).Scan()
 	switch {
 	case err == sql.ErrNoRows:
@@ -124,7 +124,7 @@ func (db *SQLiteDB) GetUserIDByNickname(nickname string) (int64, error) {
 }
 
 //SetUserBiography sets the biography of a user
-func (db *SQLiteDB) SetUserBiography(userID int64, bio string) error {
+func (db *SQLiteDB) SetUserBiography(userID int, bio string) error {
 	query, err := db.Exec("UPDATE Users SET `Biography` = ? WHERE `ID` = ?", bio, userID)
 	if err != nil {
 		db.AddLogEvent(Log{Event: "SetUserBiography_QueryFailed", Message: "Impossible to create the execute the query", Error: err.Error()})
@@ -143,7 +143,7 @@ func (db *SQLiteDB) SetUserBiography(userID int64, bio string) error {
 }
 
 //GetUserBiography returns the biography of a user
-func (db *SQLiteDB) GetUserBiography(userID int64) (string, error) {
+func (db *SQLiteDB) GetUserBiography(userID int) (string, error) {
 	var bio sql.NullString
 	err := db.QueryRow("SELECT `Biography` FROM Users WHERE `ID` = ?", userID).Scan(&bio)
 	switch {
@@ -159,7 +159,7 @@ func (db *SQLiteDB) GetUserBiography(userID int64) (string, error) {
 }
 
 //SetUserPermissions sets the permissions of a user
-func (db *SQLiteDB) SetUserPermissions(userID int64, perm int64) error {
+func (db *SQLiteDB) SetUserPermissions(userID int, perm int64) error {
 	query, err := db.Exec("UPDATE Users SET `Permissions` = ? WHERE `ID` = ?", perm, userID)
 	if err != nil {
 		db.AddLogEvent(Log{Event: "SetUserPermissions_QueryFailed", Message: "Impossible to create the execute the query", Error: err.Error()})
@@ -178,7 +178,7 @@ func (db *SQLiteDB) SetUserPermissions(userID int64, perm int64) error {
 }
 
 //GetUserPermissions returns the permissions of a user
-func (db *SQLiteDB) GetUserPermissions(userID int64) (int64, error) {
+func (db *SQLiteDB) GetUserPermissions(userID int) (int64, error) {
 	var perm int64
 	err := db.QueryRow("SELECT `Permissions` FROM Users WHERE `ID` = ?", userID).Scan(&perm)
 	switch {
@@ -194,7 +194,7 @@ func (db *SQLiteDB) GetUserPermissions(userID int64) (int64, error) {
 }
 
 //SetUserNickname sets the nickname of a user
-func (db *SQLiteDB) SetUserNickname(userID int64, userNickname string) error {
+func (db *SQLiteDB) SetUserNickname(userID int, userNickname string) error {
 	query, err := db.Exec("UPDATE Users SET `Nickname` = ? WHERE `ID` = ?", userNickname, userID)
 	if err != nil {
 		db.AddLogEvent(Log{Event: "SetUserNickname_QueryFailed", Message: "Impossible to create the execute the query", Error: err.Error()})
@@ -213,7 +213,7 @@ func (db *SQLiteDB) SetUserNickname(userID int64, userNickname string) error {
 }
 
 //UpdateUserLastSeen updates the lastseen field
-func (db *SQLiteDB) UpdateUserLastSeen(userID int64, lastSeen time.Time) error {
+func (db *SQLiteDB) UpdateUserLastSeen(userID int, lastSeen time.Time) error {
 	lastSeenString := lastSeen.Unix()
 	query, err := db.Exec("UPDATE Users SET `LastSeen` = ? WHERE `ID` = ?", lastSeenString, userID)
 	if err != nil {
@@ -233,6 +233,6 @@ func (db *SQLiteDB) UpdateUserLastSeen(userID int64, lastSeen time.Time) error {
 }
 
 //UpdateUserLastSeenToNow updates the lastseen field to the actual time
-func (db *SQLiteDB) UpdateUserLastSeenToNow(userID int64) error {
+func (db *SQLiteDB) UpdateUserLastSeenToNow(userID int) error {
 	return db.UpdateUserLastSeen(userID, time.Now())
 }
