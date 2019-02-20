@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS 'Users' (
 	'Nickname'  TEXT UNIQUE,
 	'Biography'  TEXT,
 	'Status'  INTEGER NOT NULL DEFAULT 0,
-	'LastSeen'  TIMESTAMP,
+	'LastSeen'  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	'RegisterDate' TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -59,14 +59,15 @@ The status is not used yet
 */
 CREATE TABLE IF NOT EXISTS 'Lists' (
 	'ID'  INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-	'Name'  TEXT NOT NULL UNIQUE,
+	'Name'  TEXT NOT NULL,
 	'GroupID'	INTEGER NOT NULL,
 	'Properties'  INTEGER DEFAULT 0,
 	'CreationDate' TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	'LatestInvocationDate' TIMESTAMP,
 	'Parent' INTEGER,
 	FOREIGN KEY('GroupID') REFERENCES Groups('ID'),
-    FOREIGN KEY('Parent') REFERENCES Lists('ID')
+	FOREIGN KEY('Parent') REFERENCES Lists('ID'),
+	CONSTRAINT con_lists_name_group_unique UNIQUE ('Name','GroupID')
 );
 
 /*
