@@ -60,9 +60,9 @@ func (db *SQLiteDB) AddGroup(grp Group) error {
 }
 
 //GroupExists returs a bool that indicates if the group exists or not
-func (db *SQLiteDB) GroupExists(userID int) bool {
+func (db *SQLiteDB) GroupExists(groupID int64) bool {
 	var dummyval int64
-	err := db.QueryRow("SELECT 1 FROM `Groups` WHERE `ID`=?", userID).Scan(&dummyval)
+	err := db.QueryRow("SELECT 1 FROM `Groups` WHERE `ID`=?", groupID).Scan(&dummyval)
 	switch {
 	case err == sql.ErrNoRows:
 		//db.AddLogEvent(Log{Event: "_ErrorNoRows", Message: "Impossible to get rows", Error: err.Error()})
@@ -110,7 +110,7 @@ func (db *SQLiteDB) GroupExists(userID int) bool {
 }
 
 //UpdateDefaultGroupLocale updates the locale of a given group
-func (db *SQLiteDB) UpdateDefaultGroupLocale(groupID int, locale string) error {
+func (db *SQLiteDB) UpdateDefaultGroupLocale(groupID int64, locale string) error {
 	if locale == "" {
 		return errors.New("EmptyNewLocaleString")
 	}
@@ -143,7 +143,7 @@ func (db *SQLiteDB) UpdateDefaultGroupLocale(groupID int, locale string) error {
 }
 
 //UpdateGroupName updates the name of a given group
-func (db *SQLiteDB) UpdateGroupName(groupID int, groupNewName string) error {
+func (db *SQLiteDB) UpdateGroupName(groupID int64, groupNewName string) error {
 	if groupNewName == "" {
 		return ParameterError{error: errors.New("EmptyNewGroupName")}
 	}
@@ -195,7 +195,7 @@ func (db *SQLiteDB) UpdateGroupName(groupID int, groupNewName string) error {
 }
 
 //UpdateGroupRef updates the ref of a given group
-func (db *SQLiteDB) UpdateGroupRef(groupID int, ref string) error {
+func (db *SQLiteDB) UpdateGroupRef(groupID int64, ref string) error {
 	if ref == "" {
 		return ParameterError{error: errors.New("EmptyRef")}
 	}
@@ -248,7 +248,7 @@ func (db *SQLiteDB) UpdateGroupRef(groupID int, ref string) error {
 }
 
 //UpdateGroupTitle updates the title of a given group
-func (db *SQLiteDB) UpdateGroupTitle(groupID int, title string) error {
+func (db *SQLiteDB) UpdateGroupTitle(groupID int64, title string) error {
 	if title == "" {
 		return ParameterError{error: errors.New("Empty Title")}
 	}
@@ -302,7 +302,7 @@ func (db *SQLiteDB) UpdateGroupTitle(groupID int, title string) error {
 }
 
 //UpdateGroupStatus updates the status of a given group
-func (db *SQLiteDB) UpdateGroupStatus(groupID int, status int) error {
+func (db *SQLiteDB) UpdateGroupStatus(groupID int64, status int) error {
 	query, err := db.Exec("UPDATE Groups SET `Status` = ? WHERE `ID` = ?", status, groupID)
 	if err != nil {
 		db.AddLogEvent(Log{Event: "UpdateGroupStatus_QueryFailed", Message: "Impossible to create the execute the query", Error: err.Error()})
