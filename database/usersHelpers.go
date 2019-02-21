@@ -91,7 +91,8 @@ func (db *SQLiteDB) UpdateUser(user User) error {
 
 //UserExists returs a bool that indicates if the user exists or not
 func (db *SQLiteDB) UserExists(userID int) bool {
-	err := db.QueryRow("SELECT 1 FROM `Users` WHERE `ID`=?", userID).Scan()
+	var dummyval int64
+	err := db.QueryRow("SELECT 1 FROM `Users` WHERE `ID`=?", userID).Scan(&dummyval)
 	switch {
 	case err == sql.ErrNoRows:
 		//db.AddLogEvent(Log{Event: "_ErrorNoRows", Message: "Impossible to get rows", Error: err.Error()})
