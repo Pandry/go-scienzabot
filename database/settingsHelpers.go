@@ -7,6 +7,23 @@ import (
 
 //For a more detailed explaination about this code, see botSettingsHelpers.go file, in this directory
 
+//SettingExists returns a values that indicates if the key exists in database
+func (db *SQLiteDB) SettingExists(key string) bool {
+	var dummyval int64
+	err := db.QueryRow("SELECT 1 FROM `Settings` WHERE `Key` = ?",
+		key).Scan(&dummyval)
+	switch {
+	case err == sql.ErrNoRows:
+		//db.AddLogEvent(Log{Event: "_ErrorNoRows", Message: "Impossible to get rows", Error: err.Error()})
+		return false
+	case err != nil:
+		db.AddLogEvent(Log{Event: "SettingsExists_ErrorUnknown", Message: "Uknown error verified", Error: err.Error()})
+		return false
+	default:
+		return true
+	}
+}
+
 //GetSettingValue searches for the value in the database
 func (db *SQLiteDB) GetSettingValue(key string, group int) (string, error) {
 	val := ""

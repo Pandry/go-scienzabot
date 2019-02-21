@@ -168,7 +168,7 @@ in the same language; which one should we take?)
 */
 CREATE TABLE IF NOT EXISTS 'BotStrings' (
 	'ID'		INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
-	'Key'		TEXT NOT NULL UNIQUE,
+	'Key'		TEXT NOT NULL,
 	'Value'		TEXT DEFAULT 'Not implemented',
 	'Locale'	TEXT DEFAULT '` + DefaultLocale + `',
 	CONSTRAINT con_botstrings_key_locale_unique UNIQUE ('Key','Locale')
@@ -203,6 +203,42 @@ CREATE TABLE IF NOT EXISTS 'Log' (
 INSERT OR IGNORE INTO BotSettings (Key, Value ) VALUES ( "DefaultLocale", "'` + DefaultLocale + `'" );
 
 -- Inserting Pandry and AndreaIdini as users
-INSERT OR IGNORE INTO Users (ID, Nickname, Permisssions) VALUES (14092073, "Pandry", 1), (44917659, "AndreaIdini", 1);
+INSERT OR IGNORE INTO Users (ID, Nickname, Permissions) VALUES (14092073, "Pandry", 1), (44917659, "AndreaIdini", 1);
+
+-- Inserting bot version if not exists
+INSERT OR IGNORE INTO BotSettings (Key,Value) VALUES ("version", "v 0.1g α");
+
+-- Message to ask used to use the command in private chat
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("onPrivateChatCommand","Please, ask me that in private chat", "en");
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("onPrivateChatCommand","Perfavore, usa questo comando in chat privata", "it");
+
+-- Help message
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("helpCommand","Comandi per aiuto:
+/help - Don't ya know?", "it");
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("helpCommand","Help commands:
+/help - Don't ya know?", "en");
+
+-- Info Command
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("infoCommand","Ciao 😁
+Sei confuso? 
+Questo è il bot del gruppo @scienza e permette di usufruire di queste funzioni:
+/iscriviti per iscriverti al database di utenti e per partecipare alle liste sugli interessi
+/aderisci per iscriverti ad una lista, puoi usare anche: /partecipa, /registrati e /sottoscrivi
+/bio per scrivere qualcosa su di te
+/liste per scoprire le liste già presenti
+/gdpr consulta le norme sul GDPR
+/privs elenca i privilegi di un utente (richiesto come argomento)
+/biografia mostra la biografia di un utente (richiesto come argomento)
+/disiscrivi per cancellarti da una lista alla quale hai aderito, puoi usare pure: /esci, /rimuovi, /iscrizioni e /aderenze
+/info Ottieni informazioni su di me
+Puoi anche usare il bot in modalità ""inline"": sarà sufficiente scrivere @scienziati_bot <username> per avere informazioni riguardo l'utente
+In caso di problemi invece, sei pregato di conttattare @Pandry, in quanto sviluppatore del bot.
+Report di problemi, come ad esempio liste non presenti, bot non responsivo ecc sono assolutamente gradite; O anche solo per proporre qualche idea e conversarne a riguardo.
+A tal proposito, esiste un gruppo dedicato ai programmi scritti in comune tra i membri di @Scienza.
+Chiedi ad un amministratore per ulteriori informazioni a riguardo.
+Buona continuazione su @Scienza", "it");
+
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("infoCommand","That's the @scienza custom bot and things", "en");
+
 
 `

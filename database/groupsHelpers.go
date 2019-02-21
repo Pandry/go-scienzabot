@@ -61,7 +61,8 @@ func (db *SQLiteDB) AddGroup(grp Group) error {
 
 //GroupExists returs a bool that indicates if the group exists or not
 func (db *SQLiteDB) GroupExists(userID int) bool {
-	err := db.QueryRow("SELECT 1 FROM `Groups` WHERE `ID`=?", userID).Scan()
+	var dummyval int64
+	err := db.QueryRow("SELECT 1 FROM `Groups` WHERE `ID`=?", userID).Scan(&dummyval)
 	switch {
 	case err == sql.ErrNoRows:
 		//db.AddLogEvent(Log{Event: "_ErrorNoRows", Message: "Impossible to get rows", Error: err.Error()})

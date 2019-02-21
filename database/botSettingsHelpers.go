@@ -5,6 +5,23 @@ import (
 	"errors"
 )
 
+//BotSettingExists returns a values that indicates if the key exists in database
+func (db *SQLiteDB) BotSettingExists(key string) bool {
+	var dummyval int64
+	err := db.QueryRow("SELECT 1 FROM `BotSettings` WHERE `Key` = ?",
+		key).Scan(&dummyval)
+	switch {
+	case err == sql.ErrNoRows:
+		//db.AddLogEvent(Log{Event: "_ErrorNoRows", Message: "Impossible to get rows", Error: err.Error()})
+		return false
+	case err != nil:
+		db.AddLogEvent(Log{Event: "BotSettingsExists_ErrorUnknown", Message: "Uknown error verified", Error: err.Error()})
+		return false
+	default:
+		return true
+	}
+}
+
 //GetBotSettingValue searches for the value in the database
 func (db *SQLiteDB) GetBotSettingValue(key string) (string, error) {
 	var val string
