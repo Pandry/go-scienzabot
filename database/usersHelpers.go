@@ -48,7 +48,7 @@ func (db *SQLiteDB) GetUser(userID int) (User, error) {
 		bio sql.NullString
 	)
 	err := db.QueryRow("SELECT `ID`, `Nickname`, `Biography`, `Status`, `LastSeen`, `RegisterDate`, `Permissions` "+
-		"FROM Table WHERE `ID`=?", userID).Scan(
+		"FROM Users WHERE `ID`=?", userID).Scan(
 		&usr.ID, &usr.Nickname, &bio, &usr.Status, &usr.LastSeen, &usr.RegisterDate, &usr.Permissions)
 
 	if bio.Valid {
