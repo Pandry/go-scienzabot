@@ -2,221 +2,135 @@ package main
 
 import (
 	"log"
-	"strconv"
-	"strings"
-
-	tba "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
 func (ctx *Context) route() {
 
 	switch {
+	//Swtich the message based on its type
+
 	//Return message if there's no update
 	case ctx.Update == nil:
 		return
+
 	case ctx.Update.Message != nil:
 		//General message
 
 		message := ctx.Update.Message
-		userIsInGroup := message.Chat.IsSuperGroup() || message.Chat.IsGroup()
-		_, err := ctx.Database.GetUser(int64(message.From.ID))
-		userIsRegistred := err == nil
 
-		//Count last time the user was seen in a group
-		if userIsInGroup && userIsRegistred {
-			ctx.Database.UpdateUserLastSeen(message.From.ID, message.Time())
-		}
+		switch {
+		case message.Text != "":
+			textMessageRoute(ctx)
+			break
 
-		if message.Text != "" {
-			//Text message
-			if message.IsCommand() {
-				//Command
-				args := strings.Split(message.Text, " ")
-				switch args[0] {
-				case "/start":
-					break
+		case message.Sticker != nil:
+			//Sticker
 
-				case "/exists":
-					msg := "You do "
-					if !ctx.Database.UserExists(ctx.Update.Message.From.ID) {
-						msg += "not "
-					}
-					msg += "exist."
-					ctx.Bot.Send(tba.NewMessage(message.Chat.ID, msg))
-					break
+			break
 
-				case "/help":
-				case "/aiuto":
-				case "/aiutami":
-					ctx.SendHelpMessage()
-					break
+		case message.Photo != nil:
+			//Photo
 
-				case "/info":
-				case "/informazioni":
-				case "/about":
-				case "/github":
+			break
 
-					break
+		case message.Voice != nil:
+			//Voice audio file
 
-				case "/version":
-				case "/v":
-					val, err := ctx.Database.GetBotSettingValue("test")
-					if err != nil {
+			break
 
-						msg := "error bla bla committing..."
-						ctx.Bot.Send(tba.NewMessage(message.Chat.ID, msg))
-						if ctx.Bot.Debug {
-							log.Println("No read blabla...", err)
-						}
+		case message.Document != nil:
+			//Document
 
-						err := ctx.Database.SetBotSettingValue("test", strconv.Itoa(ctx.Update.Message.From.ID))
-						if err != nil {
-							msg = "dafuq, error..."
-							if ctx.Bot.Debug {
-								log.Println("Error doing commit...", err)
-							}
-						} else {
-							msg = "done..."
-						}
-						ctx.Bot.Send(tba.NewMessage(message.Chat.ID, msg))
-					} else {
-						ctx.Bot.Send(tba.NewMessage(message.Chat.ID, val))
-					}
-					break
+			break
 
-				case "/gdpr":
+		case message.Location != nil:
 
-					break
+			break
 
-				case "/registrazione":
-				case "/registra":
-				case "/registrami":
-				case "/signup":
+		case message.Contact != nil:
 
-					break
+			break
 
-				case "/iscrivi":
-				case "/iscrivimi":
-				case "/join":
-				case "/iscrizione":
-				case "/entra":
-				case "/sottoscrivi":
-
-					break
-
-				}
+		case message.NewChatMembers != nil:
+			//New user(s)
+			log.Println("User joined!\n Users' Nickname: ")
+			for _, user := range *ctx.Update.Message.NewChatMembers {
+				log.Println(user.UserName)
+			}
+			if ctx.Update.Message.GroupChatCreated {
+				log.Println("This is a group just created! ")
 			}
 
-		} else {
-			switch {
+			//User joined
+			break
 
-			case message.Sticker != nil:
-				//Sticker
+		case message.VideoNote != nil:
+			//Video circolare
 
-				break
+			break
 
-			case message.Photo != nil:
-				//Photo
+		case message.Video != nil:
 
-				break
+			break
 
-			case message.Voice != nil:
-				//Voice audio file
+		case message.Venue != nil:
+			//NO IDEA     <--- non capisco (Bhez)
+			break
 
-				break
+		case message.LeftChatMember != nil:
+			//User removed (could be the bot)
+			break
 
-			case message.Document != nil:
-				//Document
+		case message.PinnedMessage != nil:
 
-				break
+			break
 
-			case message.Location != nil:
+		case message.NewChatPhoto != nil:
 
-				break
+			break
 
-			case message.Contact != nil:
+		case message.NewChatTitle != "":
 
-				break
+			break
 
-			case message.NewChatMembers != nil:
-				//New user(s)
-				log.Println("User joined!\n Users' Nickname: ")
-				for _, user := range *ctx.Update.Message.NewChatMembers {
-					log.Println(user.UserName)
-				}
-				if ctx.Update.Message.GroupChatCreated {
-					log.Println("This is a group just created! ")
-				}
+		case message.MigrateToChatID != 0:
 
-				//User joined
-				break
-
-			case message.VideoNote != nil:
-				//Video circolare
-
-				break
-
-			case message.Video != nil:
-
-				break
-
-			case message.Venue != nil:
-				//NO IDEA     <--- non capisco (Bhez)
-				break
-
-			case message.LeftChatMember != nil:
-				//User removed (could be the bot)
-				break
-
-			case message.PinnedMessage != nil:
-
-				break
-
-			case message.NewChatPhoto != nil:
-
-				break
-
-			case message.NewChatTitle != "":
-
-				break
-
-			case message.MigrateToChatID != 0:
-
-				break
-			}
+			break
 		}
 
 	case ctx.Update.EditedMessage != nil:
 		//Edited text message
+		editedTxtMessageRoute(ctx)
 		break
 
 	case ctx.Update.CallbackQuery != nil:
 		//Callback query
+		callbackQueryRoute(ctx)
 		break
 
 	case ctx.Update.InlineQuery != nil:
 		//Inline query
-		return
+		break
 
 	case ctx.Update.ChannelPost != nil:
 		//Channel post
-		return
+		break
 
 	case ctx.Update.EditedChannelPost != nil:
 		//Edited channel post
-		return
+		break
 
 	case ctx.Update.PreCheckoutQuery != nil:
 		//Pre checkoput query - useless for now
-		return
+		break
 
 	case ctx.Update.ShippingQuery != nil:
 		//Pre shipping query
-		return
+		break
 
 	case ctx.Update.ChosenInlineResult != nil:
 		//Chosen inline result -> Chosen inline element?
-		return
+		break
 
-	}
+	} //Message type swtich
 }
