@@ -6,9 +6,29 @@ import (
 	"scienzabot/consts"
 )
 
+//StringExists returns a values that indicates if the key exists in database
+func (db *SQLiteDB) StringExists(key string, locale string) bool {
+	if locale == "" {
+		locale = consts.DefaultLocale
+	}
+	var dummyval int64
+	err := db.QueryRow("SELECT 1 FROM `Strings` WHERE `Key` = ? AND `Locale` = ?",
+		key, locale).Scan(&dummyval)
+	switch {
+	case err == sql.ErrNoRows:
+		//db.AddLogEvent(Log{Event: "_ErrorNoRows", Message: "Impossible to get rows", Error: err.Error()})
+		return false
+	case err != nil:
+		db.AddLogEvent(Log{Event: "BotStringExists_ErrorUnknown", Message: "Uknown error verified", Error: err.Error()})
+		return false
+	default:
+		return true
+	}
+}
+
 //GetStringValue searches for the string value in the database
 func (db *SQLiteDB) GetStringValue(key string, group int, locale string) (string, error) {
-	res := ""
+	var res sql.NullString
 	if locale == "" {
 		locale = consts.DefaultLocale
 	}
@@ -17,12 +37,12 @@ func (db *SQLiteDB) GetStringValue(key string, group int, locale string) (string
 	switch {
 	case err == sql.ErrNoRows:
 		db.AddLogEvent(Log{Event: "GetStringValue_ErrorNoRows", Message: "Impossible to get rows", Error: err.Error()})
-		return res, err
+		return res.String, err
 	case err != nil:
 		db.AddLogEvent(Log{Event: "GetStringValue_ErrorUnknown", Message: "Uknown error verified", Error: err.Error()})
-		return res, err
+		return res.String, err
 	default:
-		return res, err
+		return res.String, err
 	}
 }
 
@@ -32,7 +52,7 @@ func (db *SQLiteDB) SetStringValue(key string, value string, group int, locale s
 		locale = consts.DefaultLocale
 	}
 	query, err := db.Exec(
-		"INSERT INTO Settings (`Key`, `Value` , `Group`) VALUES (?,?,?) "+
+		"INSERT INTO Strings (`Key`, `Value` , `Group`) VALUES (?,?,?) "+
 			"ON CONFLICT(`Key`, `Group`) DO UPDATE SET `Value` = Excluded.Value",
 		key, value, group)
 	if err != nil {
