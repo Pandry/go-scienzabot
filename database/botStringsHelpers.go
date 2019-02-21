@@ -56,12 +56,46 @@ func (db *SQLiteDB) GetBotStringValue(key string, locale string) (string, error)
 	}
 }
 
+//GetBotStringValue searches for the BOT string value in the database
+func (db *SQLiteDB) getFirstBotStringValue(key string) (string, error) {
+	var res sql.NullString
+	err := db.QueryRow("SELECT Value FROM `BotStrings` WHERE `Key` = ? LIMIT 1",
+		key).Scan(&res)
+	switch {
+	case err == sql.ErrNoRows:
+		db.AddLogEvent(Log{Event: "getFirstBotStringValue_ErrorNoRows", Message: "Impossible to get rows", Error: err.Error()})
+		return res.String, err
+	case err != nil:
+		db.AddLogEvent(Log{Event: "getFirstBotStringValue_ErrorUnknown", Message: "Uknown error verified", Error: err.Error()})
+		return res.String, err
+	default:
+		return res.String, err
+	}
+}
+
+//GetBotStringValueOrDefaultNoError does not return an error
+func (db *SQLiteDB) GetBotStringValueOrDefaultNoError(key string, locale string) string {
+	if db.BotStringExists(key, locale) {
+		s, _ := db.GetBotStringValue(key, locale)
+		return s
+	}
+	if db.BotStringExists(key, consts.DefaultLocale) {
+		s, _ := db.GetBotStringValue(key, consts.DefaultLocale)
+		return s
+	}
+	s, _ := db.getFirstBotStringValue(key)
+	return s
+}
+
 //GetBotStringValueOrDefault returns the value in the user's locale or in the default one
 func (db *SQLiteDB) GetBotStringValueOrDefault(key string, locale string) (string, error) {
 	if db.BotStringExists(key, locale) {
 		return db.GetBotStringValue(key, locale)
 	}
-	return db.GetBotStringValue(key, consts.DefaultLocale)
+	if db.BotStringExists(key, consts.DefaultLocale) {
+		return db.GetBotStringValue(key, consts.DefaultLocale)
+	}
+	return db.getFirstBotStringValue(key)
 }
 
 //SetBotStringValue sets a value in the bot settings table
