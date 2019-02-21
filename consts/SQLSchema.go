@@ -203,7 +203,7 @@ CREATE TABLE IF NOT EXISTS 'Log' (
 INSERT OR IGNORE INTO BotSettings (Key, Value ) VALUES ( "DefaultLocale", "'` + DefaultLocale + `'" );
 
 -- Inserting Pandry and AndreaIdini as users
-INSERT OR IGNORE INTO Users (ID, Nickname, Permissions) VALUES (14092073, "Pandry", 1), (44917659, "AndreaIdini", 1);
+INSERT OR IGNORE INTO Users (ID, Nickname, Permissions) VALUES (14092073, "Pandry", 255), (44917659, "AndreaIdini", 255);
 
 -- Inserting bot version if not exists
 INSERT OR IGNORE INTO BotSettings (Key,Value) VALUES ("version", "v 0.1g α");
@@ -239,6 +239,37 @@ Chiedi ad un amministratore per ulteriori informazioni a riguardo.
 Buona continuazione su @Scienza", "it");
 
 INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("infoCommand","That's the @scienza custom bot and things", "en");
+
+-- Errors strings
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("generalError","❌ <b>Error 518</b> ❌ - Bip bop, I'm a teapot
+Si è verificato un errore.
+Lo sviluppatore (@Pandry) è stato già avvertito.
+Sei pregato di contattarlo per descrivere in che modo questo errore è stato visualizzat, grazie.", "it");
+
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("generalError"," ❌ <b>Error 518</b> ❌ - Bip bop, I'm a teapot
+An error occourred.
+The developer (@Pandry) has been notified.
+You are kindly asked to text him telling what you've done to see this.", "en");
+
+
+-- User added strings
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("userAddedSuccessfully","✅ <b>Complimenti, ti sei iscritto con successo!</b>
+Ora puoi fare uso delle funzionalità del bot, buona continuazione!", "it");
+
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("userAddedSuccessfully","✅ <b>Congratulations, you registred successfully!</b>
+You can now use all the features of the bot! Enjoy you time :3", "en");
+
+-- User already registred
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("userAlreadyRegistred","⚠️ <b>Attenzione!</b>
+Risulti già iscritto al bot, non è necessario tentare nuovamente di iscriversi.", "it");
+
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("userAlreadyRegistred","⚠️ <b>Warning!</b>
+It looks like you are already registred to the bot, you don't need to register again.", "en");
+
+-- Delete message button text
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("deleteMessageText","🗑 Elimina questo messaggio 🗑", "it");
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("deleteMessageText","🗑 Delete this message 🗑", "en");
+
 
 
 `
