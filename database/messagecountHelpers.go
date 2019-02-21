@@ -36,9 +36,9 @@ func (db *SQLiteDB) GetMessageCount(user int64, group int64) (int64, error) {
 //SetMessageCount sets the message of a user in a group
 func (db *SQLiteDB) SetMessageCount(user int64, group int64, messageCount int64) error {
 	query, err := db.Exec(
-		"INSERT INTO MessageCount (`UserID`, `GroupID`, `MessageCount`) VALUES (?,?,?) " +
+		"INSERT INTO MessageCount (`UserID`, `GroupID`, `MessageCount`) VALUES (?,?,?) "+
 			"ON CONFLICT(`UserID`, `GroupID`) DO UPDATE SET `MessageCount` = Excluded.MessageCount",
-	)
+		user, group, messageCount)
 	if err != nil {
 		db.AddLogEvent(Log{Event: "SetMessageCount_QueryFailed", Message: "Impossible to create the execute the query", Error: err.Error()})
 		return err
@@ -64,4 +64,29 @@ func (db *SQLiteDB) IncrementMessageCount(user int64, group int64) error {
 	}*/
 	err = db.SetMessageCount(user, group, msgCnt+1)
 	return err
+}
+
+//GetUserGroups returns the groups
+func (db *SQLiteDB) GetUserGroups(user int64) ([]Group, error) {
+	rows, err := db.Query("SELECT Groups.ID, Groups.Title,Groups.Status, Groups.Locale,Groups.Ref FROM MessageCount RIGHT JOIN Groups ON MessageCount.Group = Groups.ID  WHERE `UserID`=?", user)
+	defer rows.Close()
+	if err != nil {
+		db.AddLogEvent(Log{Event: "GetUserGroups_ErorExecutingTheQuery", Message: "Impossible to get afftected rows", Error: err.Error()})
+		return nil, err
+	}
+	gprs := make([]Group, 0)
+	for rows.Next() {
+		var grp Group
+		if err = rows.Scan(&grp.ID, &grp.Title, &grp.Status, &grp.Locale, &grp.Ref); err != nil {
+			db.AddLogEvent(Log{Event: "GetUserGroups_RowQueryFetchResultFailed", Message: "Impossible to get data from the row", Error: err.Error()})
+		} else {
+			gprs = append(gprs, grp)
+		}
+	}
+	if !rows.NextResultSet() {
+		db.AddLogEvent(Log{Event: "GetUserGroups_RowsNotFetched", Message: "Some rows in the query were not fetched", Error: err.Error()})
+	} else if err := rows.Err(); err != nil {
+		db.AddLogEvent(Log{Event: "GetGroups_UnknowQueryError", Message: "An unknown error was thrown", Error: err.Error()})
+	}
+	return gprs, err
 }
