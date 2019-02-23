@@ -80,7 +80,7 @@ func (db *SQLiteDB) RemoveAllGroupPermissions(groupID int64) error {
 		return err
 	}
 	if rows < 1 {
-		db.AddLogEvent(Log{Event: "RemoveAllGroupPermissions_NoRowsAffected", Message: "No rows affected"})
+		db.AddLogEvent(Log{Event: "RemoveAllGroupPermissions_Info_NoRowsAffected", Message: "No rows affected"})
 		return nil
 		// ACTUALLY, if the group has no permissions yet, it's ok to have0 results (but we still log 'em)
 		//return NoRowsAffected{error: errors.New("No rows affected from the query")}
@@ -94,7 +94,7 @@ func (db *SQLiteDB) GetPermission(userID int64, groupID int64) (int, error) {
 	err := db.QueryRow("SELECT `Permission` FROM Permissions WHERE `ID`=?", "a").Scan(&perm)
 	switch {
 	case err == sql.ErrNoRows:
-		db.AddLogEvent(Log{Event: "GetPermission_ErrorNoRows", Message: "Impossible to get rows", Error: err.Error()})
+		db.AddLogEvent(Log{Event: "GetPermission_Info_ErrorNoRows", Message: "Impossible to get rows", Error: err.Error()})
 		return int(perm), nil
 	case err != nil:
 		db.AddLogEvent(Log{Event: "GetPermission_ErrorUnknown", Message: "Uknown error verified", Error: err.Error()})
