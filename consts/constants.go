@@ -34,6 +34,7 @@ const (
 	UserPermissionCanForwardToChannel
 	UserPermissionCanCreateList
 	UserPermissionCanRemoveList
+	UserPermissionGroupAdmin
 )
 
 //ListPropertyGroupIndipendent is the property that defines a list that is available in any group
@@ -41,4 +42,11 @@ const (
 const (
 	ListPropertyGroupIndipendent = 1 << iota
 	ListPropertyGroupLocked
+)
+
+//GroupActive is the property that tells that a group is active
+//GroupBanned is the property that makes a group blocked and does not permit it to be enabled until it's unlocked
+const (
+	GroupActive = 1 << iota
+	GroupBanned
 )
