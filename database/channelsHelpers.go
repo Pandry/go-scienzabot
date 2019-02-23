@@ -105,8 +105,8 @@ func (db *SQLiteDB) GetAllChannels() ([]Channel, error) {
 			chns = append(chns, chn)
 		}
 	}
-	if !rows.NextResultSet() {
-		db.AddLogEvent(Log{Event: "GetAllChannels_RowsNotFetched", Message: "Some rows in the query were not fetched", Error: err.Error()})
+	if rows.NextResultSet() {
+		db.AddLogEvent(Log{Event: "GetAllChannels_RowsNotFetched", Message: "Some rows in the query were not fetched"})
 	}
 	if err := rows.Err(); err != nil {
 		db.AddLogEvent(Log{Event: "GetAllChannels_UnknowQueryError", Message: "An unknown error was thrown", Error: err.Error()})
@@ -132,8 +132,8 @@ func (db *SQLiteDB) GetChannelsByName(qry string) ([]Channel, error) {
 			chns = append(chns, chn)
 		}
 	}
-	if !rows.NextResultSet() {
-		db.AddLogEvent(Log{Event: "GetChannelsByName_RowsNotFetched", Message: "Some rows in the query were not fetched", Error: err.Error()})
+	if rows.NextResultSet() {
+		db.AddLogEvent(Log{Event: "GetChannelsByName_RowsNotFetched", Message: "Some rows in the query were not fetched"})
 	} else if err := rows.Err(); err != nil {
 		db.AddLogEvent(Log{Event: "GetChannelsByName_UnknowQueryError", Message: "An unknown error was thrown", Error: err.Error()})
 	}

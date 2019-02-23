@@ -95,8 +95,8 @@ func (db *SQLiteDB) GetAllBookmarks() ([]Bookmark, error) {
 			bkms = append(bkms, Bookmark{ID: id, UserID: userID, GroupID: groupID, MessageID: messageID, Alias: alias, Status: status, MessageContent: messageContent})
 		}
 	}
-	if !rows.NextResultSet() {
-		db.AddLogEvent(Log{Event: "GetAllBookmarks_RowNotFetched", Message: "Some rows in the query were not fetched", Error: err.Error()})
+	if rows.NextResultSet() {
+		db.AddLogEvent(Log{Event: "GetAllBookmarks_RowNotFetched", Message: "Some rows in the query were not fetched"})
 	} else if err := rows.Err(); err != nil {
 		db.AddLogEvent(Log{Event: "GetAllBookmarks_UnknowQueryError", Message: "An unknown error was thrown", Error: err.Error()})
 	}
@@ -124,8 +124,8 @@ func (db *SQLiteDB) GetUserBookmarks(iUserID int64) ([]Bookmark, error) {
 			bkms = append(bkms, Bookmark{ID: id, UserID: userID, GroupID: groupID, MessageID: messageID, Alias: alias, Status: status, MessageContent: messageContent})
 		}
 	}
-	if !rows.NextResultSet() {
-		db.AddLogEvent(Log{Event: "GetUserBookmarks_RowNotFetched", Message: "Some rows in the query were not fetched", Error: err.Error()})
+	if rows.NextResultSet() {
+		db.AddLogEvent(Log{Event: "GetUserBookmarks_RowNotFetched", Message: "Some rows in the query were not fetched"})
 	} else if err := rows.Err(); err != nil {
 		db.AddLogEvent(Log{Event: "GetUserBookmarks_UnknowQueryError", Message: "An unknown error was thrown", Error: err.Error()})
 	}
@@ -155,8 +155,8 @@ func (db *SQLiteDB) GetUserGroupBookmarks(iUserID int64, iGroupID int64) ([]Book
 			bkms = append(bkms, Bookmark{ID: id, UserID: userID, GroupID: groupID, MessageID: messageID, Alias: alias, Status: status, MessageContent: messageContent})
 		}
 	}
-	if !rows.NextResultSet() {
-		db.AddLogEvent(Log{Event: "GetUserGroupBookmarks_RowNotFetched", Message: "Some rows in the query were not fetched", Error: err.Error()})
+	if rows.NextResultSet() {
+		db.AddLogEvent(Log{Event: "GetUserGroupBookmarks_RowNotFetched", Message: "Some rows in the query were not fetched"})
 	} else if err := rows.Err(); err != nil {
 		db.AddLogEvent(Log{Event: "GetUserGroupBookmarks_UnknowQueryError", Message: "An unknown error was thrown", Error: err.Error()})
 	}

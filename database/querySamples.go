@@ -81,11 +81,11 @@ func (db *SQLiteDB) selectSingleQuery() error {
 func (db *SQLiteDB) selectMultipleQuery() ([]Bookmark, error) {
 	rows, err := db.Query("SELECT `ID`, `UserID`, `GroupID`, `MessageID`, `Alias`, `Status`, `MessageContent` FROM Bookmarks")
 	defer rows.Close()
+	bkms := make([]Bookmark, 0)
 	if err != nil {
 		db.AddLogEvent(Log{Event: "_ErorExecutingTheQuery", Message: "Impossible to get afftected rows", Error: err.Error()})
-		return nil, err
+		return bkms, err
 	}
-	bkms := make([]Bookmark, 0)
 	for rows.Next() {
 		var (
 			id, userID, groupID, messageID, status int64
@@ -97,8 +97,8 @@ func (db *SQLiteDB) selectMultipleQuery() ([]Bookmark, error) {
 			bkms = append(bkms, Bookmark{ID: id, UserID: userID, GroupID: groupID, MessageID: messageID, Alias: alias, Status: status, MessageContent: messageContent})
 		}
 	}
-	if !rows.NextResultSet() {
-		db.AddLogEvent(Log{Event: "_RowsNotFetched", Message: "Some rows in the query were not fetched", Error: err.Error()})
+	if rows.NextResultSet() {
+		db.AddLogEvent(Log{Event: "_RowsNotFetched", Message: "Some rows in the query were not fetched"})
 	} else if err := rows.Err(); err != nil {
 		db.AddLogEvent(Log{Event: "_UnknowQueryError", Message: "An unknown error was thrown", Error: err.Error()})
 	}
@@ -147,8 +147,8 @@ func (db *SQLiteDB) selectMultipleQueryOlddd() error {
 		}
 		strings = append(strings, name)
 	}
-	if !rows.NextResultSet() {
-		db.AddLogEvent(Log{Event: "_RowNotFetched", Message: "Some rows in the query were not fetched", Error: err.Error()})
+	if rows.NextResultSet() {
+		db.AddLogEvent(Log{Event: "_RowNotFetched", Message: "Some rows in the query were not fetched"})
 	}
 	if err := rows.Err(); err != nil {
 		log.Fatal(err)

@@ -70,8 +70,8 @@ func (db *SQLiteDB) GellAllSubscriptions() ([]Subscription, error) {
 			subs = append(subs, sb)
 		}
 	}
-	if !rows.NextResultSet() {
-		db.AddLogEvent(Log{Event: "GellAllSubscriptions_RowsNotFetched", Message: "Some rows in the query were not fetched", Error: err.Error()})
+	if rows.NextResultSet() {
+		db.AddLogEvent(Log{Event: "GellAllSubscriptions_RowsNotFetched", Message: "Some rows in the query were not fetched"})
 	} else if err := rows.Err(); err != nil {
 		db.AddLogEvent(Log{Event: "GellAllSubscriptions_UnknowQueryError", Message: "An unknown error was thrown", Error: err.Error()})
 	}
@@ -96,8 +96,8 @@ func (db *SQLiteDB) GetSubscribedUsers(lstID int64) ([]Subscription, error) {
 			subs = append(subs, sb)
 		}
 	}
-	if !rows.NextResultSet() {
-		db.AddLogEvent(Log{Event: "GetSubscribedUsers_RowsNotFetched", Message: "Some rows in the query were not fetched", Error: err.Error()})
+	if rows.NextResultSet() {
+		db.AddLogEvent(Log{Event: "GetSubscribedUsers_RowsNotFetched", Message: "Some rows in the query were not fetched"})
 	} else if err := rows.Err(); err != nil {
 		db.AddLogEvent(Log{Event: "GetSubscribedUsers_UnknowQueryError", Message: "An unknown error was thrown", Error: err.Error()})
 	}
@@ -122,8 +122,8 @@ func (db *SQLiteDB) GetListSubscribers(usrID int64) ([]Subscription, error) {
 			subs = append(subs, sb)
 		}
 	}
-	if !rows.NextResultSet() {
-		db.AddLogEvent(Log{Event: "GetListSubscribers_RowsNotFetched", Message: "Some rows in the query were not fetched", Error: err.Error()})
+	if rows.NextResultSet() {
+		db.AddLogEvent(Log{Event: "GetListSubscribers_RowsNotFetched", Message: "Some rows in the query were not fetched"})
 	} else if err := rows.Err(); err != nil {
 		db.AddLogEvent(Log{Event: "GetListSubscribers_UnknowQueryError", Message: "An unknown error was thrown", Error: err.Error()})
 	}
