@@ -67,14 +67,14 @@ func (db *SQLiteDB) IncrementMessageCount(user int64, group int64) error {
 }
 
 //GetUserGroups returns the groups
-func (db *SQLiteDB) GetUserGroups(user int64) ([]Group, error) {
-	rows, err := db.Query("SELECT Groups.ID, Groups.Title,Groups.Status, Groups.Locale,Groups.Ref FROM MessageCount RIGHT JOIN Groups ON MessageCount.Group = Groups.ID  WHERE `UserID`=?", user)
+func (db *SQLiteDB) GetUserGroups(user int) ([]Group, error) {
+	gprs := make([]Group, 0)
+	rows, err := db.Query("SELECT Groups.ID, Groups.Title,Groups.Status, Groups.Locale, Groups.Ref FROM MessageCount INNER JOIN Groups ON MessageCount.GroupID = Groups.ID  WHERE `UserID`=?", user)
 	defer rows.Close()
 	if err != nil {
 		db.AddLogEvent(Log{Event: "GetUserGroups_ErorExecutingTheQuery", Message: "Impossible to get afftected rows", Error: err.Error()})
-		return nil, err
+		return gprs, err
 	}
-	gprs := make([]Group, 0)
 	for rows.Next() {
 		var grp Group
 		if err = rows.Scan(&grp.ID, &grp.Title, &grp.Status, &grp.Locale, &grp.Ref); err != nil {
@@ -83,10 +83,10 @@ func (db *SQLiteDB) GetUserGroups(user int64) ([]Group, error) {
 			gprs = append(gprs, grp)
 		}
 	}
-	if !rows.NextResultSet() {
-		db.AddLogEvent(Log{Event: "GetUserGroups_RowsNotFetched", Message: "Some rows in the query were not fetched", Error: err.Error()})
+	if rows.NextResultSet() {
+		db.AddLogEvent(Log{Event: "GetUserGroups_RowsNotFetched", Message: "Some rows in the query were not fetched"})
 	} else if err := rows.Err(); err != nil {
-		db.AddLogEvent(Log{Event: "GetGroups_UnknowQueryError", Message: "An unknown error was thrown", Error: err.Error()})
+		db.AddLogEvent(Log{Event: "GetUserGroups_UnknowQueryError", Message: "An unknown error was thrown", Error: err.Error()})
 	}
 	return gprs, err
 }
