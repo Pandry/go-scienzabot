@@ -274,6 +274,16 @@ INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("deleteMessageText
 INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("listCreatedSuccessfully","✅  Lista creata con successo", "it");
 INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("listCreatedSuccessfully","✅  List created successfully", "en");
 
+-- Newlist Syntax error
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("newlistSyntaxError"," ❗️ Errore di sintassi - l'uso previsto è /newlist <nomelista>
+Il nome deve contenere solo caratteri minuscoli, trattini e underscores [a-z\-_]{1,30}, senza spazi e fino a 30 caratteri.", "it");
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("newlistSyntaxError"," ❗️ Syntax error - the use is supposed to be /newlist <listname>
+The name shall only contains lowercase characters, dashed and underscores [a-z\-_]{1,30}, without spaces and up to 30 chars.", "en");
 
+-- notAuthorized
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("notAuthorized"," 🚷 Errore 403 - permessi insufficienti,
+Se si ritiene che questo sia un errore, si è gentilmente pregati di contattare l'amministratore del bot (@Pandry)", "it");
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("notAuthorized"," 🚷 Error 403 - Unauthorized,
+If you believe this is an error, please contact the bot author (@Pandry)", "en");
 
 `
