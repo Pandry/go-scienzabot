@@ -18,13 +18,15 @@ CREATE TABLE IF NOT EXISTS 'Lists' (
 );
 */
 
+//TODO: Refactor methods
+
 //GetLists returns an array of lists given a group
 func (db *SQLiteDB) GetLists(groupID int64) ([]List, error) {
 
 	var resultLists []List
 	//asd.GroupID, asd.GroupIndipendent, asd.ID, asd.InviteOnly, asd.Name
 
-	stmt, err := db.Prepare("SELECT `ID`, `Name`, `Properties` FROM Lists WHERE `Group` = ?")
+	stmt, err := db.Prepare("SELECT `ID`, `Name`, `Properties` FROM Lists WHERE `GroupID` = ?")
 	if err != nil {
 		//Log the error
 		db.AddLogEvent(Log{Event: "GetLists_QueryFailed", Message: "Impossible to create the GetLists preparation query",
@@ -67,7 +69,7 @@ func (db *SQLiteDB) GetLists(groupID int64) ([]List, error) {
 //AddList takes a a database.List struct as parameter and insert it in the database
 func (db *SQLiteDB) AddList(lst List) error {
 	//lst.Name, lst.GroupID, lst.GroupIndipendent, lst.InviteOnly
-	stmt, err := db.Prepare("INSERT INTO Lists (`Name`, `GroupID`, `Permission`)  VALUES (?,?,?,?)")
+	stmt, err := db.Prepare("INSERT INTO Lists (`Name`, `GroupID`, `Properties`)  VALUES (?,?,?)")
 	if err != nil {
 		//Log the error
 		db.AddLogEvent(Log{Event: "AddList_QueryFailed", Message: "Impossible to create the AddList preparation query", Error: err.Error()})
