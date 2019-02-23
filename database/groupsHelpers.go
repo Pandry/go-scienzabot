@@ -59,6 +59,23 @@ func (db *SQLiteDB) AddGroup(grp Group) error {
 
 }
 
+//GetGroupStatus returs the status of a group
+func (db *SQLiteDB) GetGroupStatus(groupID int64) (int64, error) {
+
+	var status int64
+	err := db.QueryRow("SELECT `Status` FROM `Groups` WHERE `ID`=?", groupID).Scan(&status)
+	switch {
+	case err == sql.ErrNoRows:
+		db.AddLogEvent(Log{Event: "GetGroupStatus_ErrorNoRows", Message: "Impossible to get rows", Error: err.Error()})
+		return status, err
+	case err != nil:
+		db.AddLogEvent(Log{Event: "GetGroupStatus_ErrorUnknown", Message: "Uknown error verified", Error: err.Error()})
+		return status, err
+	default:
+		return status, err
+	}
+}
+
 //GroupExists returs a bool that indicates if the group exists or not
 func (db *SQLiteDB) GroupExists(groupID int64) bool {
 	var dummyval int64
@@ -365,8 +382,8 @@ func (db *SQLiteDB) GetGroups() ([]Group, error) {
 			gprs = append(gprs, grp)
 		}
 	}
-	if !rows.NextResultSet() {
-		db.AddLogEvent(Log{Event: "GetGroups_RowsNotFetched", Message: "Some rows in the query were not fetched", Error: err.Error()})
+	if rows.NextResultSet() {
+		db.AddLogEvent(Log{Event: "GetGroups_RowsNotFetched", Message: "Some rows in the query were not fetched"})
 	} else if err := rows.Err(); err != nil {
 		db.AddLogEvent(Log{Event: "GetGroups_UnknowQueryError", Message: "An unknown error was thrown", Error: err.Error()})
 	}
