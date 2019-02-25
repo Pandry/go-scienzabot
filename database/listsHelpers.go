@@ -20,6 +20,46 @@ CREATE TABLE IF NOT EXISTS 'Lists' (
 
 //TODO: Refactor methods
 
+//GetAvailableLists returns an array of lists a user can subscribe to
+func (db *SQLiteDB) GetAvailableLists(groupID int64, userID int, limit int, offset int) ([]List, error) {
+	var rows *sql.Rows
+	var err error
+	if limit < 1 || offset < 0 {
+		rows, err = db.Query("SELECT `ID`, `Name`, `Properties` FROM Lists WHERE `GroupID` = ? AND `ID` NOT IN (SELECT `ListID` FROM Subscriptions WHERE `UserID` = ?)", groupID, userID)
+	} else {
+		rows, err = db.Query("SELECT `ID`, `Name`, `Properties` FROM Lists WHERE `GroupID` = ? AND `ID` NOT IN (SELECT `ListID` FROM Subscriptions WHERE `UserID` = ?) LIMIT ? OFFSET ?", groupID, userID, limit, offset)
+	}
+
+	defer rows.Close()
+	resultLists := make([]List, 0)
+
+	if err != nil {
+		db.AddLogEvent(Log{Event: "GetAvailableLists_ErorExecutingTheQuery", Message: "Impossible to get afftected rows", Error: err.Error()})
+		return resultLists, err
+	}
+
+	for rows.Next() {
+		var (
+			ID, prop int64
+			Name     string
+		)
+
+		if err = rows.Scan(&ID, &Name, &prop); err != nil {
+			db.AddLogEvent(Log{Event: "GetAvailableLists_RowQueryFetchResultFailed", Message: "Impossible to get data from the row", Error: err.Error()})
+		} else {
+			resultLists = append(resultLists, List{ID: ID, Name: Name, GroupID: groupID, Properties: prop})
+		}
+	}
+
+	if rows.NextResultSet() {
+		db.AddLogEvent(Log{Event: "GetAvailableLists_RowsNotFetched", Message: "Some rows in the query were not fetched"})
+	} else if err := rows.Err(); err != nil {
+		db.AddLogEvent(Log{Event: "GetAvailableLists_UnknowQueryError", Message: "An unknown error was thrown", Error: err.Error()})
+	}
+
+	return resultLists, err
+}
+
 //GetLists returns an array of lists given a group
 func (db *SQLiteDB) GetLists(groupID int64) ([]List, error) {
 
