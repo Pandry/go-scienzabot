@@ -176,7 +176,7 @@ func (db *SQLiteDB) UpdateGroupName(groupID int64, groupNewName string) error {
 		return err
 	}
 	if rows < 1 {
-		db.AddLogEvent(Log{Event: "UpdateGroupName_NoRowsAffected", Message: "No rows affected", Error: err.Error()})
+		db.AddLogEvent(Log{Event: "UpdateGroupName_NoRowsAffected", Message: "No rows affected"})
 		return NoRowsAffected{error: errors.New("No rows affected from the query")}
 	}
 	return err
@@ -228,7 +228,7 @@ func (db *SQLiteDB) UpdateGroupRef(groupID int64, ref string) error {
 		return err
 	}
 	if rows < 1 {
-		db.AddLogEvent(Log{Event: "UpdateGroupRef_NoRowsAffected", Message: "No rows affected", Error: err.Error()})
+		db.AddLogEvent(Log{Event: "UpdateGroupRef_NoRowsAffected", Message: "No rows affected"})
 		return NoRowsAffected{error: errors.New("No rows affected from the query")}
 	}
 	return err
@@ -281,7 +281,7 @@ func (db *SQLiteDB) UpdateGroupTitle(groupID int64, title string) error {
 		return err
 	}
 	if rows < 1 {
-		db.AddLogEvent(Log{Event: "UpdateGroupTitle_NoRowsAffected", Message: "No rows affected", Error: err.Error()})
+		db.AddLogEvent(Log{Event: "UpdateGroupTitle_NoRowsAffected", Message: "No rows affected"})
 		return NoRowsAffected{error: errors.New("No rows affected from the query")}
 	}
 	return err
@@ -331,7 +331,7 @@ func (db *SQLiteDB) UpdateGroupStatus(groupID int64, status int) error {
 		return err
 	}
 	if rows < 1 {
-		db.AddLogEvent(Log{Event: "UpdateGroupStatus_NoRowsAffected", Message: "No rows affected", Error: err.Error()})
+		db.AddLogEvent(Log{Event: "UpdateGroupStatus_NoRowsAffected", Message: "No rows affected"})
 		return NoRowsAffected{error: errors.New("No rows affected from the query")}
 	}
 	return err

@@ -31,7 +31,7 @@ func (db *SQLiteDB) CreateBookmark(bkm Bookmark) error {
 		return err
 	}
 	if rows < 1 {
-		db.AddLogEvent(Log{Event: "CreateBookmark_NoRowsAffected", Message: "No rows affected", Error: err.Error()})
+		db.AddLogEvent(Log{Event: "CreateBookmark_NoRowsAffected", Message: "No rows affected"})
 		return NoRowsAffected{error: errors.New("No rows affected from the query")}
 	}
 	return err
@@ -50,7 +50,7 @@ func (db *SQLiteDB) DeleteBookmark(bkmID int) error {
 		return err
 	}
 	if rows < 1 {
-		db.AddLogEvent(Log{Event: "DeleteBookmark_NoRowsAffected", Message: "No rows affected", Error: err.Error()})
+		db.AddLogEvent(Log{Event: "DeleteBookmark_NoRowsAffected", Message: "No rows affected"})
 		return NoRowsAffected{error: errors.New("No rows affected from the query")}
 	}
 	return err
@@ -69,7 +69,7 @@ func (db *SQLiteDB) RenameBookmark(bkmID int, newAlias string) error {
 		return err
 	}
 	if rows < 1 {
-		db.AddLogEvent(Log{Event: "RenameBookmark_NoRowsAffected", Message: "No rows affected", Error: err.Error()})
+		db.AddLogEvent(Log{Event: "RenameBookmark_NoRowsAffected", Message: "No rows affected"})
 		return NoRowsAffected{error: errors.New("No rows affected from the query")}
 	}
 	return err

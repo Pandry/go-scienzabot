@@ -65,7 +65,7 @@ func (db *SQLiteDB) SetStringValue(key string, value string, group int, locale s
 		return err
 	}
 	if rows < 1 {
-		db.AddLogEvent(Log{Event: "SetStringValue_NoRowsAffected", Message: "No rows affected", Error: err.Error()})
+		db.AddLogEvent(Log{Event: "SetStringValue_NoRowsAffected", Message: "No rows affected"})
 		return NoRowsAffected{error: errors.New("No rows affected from the query")}
 	}
 	return err

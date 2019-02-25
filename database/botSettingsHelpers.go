@@ -73,7 +73,7 @@ func (db *SQLiteDB) SetBotSettingValue(key string, value string) error {
 		return err
 	}
 	if rows < 1 {
-		db.AddLogEvent(Log{Event: "SetBotSettingValue_NoRowsAffected", Message: "No rows affected", Error: err.Error()})
+		db.AddLogEvent(Log{Event: "SetBotSettingValue_NoRowsAffected", Message: "No rows affected"})
 		return NoRowsAffected{error: errors.New("No rows affected from the query")}
 	}
 	return err

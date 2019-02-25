@@ -49,7 +49,7 @@ func (db *SQLiteDB) SetMessageCount(user int64, group int64, messageCount int64)
 		return err
 	}
 	if rows < 1 {
-		db.AddLogEvent(Log{Event: "SetMessageCount_NoRowsAffected", Message: "No rows affected", Error: err.Error()})
+		db.AddLogEvent(Log{Event: "SetMessageCount_NoRowsAffected", Message: "No rows affected"})
 		return NoRowsAffected{error: errors.New("No rows affected from the query")}
 	}
 	return err

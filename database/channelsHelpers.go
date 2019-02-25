@@ -19,7 +19,7 @@ func (db *SQLiteDB) AddChannel(chn Channel) error {
 		return err
 	}
 	if rows < 1 {
-		db.AddLogEvent(Log{Event: "CreateChannel_NoRowsAffected", Message: "No rows affected", Error: err.Error()})
+		db.AddLogEvent(Log{Event: "CreateChannel_NoRowsAffected", Message: "No rows affected"})
 		return NoRowsAffected{error: errors.New("No rows affected from the query")}
 	}
 	return err
@@ -39,7 +39,7 @@ func (db *SQLiteDB) RemoveChannel(chID int64) error {
 		return err
 	}
 	if rows < 1 {
-		db.AddLogEvent(Log{Event: "RemoveChannel_NoRowsAffected", Message: "No rows affected", Error: err.Error()})
+		db.AddLogEvent(Log{Event: "RemoveChannel_NoRowsAffected", Message: "No rows affected"})
 		return NoRowsAffected{error: errors.New("No rows affected from the query")}
 	}
 	return err
@@ -65,7 +65,7 @@ func (db *SQLiteDB) UpdateChannel(chnID int64, chn Channel) error {
 		return err
 	}
 	if rows < 1 {
-		db.AddLogEvent(Log{Event: "UpdateChannel_NoRowsAffected", Message: "No rows affected", Error: err.Error()})
+		db.AddLogEvent(Log{Event: "UpdateChannel_NoRowsAffected", Message: "No rows affected"})
 		return NoRowsAffected{error: errors.New("No rows affected from the query")}
 	}
 	return err

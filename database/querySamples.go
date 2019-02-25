@@ -18,7 +18,7 @@ func (db *SQLiteDB) insertQuery() error {
 		return err
 	}
 	if rows < 1 {
-		db.AddLogEvent(Log{Event: "_NoRowsAffected", Message: "No rows affected", Error: err.Error()})
+		db.AddLogEvent(Log{Event: "_NoRowsAffected", Message: "No rows affected"})
 		return NoRowsAffected{error: errors.New("No rows affected from the query")}
 	}
 	return err
@@ -36,7 +36,7 @@ func (db *SQLiteDB) deleteQuery() error {
 		return err
 	}
 	if rows < 1 {
-		db.AddLogEvent(Log{Event: "_NoRowsAffected", Message: "No rows affected", Error: err.Error()})
+		db.AddLogEvent(Log{Event: "_NoRowsAffected", Message: "No rows affected"})
 		return NoRowsAffected{error: errors.New("No rows affected from the query")}
 	}
 	return err
@@ -54,7 +54,7 @@ func (db *SQLiteDB) updateQuery() error {
 		return err
 	}
 	if rows < 1 {
-		db.AddLogEvent(Log{Event: "_NoRowsAffected", Message: "No rows affected", Error: err.Error()})
+		db.AddLogEvent(Log{Event: "_NoRowsAffected", Message: "No rows affected"})
 		return NoRowsAffected{error: errors.New("No rows affected from the query")}
 	}
 	return err

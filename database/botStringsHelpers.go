@@ -63,7 +63,7 @@ func (db *SQLiteDB) getFirstBotStringValue(key string) (string, error) {
 		key).Scan(&res)
 	switch {
 	case err == sql.ErrNoRows:
-		db.AddLogEvent(Log{Event: "getFirstBotStringValue_ErrorNoRows", Message: "Impossible to get rows", Error: err.Error()})
+		db.AddLogEvent(Log{Event: "getFirstBotStringValue_ErrorNoRows", Message: "Impossible to get rows with key: \"" + key + "\"", Error: err.Error()})
 		return res.String, err
 	case err != nil:
 		db.AddLogEvent(Log{Event: "getFirstBotStringValue_ErrorUnknown", Message: "Uknown error verified", Error: err.Error()})
@@ -114,7 +114,7 @@ func (db *SQLiteDB) SetBotStringValue(key string, value string, locale string) e
 		return err
 	}
 	if rows < 1 {
-		db.AddLogEvent(Log{Event: "SetBotStringValue_NoRowsAffected", Message: "No rows affected", Error: err.Error()})
+		db.AddLogEvent(Log{Event: "SetBotStringValue_NoRowsAffected", Message: "No rows affected"})
 		return NoRowsAffected{error: errors.New("No rows affected from the query")}
 	}
 	return err

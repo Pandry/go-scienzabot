@@ -73,7 +73,7 @@ func (db *SQLiteDB) SetSettingValue(key string, value string, group int) error {
 		return err
 	}
 	if rows < 1 {
-		db.AddLogEvent(Log{Event: "SetSettingValue_NoRowsAffected", Message: "No rows affected", Error: err.Error()})
+		db.AddLogEvent(Log{Event: "SetSettingValue_NoRowsAffected", Message: "No rows affected"})
 		return NoRowsAffected{error: errors.New("No rows affected from the query")}
 	}
 	return err

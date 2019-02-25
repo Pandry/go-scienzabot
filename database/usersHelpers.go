@@ -35,7 +35,7 @@ func (db *SQLiteDB) AddUser(usr User) error {
 		return err
 	}
 	if rows < 1 {
-		db.AddLogEvent(Log{Event: "AddUser_NoRowsAffected", Message: "No rows affected", Error: err.Error()})
+		db.AddLogEvent(Log{Event: "AddUser_NoRowsAffected", Message: "No rows affected"})
 		return NoRowsAffected{error: errors.New("No rows affected from the query")}
 	}
 	return err
@@ -82,7 +82,7 @@ func (db *SQLiteDB) UpdateUser(user User) error {
 		return err
 	}
 	if rows < 1 {
-		db.AddLogEvent(Log{Event: "UpdateUser_NoRowsAffected", Message: "No rows affected", Error: err.Error()})
+		db.AddLogEvent(Log{Event: "UpdateUser_NoRowsAffected", Message: "No rows affected"})
 		return NoRowsAffected{error: errors.New("No rows affected from the query")}
 	}
 	return err
@@ -137,7 +137,7 @@ func (db *SQLiteDB) SetUserBiography(userID int, bio string) error {
 		return err
 	}
 	if rows < 1 {
-		db.AddLogEvent(Log{Event: "SetUserBiography_NoRowsAffected", Message: "No rows affected", Error: err.Error()})
+		db.AddLogEvent(Log{Event: "SetUserBiography_NoRowsAffected", Message: "No rows affected"})
 		return NoRowsAffected{error: errors.New("No rows affected from the query")}
 	}
 	return err
@@ -172,7 +172,7 @@ func (db *SQLiteDB) SetUserPermissions(userID int, perm int64) error {
 		return err
 	}
 	if rows < 1 {
-		db.AddLogEvent(Log{Event: "SetUserPermissions_NoRowsAffected", Message: "No rows affected", Error: err.Error()})
+		db.AddLogEvent(Log{Event: "SetUserPermissions_NoRowsAffected", Message: "No rows affected"})
 		return NoRowsAffected{error: errors.New("No rows affected from the query")}
 	}
 	return err
@@ -207,7 +207,7 @@ func (db *SQLiteDB) SetUserNickname(userID int, userNickname string) error {
 		return err
 	}
 	if rows < 1 {
-		db.AddLogEvent(Log{Event: "SetUserNickname_NoRowsAffected", Message: "No rows affected", Error: err.Error()})
+		db.AddLogEvent(Log{Event: "SetUserNickname_NoRowsAffected", Message: "No rows affected"})
 		return NoRowsAffected{error: errors.New("No rows affected from the query")}
 	}
 	return err
@@ -215,7 +215,7 @@ func (db *SQLiteDB) SetUserNickname(userID int, userNickname string) error {
 
 //UpdateUserLastSeen updates the lastseen field
 func (db *SQLiteDB) UpdateUserLastSeen(userID int, lastSeen time.Time) error {
-	lastSeenString := lastSeen.Unix()
+	lastSeenString := lastSeen.Format("dd/MM/YYYY hh:mm:ss")
 	query, err := db.Exec("UPDATE Users SET `LastSeen` = ? WHERE `ID` = ?", lastSeenString, userID)
 	if err != nil {
 		db.AddLogEvent(Log{Event: "UpdateUserLastSeen_QueryFailed", Message: "Impossible to create the execute the query", Error: err.Error()})
@@ -227,7 +227,7 @@ func (db *SQLiteDB) UpdateUserLastSeen(userID int, lastSeen time.Time) error {
 		return err
 	}
 	if rows < 1 {
-		db.AddLogEvent(Log{Event: "UpdateUserLastSeen_NoRowsAffected", Message: "No rows affected", Error: err.Error()})
+		db.AddLogEvent(Log{Event: "UpdateUserLastSeen_NoRowsAffected", Message: "No rows affected"})
 		return NoRowsAffected{error: errors.New("No rows affected from the query")}
 	}
 	return err
