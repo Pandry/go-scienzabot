@@ -266,9 +266,20 @@ Risulti già iscritto al bot, non è necessario tentare nuovamente di iscriversi
 INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("userAlreadyRegistred","⚠️ Warning!
 It looks like you are already registred to the bot, you don't need to register again.", "en");
 
+-- User already registred
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("userNotRegistred","⚠️ Attenzione!
+Per fare uso di questa funzionalità è necessario iscriversi.", "it");
+
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("userNotRegistred","⚠️ Warning!
+To use this feature you need to register.", "en");
+
 -- Delete message button text
 INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("deleteMessageText","🗑 Elimina questo messaggio 🗑", "it");
 INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("deleteMessageText","🗑 Delete this message 🗑", "en");
+
+-- Close message button text
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("closeMessageText","🗑 Chiudi", "it");
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("closeMessageText","🗑 Close", "en");
 
 -- List created successfully
 INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("listCreatedSuccessfully","✅  Lista creata con successo", "it");
@@ -285,5 +296,45 @@ INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("notAuthorized"," 
 Se si ritiene che questo sia un errore, si è gentilmente pregati di contattare l'amministratore del bot (@Pandry)", "it");
 INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("notAuthorized"," 🚷 Error 403 - Unauthorized,
 If you believe this is an error, please contact the bot author (@Pandry)", "en");
+
+
+--notImplemented
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("notImplemented"," Questa funzionalità non è ancora implementata", "it");
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("notImplemented"," This feature is not implemented yet", "en");
+
+
+-- Available Lists
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("availableLists","I pulsanti sottostanti rappresentano le liste disponibili.
+Tappa su una lista per iscriverti", "it");
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("availableLists","The ones below are the availalbe lists.
+Tap on one of them to subscribe to them.", "en");
+
+-- callbackQueryAnswerSuccess
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("callbackQueryAnswerSuccess","✅ Successo!", "it");
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("callbackQueryAnswerSuccess","✅ Success!", "en");
+
+-- callbackQueryAnswerError
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("callbackQueryAnswerError","❌ Errore
+Perfavore, contattare @Pandry", "it");
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("callbackQueryAnswerError","❌ Error
+Please contact @Pandry", "en");
+
+-- callbackQueryAnswerError
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("noListsLeft","❌ Errore
+Non sono presenti liste che a cui puoi iscriverti", "it");
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("noListsLeft","❌ Error
+It aint no list you can subscribe to", "en");
+
+-- noSubscription
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("noSubscription","❌ Errore
+Nonn ti sei ancora iscritto a nessuna lista", "it");
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("noSubscription","❌ Error
+YOu did not join any list yet", "en");
+
+-- subscribedLists
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("subscribedLists","Di seguito puoi trovare le liste a cui sei iscritto.
+Per revocare una sottoscrizione, sei pregato di ""tappare"" la lista in questione.", "it");
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("subscribedLists","Here you can see the lists you are currently subscribed to.
+To remove a subscription you can ""tap"" on the list.", "en");
 
 `
