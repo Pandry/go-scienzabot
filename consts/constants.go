@@ -7,6 +7,9 @@ const Version = "0.0.1-g α"
 //DefaultLocale identifies the default locale of the bot
 const DefaultLocale = "it"
 
+//MaximumInlineKeyboardRows is the maximum number of rows a keyboard can have
+const MaximumInlineKeyboardRows = 7
+
 //User status constants
 //UserStatusActive Is assigned when the user is created and it's immediately active
 //UserStatusWaitingForBio Is assigned when the user wants to edit its biography
