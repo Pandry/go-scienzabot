@@ -5,6 +5,7 @@ import (
 	"scienzabot/consts"
 	"scienzabot/database"
 	"scienzabot/utils"
+	"strconv"
 	"strings"
 
 	tba "github.com/go-telegram-bot-api/telegram-bot-api"
@@ -50,11 +51,20 @@ func textMessageRoute(ctx *Context) {
 			reloadChatAdmins(ctx)
 
 		} else {
+			//Every 2000 messages reload chat admins
+			if message.MessageID%2000 == 0 {
+				reloadChatAdmins(ctx)
+			}
+
 			groupStatus, _ = ctx.Database.GetGroupStatus(message.Chat.ID)
 			if !userIsBotAdmin && utils.HasPermission(int(groupStatus), consts.GroupBanned) {
 				return
 			}
 			userPermission, err = ctx.Database.GetPermission(int64(message.From.ID), message.Chat.ID)
+			if err != nil {
+				reloadChatAdmins(ctx)
+				userPermission, err = ctx.Database.GetPermission(int64(message.From.ID), message.Chat.ID)
+			}
 			userIsGroupAdmin = utils.HasPermission(userPermission, consts.UserPermissionGroupAdmin) || utils.HasPermission(userPermission, consts.UserPermissionAdmin)
 		}
 
@@ -80,14 +90,7 @@ func textMessageRoute(ctx *Context) {
 				msg += "not "
 			}
 			msg += "exist."
-			messageToSend := tba.NewMessage(message.Chat.ID, msg)
-			rm := tba.NewInlineKeyboardMarkup(
-				tba.NewInlineKeyboardRow(
-					tba.NewInlineKeyboardButtonData(
-						ctx.Database.GetBotStringValueOrDefaultNoError("deleteMessageText", message.From.LanguageCode), "delme-")))
-			messageToSend.ReplyMarkup = rm
-			messageToSend.ReplyToMessageID = message.MessageID
-			ctx.Bot.Send(messageToSend)
+			replyMessageWithCloseButton(ctx, msg)
 			break
 
 		case "/help", "/aiuto", "/aiutami":
@@ -96,14 +99,7 @@ func textMessageRoute(ctx *Context) {
 			} else {
 				messageBody = "helpCommand"
 			}
-			if messageBody, err = ctx.Database.GetBotStringValueOrDefault(messageBody, message.From.LanguageCode); err == nil {
-				rm := tba.NewInlineKeyboardMarkup(
-					tba.NewInlineKeyboardRow(
-						tba.NewInlineKeyboardButtonData(" ", "delme-")))
-				message := tba.NewMessage(message.Chat.ID, messageBody)
-				message.ReplyMarkup = rm
-				ctx.Bot.Send(message)
-			}
+			replyDbMessageWithCloseButton(ctx, messageBody)
 			break
 
 		case "/info", "/informazioni", "/about", "/github":
@@ -120,32 +116,43 @@ func textMessageRoute(ctx *Context) {
 
 		case "/version", "/v":
 			if val, err := ctx.Database.GetBotSettingValue("version"); err == nil {
-				messageToSend := tba.NewMessage(message.Chat.ID, val)
-				rm := tba.NewInlineKeyboardMarkup(
-					tba.NewInlineKeyboardRow(
-						tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("deleteMessageText", message.From.LanguageCode), "delme-")))
-				//tba.NewInlineKeyboardButtonData(" ", "delme-")))
-				messageToSend.ReplyMarkup = rm
-				messageToSend.ReplyToMessageID = message.MessageID
-				ctx.Bot.Send(messageToSend)
+				replyMessageWithCloseButton(ctx, val)
 			}
 			break
 
 		case "/ping":
 			if userIsBotAdmin {
-				messageToSend := tba.NewMessage(message.Chat.ID, "🏓 Pong!")
-				rm := tba.NewInlineKeyboardMarkup(
-					tba.NewInlineKeyboardRow(
-						tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("deleteMessageText", message.From.LanguageCode), "delme-")))
-				//tba.NewInlineKeyboardButtonData(" ", "delme-")))
-				messageToSend.ReplyMarkup = rm
-				messageToSend.ReplyToMessageID = message.MessageID
-				ctx.Bot.Send(messageToSend)
+				replyMessageWithCloseButton(ctx, "🏓 Pong!")
+			}
+			break
+
+		case "/fulllist":
+			if userIsBotAdmin {
+				messageBody := ""
+				if messageInGroup {
+					lists, _ := ctx.Database.GetLists(message.Chat.ID)
+					for _, lst := range lists {
+						messageBody += lst.Name + "\n"
+						users, _ := ctx.Database.GetSubscribedUsers(lst.ID)
+						for i, usr := range users {
+							user, _ := ctx.Database.GetUser(int(usr.UserID))
+							if i == len(users)-1 {
+								messageBody += "╚ "
+							} else {
+								messageBody += "╠ "
+							}
+							messageBody += user.Nickname + " [" + strconv.Itoa(int(user.ID)) + "]" + "\n"
+						}
+					}
+					replyMessageWithCloseButton(ctx, messageBody)
+				} else {
+					replyDbMessageWithCloseButton(ctx, "notImplemented")
+				}
 			}
 			break
 
 		case "/gdpr":
-
+			replyDbMessageWithCloseButton(ctx, "notImplemented")
 			break
 
 		case "/lists":
@@ -174,28 +181,12 @@ func textMessageRoute(ctx *Context) {
 		case "/newlist":
 
 			if len(args) != 2 {
-				messageBody, err = ctx.Database.GetBotStringValueOrDefault("newlistSyntaxError", message.From.LanguageCode)
-				messageToSend := tba.NewMessage(message.Chat.ID, messageBody)
-				rm := tba.NewInlineKeyboardMarkup(
-					tba.NewInlineKeyboardRow(
-						tba.NewInlineKeyboardButtonData(
-							ctx.Database.GetBotStringValueOrDefaultNoError("deleteMessageText", message.From.LanguageCode), "delme-")))
-				messageToSend.ReplyMarkup = rm
-				messageToSend.ReplyToMessageID = message.MessageID
-				ctx.Bot.Send(messageToSend)
+				replyDbMessageWithCloseButton(ctx, "newlistSyntaxError")
 				return
 			}
 			listNameIsValid, _ := regexp.MatchString("^[a-z\\-_]{1,30}$", args[1])
 			if !listNameIsValid {
-				messageBody, err = ctx.Database.GetBotStringValueOrDefault("newlistSyntaxError", message.From.LanguageCode)
-				messageToSend := tba.NewMessage(message.Chat.ID, messageBody)
-				rm := tba.NewInlineKeyboardMarkup(
-					tba.NewInlineKeyboardRow(
-						tba.NewInlineKeyboardButtonData(
-							ctx.Database.GetBotStringValueOrDefaultNoError("deleteMessageText", message.From.LanguageCode), "delme-")))
-				messageToSend.ReplyMarkup = rm
-				messageToSend.ReplyToMessageID = message.MessageID
-				ctx.Bot.Send(messageToSend)
+				replyDbMessageWithCloseButton(ctx, "newlistSyntaxError")
 				return
 			}
 
@@ -205,38 +196,15 @@ func textMessageRoute(ctx *Context) {
 
 					err = ctx.Database.AddList(database.List{Name: args[1], GroupID: message.Chat.ID})
 					if err == nil {
-						messageToSend := tba.NewMessage(message.Chat.ID, ctx.Database.GetBotStringValueOrDefaultNoError("listCreatedSuccessfully", message.From.LanguageCode))
-						rm := tba.NewInlineKeyboardMarkup(
-							tba.NewInlineKeyboardRow(
-								tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("deleteMessageText", message.From.LanguageCode), "delme-")))
-						//tba.NewInlineKeyboardButtonData(" ", "delme-")))
-						messageToSend.ReplyMarkup = rm
-						messageToSend.ReplyToMessageID = message.MessageID
-						ctx.Bot.Send(messageToSend)
+						replyDbMessageWithCloseButton(ctx, "listCreatedSuccessfully")
 					}
 				} else {
-					messageBody, err = ctx.Database.GetBotStringValueOrDefault("notAuthorized", message.From.LanguageCode)
-					messageToSend := tba.NewMessage(message.Chat.ID, messageBody)
-					rm := tba.NewInlineKeyboardMarkup(
-						tba.NewInlineKeyboardRow(
-							tba.NewInlineKeyboardButtonData(
-								ctx.Database.GetBotStringValueOrDefaultNoError("deleteMessageText", message.From.LanguageCode), "delme-")))
-					messageToSend.ReplyMarkup = rm
-					messageToSend.ReplyToMessageID = message.MessageID
-					ctx.Bot.Send(messageToSend)
+					replyDbMessageWithCloseButton(ctx, "notAuthorized")
 				}
 
 			} else {
 				//TODO: implement group choosing where is admin
-				messageBody, err = ctx.Database.GetBotStringValueOrDefault("generalError", message.From.LanguageCode)
-				messageToSend := tba.NewMessage(message.Chat.ID, messageBody)
-				rm := tba.NewInlineKeyboardMarkup(
-					tba.NewInlineKeyboardRow(
-						tba.NewInlineKeyboardButtonData(
-							ctx.Database.GetBotStringValueOrDefaultNoError("deleteMessageText", message.From.LanguageCode), "delme-")))
-				messageToSend.ReplyMarkup = rm
-				messageToSend.ReplyToMessageID = message.MessageID
-				ctx.Bot.Send(messageToSend)
+				replyDbMessageWithCloseButton(ctx, "generalError")
 			}
 
 			break
@@ -251,106 +219,134 @@ func textMessageRoute(ctx *Context) {
 			if !userInDB {
 				//We want registration to happen in private, not in public
 				if messageInGroup {
-					if messageBody, err = ctx.Database.GetBotStringValueOrDefault("onPrivateChatCommand", message.From.LanguageCode); err == nil {
-						messageToSend := tba.NewMessage(message.Chat.ID, messageBody)
-						rm := tba.NewInlineKeyboardMarkup(
-							tba.NewInlineKeyboardRow(
-								tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("deleteMessageText", message.From.LanguageCode), "delme-")))
-						//tba.NewInlineKeyboardButtonData(" ", "delme-")))
-						messageToSend.ReplyMarkup = rm
-						messageToSend.ReplyToMessageID = message.MessageID
-						ctx.Bot.Send(messageToSend)
-					}
+					replyDbMessageWithCloseButton(ctx, "onPrivateChatCommand")
 					//Warn about error?
 					return
 				}
 				err = ctx.Database.AddUser(database.User{ID: int64(message.From.ID), Nickname: message.From.UserName, Status: consts.UserStatusActive})
 				if err != nil {
-					messageBody, err = ctx.Database.GetBotStringValueOrDefault("generalError", message.From.LanguageCode)
-					messageToSend := tba.NewMessage(message.Chat.ID, messageBody)
-					rm := tba.NewInlineKeyboardMarkup(
-						tba.NewInlineKeyboardRow(
-							tba.NewInlineKeyboardButtonData(
-								ctx.Database.GetBotStringValueOrDefaultNoError("deleteMessageText", message.From.LanguageCode), "delme-")))
-					messageToSend.ReplyMarkup = rm
-					messageToSend.ReplyToMessageID = message.MessageID
-					ctx.Bot.Send(messageToSend)
+					replyDbMessageWithCloseButton(ctx, "generalError")
 				} else {
-					messageBody, _ = ctx.Database.GetBotStringValueOrDefault(
-						ctx.Database.GetBotStringValueOrDefaultNoError("userAddedSuccessfully", message.From.LanguageCode), message.From.LanguageCode)
-					messageToSend := tba.NewMessage(message.Chat.ID, messageBody)
-					rm := tba.NewInlineKeyboardMarkup(
-						tba.NewInlineKeyboardRow(
-							tba.NewInlineKeyboardButtonData(
-								ctx.Database.GetBotStringValueOrDefaultNoError("deleteMessageText", message.From.LanguageCode), "delme-")))
-					messageToSend.ReplyMarkup = rm
-					messageToSend.ReplyToMessageID = message.MessageID
-					ctx.Bot.Send(messageToSend)
+					replyDbMessageWithCloseButton(ctx, "userAddedSuccessfully")
 				}
 			} else {
-				messageBody, _ = ctx.Database.GetBotStringValueOrDefault("userAlreadyRegistred", message.From.LanguageCode)
-				messageToSend := tba.NewMessage(message.Chat.ID, messageBody)
-				rm := tba.NewInlineKeyboardMarkup(
-					tba.NewInlineKeyboardRow(
-						tba.NewInlineKeyboardButtonData(
-							ctx.Database.GetBotStringValueOrDefaultNoError("deleteMessageText", message.From.LanguageCode), "delme-")))
-				messageToSend.ReplyMarkup = rm
-				messageToSend.ReplyToMessageID = message.MessageID
-				ctx.Bot.Send(messageToSend)
+				replyDbMessageWithCloseButton(ctx, "userAlreadyRegistred")
 			}
 			break
 
 		case "/iscrivi", "/iscrivimi", "/join", "/iscrizione", "/entra", "/sottoscrivi":
-			if !userInDB {
+			if userInDB {
 				//We want registration to happen in private, not in public
 				if messageInGroup {
-					if messageBody, err = ctx.Database.GetBotStringValueOrDefault("onPrivateChatCommand", message.From.LanguageCode); err == nil {
-						messageToSend := tba.NewMessage(message.Chat.ID, messageBody)
-						rm := tba.NewInlineKeyboardMarkup(
-							tba.NewInlineKeyboardRow(
-								tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("deleteMessageText", message.From.LanguageCode), "delme-")))
-						//tba.NewInlineKeyboardButtonData(" ", "delme-")))
-						messageToSend.ReplyMarkup = rm
-						messageToSend.ReplyToMessageID = message.MessageID
-						ctx.Bot.Send(messageToSend)
+					//replyDbMessageWithCloseButton(ctx, "onPrivateChatCommand")
+
+					lists, _ := ctx.Database.GetAvailableLists(message.Chat.ID, message.From.ID, consts.MaximumInlineKeyboardRows+1, 0)
+
+					if len(lists) == 0 {
+						replyDbMessageWithCloseButton(ctx, "noListsLeft")
+						return
 					}
-					//Warn about error?
+
+					rows := make([][]tba.InlineKeyboardButton, 0)
+					paginationPresent := false
+					for i, lst := range lists {
+						//if len(lists) > consts.MaximumInlineKeyboardRows && i+2 > consts.MaximumInlineKeyboardRows {
+						if i+2 > consts.MaximumInlineKeyboardRows {
+							rows = append(rows, []tba.InlineKeyboardButton{
+								//tba.NewInlineKeyboardButtonData("‌‌ ", "ignore"),
+								tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("closeMessageText", ctx.Update.Message.From.LanguageCode), "delme-"),
+								tba.NewInlineKeyboardButtonData("➡️", "jo-"+strconv.Itoa(consts.MaximumInlineKeyboardRows-1))})
+							paginationPresent = true
+							break
+						}
+						rows = append(rows, []tba.InlineKeyboardButton{tba.NewInlineKeyboardButtonData(lst.Name, "sub-"+strconv.Itoa(int(lst.ID)))})
+					}
+					if !paginationPresent {
+						rows = append(rows, []tba.InlineKeyboardButton{
+							tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("closeMessageText", ctx.Update.Message.From.LanguageCode), "delme-"),
+							tba.NewInlineKeyboardButtonData("‌‌ ", "ignore")})
+					}
+
+					replyMessageDBWithInlineKeyboard(ctx, "availableLists", tba.InlineKeyboardMarkup{InlineKeyboard: rows})
 					return
 				}
-				err = ctx.Database.AddUser(database.User{ID: int64(message.From.ID), Nickname: message.From.UserName, Status: consts.UserStatusActive})
-				if err != nil {
-					messageBody, err = ctx.Database.GetBotStringValueOrDefault("generalError", message.From.LanguageCode)
-					messageToSend := tba.NewMessage(message.Chat.ID, messageBody)
-					rm := tba.NewInlineKeyboardMarkup(
-						tba.NewInlineKeyboardRow(
-							tba.NewInlineKeyboardButtonData(
-								ctx.Database.GetBotStringValueOrDefaultNoError("deleteMessageText", message.From.LanguageCode), "delme-")))
-					messageToSend.ReplyMarkup = rm
-					messageToSend.ReplyToMessageID = message.MessageID
-					ctx.Bot.Send(messageToSend)
-				} else {
-					messageBody, _ = ctx.Database.GetBotStringValueOrDefault(
-						ctx.Database.GetBotStringValueOrDefaultNoError("deleteMessageText", message.From.LanguageCode), message.From.LanguageCode)
-					messageToSend := tba.NewMessage(message.Chat.ID, messageBody)
-					rm := tba.NewInlineKeyboardMarkup(
-						tba.NewInlineKeyboardRow(
-							tba.NewInlineKeyboardButtonData(
-								ctx.Database.GetBotStringValueOrDefaultNoError("deleteMessageText", message.From.LanguageCode), "delme-")))
-					messageToSend.ReplyMarkup = rm
-					messageToSend.ReplyToMessageID = message.MessageID
-					ctx.Bot.Send(messageToSend)
-				}
+				//
+
+				replyDbMessageWithCloseButton(ctx, "notImplemented")
+
+				//err = ctx.Database.AddUser(database.User{ID: int64(message.From.ID), Nickname: message.From.UserName, Status: consts.UserStatusActive})
+				/*
+					if err != nil {
+						replyDbMessageWithCloseButton(ctx, "generalError")
+					} else {
+						//replyDbMessageWithCloseButton(ctx, "userAddedSuccessfully")
+						replyDbMessageWithCloseButton(ctx, "notImplemented")
+					}
+				*/
+
 			} else {
-				messageBody, _ = ctx.Database.GetBotStringValueOrDefault("userNotRegistred", message.From.LanguageCode)
-				messageToSend := tba.NewMessage(message.Chat.ID, messageBody)
-				rm := tba.NewInlineKeyboardMarkup(
-					tba.NewInlineKeyboardRow(
-						tba.NewInlineKeyboardButtonData(
-							ctx.Database.GetBotStringValueOrDefaultNoError("deleteMessageText", message.From.LanguageCode), "delme-")))
-				messageToSend.ReplyMarkup = rm
-				messageToSend.ReplyToMessageID = message.MessageID
-				ctx.Bot.Send(messageToSend)
+				replyDbMessageWithCloseButton(ctx, "userNotRegistred")
 			}
+			break
+
+		case "/unsubscribe", "/disicrivi", "/disicriviti":
+			if userInDB {
+				//We want registration to happen in private, not in public
+				if messageInGroup {
+					//replyDbMessageWithCloseButton(ctx, "onPrivateChatCommand")
+
+					//lists, _ := ctx.Database.GetUserLists()
+					//message.Chat.ID, message.From.ID, consts.MaximumInlineKeyboardRows+1, 0
+					lists, err := ctx.Database.GetUserGroupListsWithLimits(int64(message.From.ID), message.Chat.ID, consts.MaximumInlineKeyboardRows+1, 0)
+					if err != nil {
+
+					}
+
+					if len(lists) == 0 {
+						replyDbMessageWithCloseButton(ctx, "noSubscription")
+						return
+					}
+
+					rows := make([][]tba.InlineKeyboardButton, 0)
+					paginationPresent := false
+					for i, lst := range lists {
+						if i+2 > consts.MaximumInlineKeyboardRows {
+							rows = append(rows, []tba.InlineKeyboardButton{
+								//tba.NewInlineKeyboardButtonData("‌‌ ", "ignore"),
+								tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("closeMessageText", ctx.Update.Message.From.LanguageCode), "delme-"),
+								tba.NewInlineKeyboardButtonData("➡️", "uo-"+strconv.Itoa(consts.MaximumInlineKeyboardRows-1))})
+							paginationPresent = true
+							break
+						}
+						rows = append(rows, []tba.InlineKeyboardButton{tba.NewInlineKeyboardButtonData(lst.Name, "unsub-"+strconv.Itoa(int(lst.ID)))})
+					}
+					if !paginationPresent {
+						rows = append(rows, []tba.InlineKeyboardButton{
+							tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("closeMessageText", ctx.Update.Message.From.LanguageCode), "delme-"),
+							tba.NewInlineKeyboardButtonData("‌‌ ", "ignore")})
+					}
+
+					replyMessageDBWithInlineKeyboard(ctx, "subscribedLists", tba.InlineKeyboardMarkup{InlineKeyboard: rows})
+					return
+				}
+				//
+
+				replyDbMessageWithCloseButton(ctx, "notImplemented")
+
+				//err = ctx.Database.AddUser(database.User{ID: int64(message.From.ID), Nickname: message.From.UserName, Status: consts.UserStatusActive})
+				/*
+					if err != nil {
+						replyDbMessageWithCloseButton(ctx, "generalError")
+					} else {
+						//replyDbMessageWithCloseButton(ctx, "userAddedSuccessfully")
+						replyDbMessageWithCloseButton(ctx, "notImplemented")
+					}
+				*/
+
+			} else {
+				replyDbMessageWithCloseButton(ctx, "userNotRegistred")
+			}
+
 			break
 
 		case "/segnalibro", "/salva":
@@ -364,6 +360,70 @@ func textMessageRoute(ctx *Context) {
 		default:
 			//Check if it exists in DB
 
+		}
+	} else {
+		//Check if list was invoked
+		listPrefixes := []string{"@", "#", "!", "."}
+		possibleLists := make([]string, 0)
+
+		for _, prefix := range listPrefixes {
+			if strings.Contains(message.Text, prefix) {
+				words := strings.Split(message.Text, " ")
+				for _, word := range words {
+					if len(word) > 1 {
+						if word[0] == prefix[0] {
+							possibleLists = append(possibleLists, strings.ToLower(word[1:]))
+						}
+					}
+				}
+			}
+		}
+
+		if len(possibleLists) < 1 {
+			return
+		}
+
+		groupLists, err := ctx.Database.GetLists(message.Chat.ID)
+		if err != nil {
+			replyDbMessageWithCloseButton(ctx, "generalError")
+			return
+		}
+
+		lists := make([]database.List, 0)
+		for _, plist := range possibleLists {
+			for _, glist := range groupLists {
+				if plist == glist.Name {
+					lists = append(lists, glist)
+				}
+			}
+		}
+
+		if len(lists) < 1 {
+			return
+		}
+
+		contactedUsers := make([]int64, 0)
+
+		for _, list := range lists {
+			subs, _ := ctx.Database.GetSubscribedUsers(list.ID)
+			for _, sub := range subs {
+				found := false
+				for _, cUse := range contactedUsers {
+
+					if sub.UserID == cUse {
+						found = true
+
+						break
+					}
+
+				}
+				if !found {
+					messageToSend := tba.NewMessage(sub.UserID, "Yo biccha, u were called in list "+list.Name+".")
+					ctx.Bot.Send(messageToSend)
+
+					contactedUsers = append(contactedUsers, sub.UserID)
+				}
+			}
 		}
 	}
 }
@@ -429,9 +489,27 @@ func reloadChatAdmins(ctx *Context) {
 
 }
 
-func replyMessageWithCloseButton(ctx *Context, keyString string) {
-	messageBody, _ := ctx.Database.GetBotStringValueOrDefault(
-		ctx.Database.GetBotStringValueOrDefaultNoError(keyString, ctx.Update.Message.From.LanguageCode), ctx.Update.Message.From.LanguageCode)
+func replyMessageDBWithInlineKeyboard(ctx *Context, keyString string, ikm tba.InlineKeyboardMarkup) {
+	messageBody := ctx.Database.GetBotStringValueOrDefaultNoError(keyString, ctx.Update.Message.From.LanguageCode)
+	messageToSend := tba.NewMessage(ctx.Update.Message.Chat.ID, messageBody)
+	messageToSend.ReplyMarkup = ikm
+	messageToSend.ReplyToMessageID = ctx.Update.Message.MessageID
+	ctx.Bot.Send(messageToSend)
+}
+
+func replyMessageWithCloseButton(ctx *Context, messageBody string) {
+	messageToSend := tba.NewMessage(ctx.Update.Message.Chat.ID, messageBody)
+	rm := tba.NewInlineKeyboardMarkup(
+		tba.NewInlineKeyboardRow(
+			tba.NewInlineKeyboardButtonData(
+				ctx.Database.GetBotStringValueOrDefaultNoError("deleteMessageText", ctx.Update.Message.From.LanguageCode), "delme-")))
+	messageToSend.ReplyMarkup = rm
+	messageToSend.ReplyToMessageID = ctx.Update.Message.MessageID
+	ctx.Bot.Send(messageToSend)
+}
+
+func replyDbMessageWithCloseButton(ctx *Context, keyString string) {
+	messageBody := ctx.Database.GetBotStringValueOrDefaultNoError(keyString, ctx.Update.Message.From.LanguageCode)
 	messageToSend := tba.NewMessage(ctx.Update.Message.Chat.ID, messageBody)
 	rm := tba.NewInlineKeyboardMarkup(
 		tba.NewInlineKeyboardRow(
