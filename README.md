@@ -5,3 +5,4 @@
 [ ] Add check for uniquie constraint on database (unsername table) - a user could have a nickname another used had in the past
 [ ] Find when to increment bookmark last update, to delete the bookmark after some time
 [ ] Implement subcategories (already implemented in DB)
+[ ] Refacor database/listHelpers.go
