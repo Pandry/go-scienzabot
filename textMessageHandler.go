@@ -418,7 +418,28 @@ func textMessageRoute(ctx *Context) {
 
 				}
 				if !found {
-					messageToSend := tba.NewMessage(sub.UserID, "Yo biccha, u were called in list "+list.Name+".")
+					messageToSend := tba.NewMessage(sub.UserID, "Yo biccha, u were called in list "+list.Name+" from group \""+message.Chat.Title+"\"")
+					if message.Chat.IsSuperGroup() {
+						if message.Chat.UserName != "" {
+							ikm1 := tba.NewInlineKeyboardButtonURL("Go to Group", "t.me/"+message.Chat.UserName)
+							ikm2 := tba.NewInlineKeyboardButtonURL("Go to the message", "t.me/"+message.Chat.UserName+"/"+strconv.Itoa(message.MessageID))
+							ikm3 := tba.NewInlineKeyboardButtonData("Tag me at the message", "tag-"+strconv.FormatInt(message.Chat.ID, 10)+"-"+strconv.Itoa(message.MessageID))
+							ikl := []tba.InlineKeyboardButton{ikm1, ikm2, ikm3}
+							ikm := tba.NewInlineKeyboardMarkup(ikl)
+							messageToSend.ReplyMarkup = ikm
+						} else {
+							ikm3 := tba.NewInlineKeyboardButtonData("Tag me at the message", "tag-"+strconv.FormatInt(message.Chat.ID, 10)+"-"+strconv.Itoa(message.MessageID))
+							ikl := []tba.InlineKeyboardButton{ikm3}
+							ikm := tba.NewInlineKeyboardMarkup(ikl)
+							messageToSend.ReplyMarkup = ikm
+						}
+					} else {
+						ikm3 := tba.NewInlineKeyboardButtonData("Tag me at the message", "tag-"+strconv.FormatInt(message.Chat.ID, 10)+"-"+strconv.Itoa(message.MessageID))
+						ikl := []tba.InlineKeyboardButton{ikm3}
+						ikm := tba.NewInlineKeyboardMarkup(ikl)
+						messageToSend.ReplyMarkup = ikm
+					}
+
 					ctx.Bot.Send(messageToSend)
 
 					contactedUsers = append(contactedUsers, sub.UserID)
