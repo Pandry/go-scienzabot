@@ -302,9 +302,9 @@ INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("callbackQueryAnsw
 Please contact @Pandry", "en");
 
 -- callbackQueryAnswerError
-INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("noListsLeft","❌ Errore
-Non sono presenti liste che alle quali puoi iscriverti", "it");
-INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("noListsLeft","❌ Error
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("noListsLeft","❕ Info
+Non sono presenti (ulteriori) liste che alle quali puoi iscriverti", "it");
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("noListsLeft","❕ Info
 It aint no list you can subscribe to", "en");
 
 -- noSubscription
