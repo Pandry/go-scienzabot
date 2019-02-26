@@ -95,7 +95,8 @@ func (db *SQLiteDB) GetPermission(userID int64, groupID int64) (int, error) {
 	switch {
 	case err == sql.ErrNoRows:
 		db.AddLogEvent(Log{Event: "GetPermission_Info_ErrorNoRows", Message: "Impossible to get rows", Error: err.Error()})
-		return int(perm), err
+		//return int(perm), err
+		return int(perm), nil
 	case err != nil:
 		db.AddLogEvent(Log{Event: "GetPermission_ErrorUnknown", Message: "Uknown error verified", Error: err.Error()})
 		return int(perm), err
