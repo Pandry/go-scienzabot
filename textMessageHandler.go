@@ -32,6 +32,7 @@ func textMessageRoute(ctx *Context) {
 	if userExists := ctx.Database.UserExists(message.From.ID); userExists {
 		user, err = ctx.Database.GetUser(message.From.ID)
 		ctx.Database.SetUserNickname(message.From.ID, message.From.UserName)
+		ctx.Database.SetUserLocale(message.From.ID, message.From.LanguageCode)
 		userIsBotAdmin = utils.HasPermission(int(user.Permissions), consts.UserPermissionAdmin)
 	}
 
@@ -453,7 +454,7 @@ func textMessageRoute(ctx *Context) {
 }
 
 func reloadChatAdmins(ctx *Context) {
-	admins, err := ctx.Bot.GetChatAdministrators(ctx.Update.Message.Chat.ChatConfig())
+	admins, err := ctx.Bot.GetChatAdmimessage.From.LanguageCodeistrators(ctx.Update.Message.Chat.ChatConfig())
 
 	if err != nil {
 		return
