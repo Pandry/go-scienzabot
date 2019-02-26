@@ -420,23 +420,24 @@ func textMessageRoute(ctx *Context) {
 				}
 
 				if !found {
-					messageToSend := tba.NewMessage(sub.UserID, strings.Replace(strings.Replace(ctx.Database.GetBotStringValueOrDefaultNoError("tagNotification", message.From.LanguageCode), "{{categoryName}}", list.Name, -1), "{{groupName}}", message.Chat.Title, -1))
+					user, _ := ctx.Database.GetUser(sub.UserID)
+					messageToSend := tba.NewMessage(sub.UserID, strings.Replace(strings.Replace(ctx.Database.GetBotStringValueOrDefaultNoError("tagNotification", user.Locale), "{{categoryName}}", list.Name, -1), "{{groupName}}", message.Chat.Title, -1))
 					if message.Chat.IsSuperGroup() {
 						if message.Chat.UserName != "" {
-							ikm1 := tba.NewInlineKeyboardButtonURL(ctx.Database.GetBotStringValueOrDefaultNoError("tagNotificationGroupLink", message.From.LanguageCode), "t.me/"+message.Chat.UserName)
-							ikm2 := tba.NewInlineKeyboardButtonURL(ctx.Database.GetBotStringValueOrDefaultNoError("tagNotificationMessageLink", message.From.LanguageCode), "t.me/"+message.Chat.UserName+"/"+strconv.Itoa(message.MessageID))
-							ikm3 := tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("tagNotificationTag", message.From.LanguageCode), "tag-"+strconv.FormatInt(message.Chat.ID, 10)+"-"+strconv.Itoa(message.MessageID))
+							ikm1 := tba.NewInlineKeyboardButtonURL(ctx.Database.GetBotStringValueOrDefaultNoError("tagNotificationGroupLink", user.Locale), "t.me/"+message.Chat.UserName)
+							ikm2 := tba.NewInlineKeyboardButtonURL(ctx.Database.GetBotStringValueOrDefaultNoError("tagNotificationMessageLink", user.Locale), "t.me/"+message.Chat.UserName+"/"+strconv.Itoa(message.MessageID))
+							ikm3 := tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("tagNotificationTag", user.Locale), "tag-"+strconv.FormatInt(message.Chat.ID, 10)+"-"+strconv.Itoa(message.MessageID))
 							ikl := []tba.InlineKeyboardButton{ikm1, ikm2, ikm3}
 							ikm := tba.NewInlineKeyboardMarkup(ikl)
 							messageToSend.ReplyMarkup = ikm
 						} else {
-							ikm3 := tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("tagNotificationTag", message.From.LanguageCode), "tag-"+strconv.FormatInt(message.Chat.ID, 10)+"-"+strconv.Itoa(message.MessageID))
+							ikm3 := tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("tagNotificationTag", user.Locale), "tag-"+strconv.FormatInt(message.Chat.ID, 10)+"-"+strconv.Itoa(message.MessageID))
 							ikl := []tba.InlineKeyboardButton{ikm3}
 							ikm := tba.NewInlineKeyboardMarkup(ikl)
 							messageToSend.ReplyMarkup = ikm
 						}
 					} else {
-						ikm3 := tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("tagNotificationTag", message.From.LanguageCode), "tag-"+strconv.FormatInt(message.Chat.ID, 10)+"-"+strconv.Itoa(message.MessageID))
+						ikm3 := tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("tagNotificationTag", user.Locale), "tag-"+strconv.FormatInt(message.Chat.ID, 10)+"-"+strconv.Itoa(message.MessageID))
 						ikl := []tba.InlineKeyboardButton{ikm3}
 						ikm := tba.NewInlineKeyboardMarkup(ikl)
 						messageToSend.ReplyMarkup = ikm
