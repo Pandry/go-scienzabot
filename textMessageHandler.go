@@ -65,7 +65,7 @@ func textMessageRoute(ctx *Context) {
 			userPermission, err = ctx.Database.GetPermission(int64(message.From.ID), message.Chat.ID)
 			if err != nil {
 				reloadChatAdmins(ctx)
-				userPermission, err = ctx.Database.GetPermission(int64(message.From.ID), message.Chat.ID)
+				userPermission, _ = ctx.Database.GetPermission(int64(message.From.ID), message.Chat.ID)
 			}
 			userIsGroupAdmin = utils.HasPermission(userPermission, consts.UserPermissionGroupAdmin) || utils.HasPermission(userPermission, consts.UserPermissionAdmin)
 		}
@@ -159,24 +159,50 @@ func textMessageRoute(ctx *Context) {
 
 		case "/lists":
 			if userInDB {
-				grps, _ := ctx.Database.GetUserGroups(message.From.ID)
-				messageBody := ""
-				for _, group := range grps {
-					messageBody += group.Title + "\n"
-					lists, _ := ctx.Database.GetLists(group.ID)
-					for _, lst := range lists {
-						messageBody += "  " + lst.Name + "\n"
-
+				if !messageInGroup {
+					grps, _ := ctx.Database.GetUserGroups(message.From.ID)
+					messageBody := ""
+					for _, group := range grps {
+						messageBody += group.Title + "\n"
+						lists, _ := ctx.Database.GetLists(group.ID)
+						for i, lst := range lists {
+							if i == len(lists)-1 {
+								messageBody += "  ╚ " + lst.Name + "\n"
+							} else {
+								messageBody += "  ╠ " + lst.Name + "\n"
+							}
+						}
+						messageBody += "\n"
 					}
+					messageToSend := tba.NewMessage(message.Chat.ID, messageBody)
+					rm := tba.NewInlineKeyboardMarkup(
+						tba.NewInlineKeyboardRow(
+							tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("deleteMessageText", message.From.LanguageCode), "delme-")))
+					//tba.NewInlineKeyboardButtonData(" ", "delme-")))
+					messageToSend.ReplyMarkup = rm
+					messageToSend.ReplyToMessageID = message.MessageID
+					ctx.Bot.Send(messageToSend)
+				} else {
+
+					messageBody += message.Chat.Title + "\n"
+					lists, _ := ctx.Database.GetLists(message.Chat.ID)
+					for i, lst := range lists {
+						if i == len(lists)-1 {
+							messageBody += "  ╚ " + lst.Name + "\n"
+						} else {
+							messageBody += "  ╠ " + lst.Name + "\n"
+						}
+					}
+
+					messageToSend := tba.NewMessage(message.Chat.ID, messageBody)
+					rm := tba.NewInlineKeyboardMarkup(
+						tba.NewInlineKeyboardRow(
+							tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("deleteMessageText", message.From.LanguageCode), "delme-")))
+					//tba.NewInlineKeyboardButtonData(" ", "delme-")))
+					messageToSend.ReplyMarkup = rm
+					messageToSend.ReplyToMessageID = message.MessageID
+					ctx.Bot.Send(messageToSend)
 				}
-				messageToSend := tba.NewMessage(message.Chat.ID, messageBody)
-				rm := tba.NewInlineKeyboardMarkup(
-					tba.NewInlineKeyboardRow(
-						tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("deleteMessageText", message.From.LanguageCode), "delme-")))
-				//tba.NewInlineKeyboardButtonData(" ", "delme-")))
-				messageToSend.ReplyMarkup = rm
-				messageToSend.ReplyToMessageID = message.MessageID
-				ctx.Bot.Send(messageToSend)
 			}
 			break
 
@@ -421,7 +447,7 @@ func textMessageRoute(ctx *Context) {
 				}
 
 				if !found {
-					user, _ := ctx.Database.GetUser(sub.UserID)
+					user, _ := ctx.Database.GetUser(int(sub.UserID))
 					messageToSend := tba.NewMessage(sub.UserID, strings.Replace(strings.Replace(ctx.Database.GetBotStringValueOrDefaultNoError("tagNotification", user.Locale), "{{categoryName}}", list.Name, -1), "{{groupName}}", message.Chat.Title, -1))
 					if message.Chat.IsSuperGroup() {
 						if message.Chat.UserName != "" {
@@ -454,7 +480,7 @@ func textMessageRoute(ctx *Context) {
 }
 
 func reloadChatAdmins(ctx *Context) {
-	admins, err := ctx.Bot.GetChatAdmimessage.From.LanguageCodeistrators(ctx.Update.Message.Chat.ChatConfig())
+	admins, err := ctx.Bot.GetChatAdministrators(ctx.Update.Message.Chat.ChatConfig())
 
 	if err != nil {
 		return
