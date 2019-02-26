@@ -239,6 +239,33 @@ func callbackQueryRoute(ctx *Context) {
 			}
 			break
 
+		case "tag":
+			//If the messge is not null AND the user is admin OR the bot is replaying to the message sent to the user that clicked the button
+			if message.Message != nil && len(args) == 4 && args[1] == "" && message.From.UserName != "" {
+				groupID, err := strconv.ParseInt(args[2], 10, 64)
+				if err != nil {
+					break
+				}
+
+				messageID, err := strconv.ParseInt(args[3], 10, 64)
+				if err != nil {
+					break
+				}
+
+				replymessage := tba.NewMessage(groupID*-1, "@"+message.From.UserName)
+				replymessage.ReplyToMessageID = int(messageID)
+
+				rm := tba.NewInlineKeyboardMarkup(
+					tba.NewInlineKeyboardRow(
+						tba.NewInlineKeyboardButtonData(
+							ctx.Database.GetBotStringValueOrDefaultNoError("deleteMessageText", message.From.LanguageCode), "delme-")))
+				replymessage.ReplyMarkup = rm
+				ctx.Bot.Send(replymessage)
+
+			}
+
+			break
+
 		case "delme":
 			//If the messge is not null AND the user is admin OR the bot is replaying to the message sent to the user that clicked the button
 			if message.Message != nil &&
@@ -249,6 +276,7 @@ func callbackQueryRoute(ctx *Context) {
 			}
 
 			break
+
 		case "del":
 			var groupID int64
 			groupID, err = strconv.ParseInt(args[1], 10, 64)
