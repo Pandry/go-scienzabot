@@ -3,6 +3,7 @@ package database
 import (
 	"database/sql"
 	"errors"
+	"scienzabot/consts"
 	"time"
 )
 
@@ -23,6 +24,9 @@ CREATE TABLE IF NOT EXISTS 'Users' (
 //AddUser takes a a database.User struct as parameter and insert it in the database
 //Only ID, Nickname, Status and Locale will be considered since other ones are supposed to be setted later
 func (db *SQLiteDB) AddUser(usr User) error {
+	if usr.Locale == "" {
+		usr.Locale = consts.DefaultLocale
+	}
 	query, err := db.Exec("INSERT INTO Users (`ID`, `Nickname`, `Status`, `Permissions`, `Locale`) VALUES (?,?,?,?,?)",
 		usr.ID, usr.Nickname, usr.Status, usr.Permissions, usr.Locale)
 	if err != nil {
@@ -69,7 +73,9 @@ func (db *SQLiteDB) GetUser(userID int) (User, error) {
 //UpdateUser updates a user data, using a reference the ID.
 //All the fields will be used, so make sure that every field of the user struct contains something!
 func (db *SQLiteDB) UpdateUser(user User) error {
-
+	if user.Locale == "" {
+		user.Locale = consts.DefaultLocale
+	}
 	query, err := db.Exec("UPDATE Users SET `Nickname` = ?,`Biography` = ?, `Status` = ?, `LastSeen` = ?, `Permissions` = ?, `Locale` = ?  WHERE `ID`=?",
 		user.Nickname, user.Biography, user.Status, user.LastSeen, user.Permissions, user.Locale, user.ID)
 	if err != nil {
