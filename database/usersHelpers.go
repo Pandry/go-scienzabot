@@ -27,8 +27,12 @@ func (db *SQLiteDB) AddUser(usr User) error {
 	if usr.Locale == "" {
 		usr.Locale = consts.DefaultLocale
 	}
+	var nick sql.NullString
+	nick.String = usr.Nickname
+	nick.Valid = usr.Nickname == ""
+
 	query, err := db.Exec("INSERT INTO Users (`ID`, `Nickname`, `Status`, `Permissions`, `Locale`) VALUES (?,?,?,?,?)",
-		usr.ID, usr.Nickname, usr.Status, usr.Permissions, usr.Locale)
+		usr.ID, nick, usr.Status, usr.Permissions, usr.Locale)
 	if err != nil {
 		db.AddLogEvent(Log{Event: "AddUser_QueryFailed", Message: "Impossible to create the execute the query", Error: err.Error()})
 		return err
@@ -202,7 +206,10 @@ func (db *SQLiteDB) GetUserPermissions(userID int) (int64, error) {
 
 //SetUserNickname sets the nickname of a user
 func (db *SQLiteDB) SetUserNickname(userID int, userNickname string) error {
-	query, err := db.Exec("UPDATE Users SET `Nickname` = ? WHERE `ID` = ?", userNickname, userID)
+	var nick sql.NullString
+	nick.String = userNickname
+	nick.Valid = userNickname == ""
+	query, err := db.Exec("UPDATE Users SET `Nickname` = ? WHERE `ID` = ?", nick, userID)
 	if err != nil {
 		db.AddLogEvent(Log{Event: "SetUserNickname_QueryFailed", Message: "Impossible to create the execute the query", Error: err.Error()})
 		return err
@@ -221,7 +228,10 @@ func (db *SQLiteDB) SetUserNickname(userID int, userNickname string) error {
 
 //SetUserLocale sets the locale of a user
 func (db *SQLiteDB) SetUserLocale(userID int, userLocale string) error {
-	query, err := db.Exec("UPDATE Users SET `Locale` = ? WHERE `ID` = ?", userLocale, userID)
+	var loc sql.NullString
+	loc.String = userLocale
+	loc.Valid = userLocale == ""
+	query, err := db.Exec("UPDATE Users SET `Locale` = ? WHERE `ID` = ?", loc, userID)
 	if err != nil {
 		db.AddLogEvent(Log{Event: "SetUserLocale_QueryFailed", Message: "Impossible to create the execute the query", Error: err.Error()})
 		return err
