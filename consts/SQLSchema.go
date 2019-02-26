@@ -204,7 +204,7 @@ CREATE TABLE IF NOT EXISTS 'Log' (
 INSERT OR IGNORE INTO BotSettings (Key, Value ) VALUES ( "DefaultLocale", "'` + DefaultLocale + `'" );
 
 -- Inserting Pandry and AndreaIdini as users
-INSERT OR IGNORE INTO Users (ID, Nickname, Permissions) VALUES (14092073, "Pandry", 255), (44917659, "AndreaIdini", 255);
+INSERT OR IGNORE INTO Users (ID, Nickname, Permissions) VALUES (14092073, "Pandry", 255);
 
 -- Inserting bot version if not exists
 INSERT OR IGNORE INTO BotSettings (Key,Value) VALUES ("version", "⚛️ v 0.1g α");
@@ -219,35 +219,16 @@ INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("helpCommand","Com
 INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("helpCommand","Help commands:
 /help - Don't ya know?", "en");
 
--- Info Command
-INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("infoCommand","Ciao 😁
-Sei confuso? 
-Questo è il bot del gruppo @scienza e permette di usufruire di queste funzioni:
-/iscriviti per iscriverti al database di utenti e per partecipare alle liste sugli interessi
-/aderisci per iscriverti ad una lista, puoi usare anche: /partecipa, /registrati e /sottoscrivi
-/bio per scrivere qualcosa su di te
-/liste per scoprire le liste già presenti
-/gdpr consulta le norme sul GDPR
-/privs elenca i privilegi di un utente (richiesto come argomento)
-/biografia mostra la biografia di un utente (richiesto come argomento)
-/disiscrivi per cancellarti da una lista alla quale hai aderito, puoi usare pure: /esci, /rimuovi, /iscrizioni e /aderenze
-/info Ottieni informazioni su di me
-Puoi anche usare il bot in modalità ""inline"": sarà sufficiente scrivere @scienziati_bot <username> per avere informazioni riguardo l'utente
-In caso di problemi invece, sei pregato di conttattare @Pandry, in quanto sviluppatore del bot.
-Report di problemi, come ad esempio liste non presenti, bot non responsivo ecc sono assolutamente gradite; O anche solo per proporre qualche idea e conversarne a riguardo.
-A tal proposito, esiste un gruppo dedicato ai programmi scritti in comune tra i membri di @Scienza.
-Chiedi ad un amministratore per ulteriori informazioni a riguardo.
-Buona continuazione su @Scienza", "it");
 
 INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("infoCommand","That's the @scienza custom bot and things", "en");
 
 -- Errors strings
-INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("generalError","❌ Error 518 ❌ - Bip bop, I'm a teapot
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("generalError","❌ Error 518 ❌ - Bip bop, I'm a teabot
 Si è verificato un errore.
 Lo sviluppatore (@Pandry) è stato già avvertito.
 Sei pregato di contattarlo per descrivere in che modo questo errore è stato visualizzat, grazie.", "it");
 
-INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("generalError"," ❌ Error 518 ❌ - Bip bop, I'm a teapot
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("generalError"," ❌ Error 518 ❌ - Bip bop, I'm a teabot
 An error occourred.
 The developer (@Pandry) has been notified.
 You are kindly asked to text him telling what you've done to see this.", "en");
@@ -300,8 +281,8 @@ If you believe this is an error, please contact the bot author (@Pandry)", "en")
 
 
 --notImplemented
-INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("notImplemented"," Questa funzionalità non è ancora implementata", "it");
-INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("notImplemented"," This feature is not implemented yet", "en");
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("notImplemented","Questa funzionalità non è ancora implementata", "it");
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("notImplemented","This feature is not implemented yet", "en");
 
 
 -- Available Lists
@@ -322,20 +303,37 @@ Please contact @Pandry", "en");
 
 -- callbackQueryAnswerError
 INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("noListsLeft","❌ Errore
-Non sono presenti liste che a cui puoi iscriverti", "it");
+Non sono presenti liste che alle quali puoi iscriverti", "it");
 INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("noListsLeft","❌ Error
 It aint no list you can subscribe to", "en");
 
 -- noSubscription
 INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("noSubscription","❌ Errore
-Nonn ti sei ancora iscritto a nessuna lista", "it");
+Non ti sei ancora iscritto a nessuna lista", "it");
 INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("noSubscription","❌ Error
-YOu did not join any list yet", "en");
+You did not join any list yet", "en");
 
 -- subscribedLists
 INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("subscribedLists","Di seguito puoi trovare le liste a cui sei iscritto.
 Per revocare una sottoscrizione, sei pregato di ""tappare"" la lista in questione.", "it");
 INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("subscribedLists","Here you can see the lists you are currently subscribed to.
 To remove a subscription you can ""tap"" on the list.", "en");
+
+
+-- tagNotification
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("tagNotification","Hey, una categoria alla quale sei sottoscritto ({{categoryName}} nel gruppo {{groupName}}) è stata menzionata.", "it");
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("tagNotification","Hey, a category you are subscribed to ({{categoryName}} in the group {{groupName}}) was mentioned.", "en");
+
+-- tagNotificationGroupLink
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("tagNotificationGroupLink","Vai al gruppo", "it");
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("tagNotificationGroupLink","Go to the group", "en");
+
+-- tagNotificationMessageLink
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("tagNotificationMessageLink","Vai al messaggio", "it");
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("tagNotificationMessageLink","Go to the message", "en");
+
+-- tagNotificationTag
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("tagNotificationTag","Taggami al messaggio", "it");
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("tagNotificationTag","Tag me at the message", "en");
 
 `
