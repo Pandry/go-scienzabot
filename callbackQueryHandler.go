@@ -252,14 +252,16 @@ func callbackQueryRoute(ctx *Context) {
 					break
 				}
 
-				replymessage := tba.NewMessage(groupID*-1, "@"+message.From.UserName)
+				replymessage := tba.NewMessage(groupID*-1, "[@"+message.From.FirstName+" "+message.From.LastName+"](tg://user?id="+strconv.Itoa(message.From.ID)+")")
 				replymessage.ReplyToMessageID = int(messageID)
 
 				rm := tba.NewInlineKeyboardMarkup(
 					tba.NewInlineKeyboardRow(
 						tba.NewInlineKeyboardButtonData(
 							ctx.Database.GetBotStringValueOrDefaultNoError("deleteMessageText", message.From.LanguageCode), "delme-")))
+
 				replymessage.ReplyMarkup = rm
+				replymessage.ParseMode = tba.ModeMarkdown
 				ctx.Bot.Send(replymessage)
 
 			}
