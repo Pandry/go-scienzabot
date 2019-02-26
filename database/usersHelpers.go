@@ -21,10 +21,10 @@ CREATE TABLE IF NOT EXISTS 'Users' (
 //TODO: Remove user
 
 //AddUser takes a a database.User struct as parameter and insert it in the database
-//Only ID, Nickname and Status will be considered since other ones are supposed to be setted later
+//Only ID, Nickname, Status and Locale will be considered since other ones are supposed to be setted later
 func (db *SQLiteDB) AddUser(usr User) error {
-	query, err := db.Exec("INSERT INTO Users (`ID`, `Nickname`, `Status`, `Permissions`) VALUES (?,?,?,?)",
-		usr.ID, usr.Nickname, usr.Status, usr.Permissions)
+	query, err := db.Exec("INSERT INTO Users (`ID`, `Nickname`, `Status`, `Permissions`, `Locale`) VALUES (?,?,?,?,?)",
+		usr.ID, usr.Nickname, usr.Status, usr.Permissions, usr.Locale)
 	if err != nil {
 		db.AddLogEvent(Log{Event: "AddUser_QueryFailed", Message: "Impossible to create the execute the query", Error: err.Error()})
 		return err
@@ -47,9 +47,9 @@ func (db *SQLiteDB) GetUser(userID int) (User, error) {
 		usr User
 		bio sql.NullString
 	)
-	err := db.QueryRow("SELECT `ID`, `Nickname`, `Biography`, `Status`, `LastSeen`, `RegisterDate`, `Permissions` "+
+	err := db.QueryRow("SELECT `ID`, `Nickname`, `Biography`, `Status`, `LastSeen`, `RegisterDate`, `Permissions`, `Locale` "+
 		"FROM Users WHERE `ID`=?", userID).Scan(
-		&usr.ID, &usr.Nickname, &bio, &usr.Status, &usr.LastSeen, &usr.RegisterDate, &usr.Permissions)
+		&usr.ID, &usr.Nickname, &bio, &usr.Status, &usr.LastSeen, &usr.RegisterDate, &usr.Permissions, &usr.Locale)
 
 	if bio.Valid {
 		usr.Biography = bio.String
@@ -70,8 +70,8 @@ func (db *SQLiteDB) GetUser(userID int) (User, error) {
 //All the fields will be used, so make sure that every field of the user struct contains something!
 func (db *SQLiteDB) UpdateUser(user User) error {
 
-	query, err := db.Exec("UPDATE Users SET `Nickname` = ?,`Biography` = ?, `Status` = ?, `LastSeen` = ?, `Permissions` = ?  WHERE `ID`=?",
-		user.Nickname, user.Biography, user.Status, user.LastSeen, user.Permissions, user.ID)
+	query, err := db.Exec("UPDATE Users SET `Nickname` = ?,`Biography` = ?, `Status` = ?, `LastSeen` = ?, `Permissions` = ?, `Locale` = ?  WHERE `ID`=?",
+		user.Nickname, user.Biography, user.Status, user.LastSeen, user.Permissions, user.Locale, user.ID)
 	if err != nil {
 		db.AddLogEvent(Log{Event: "UpdateUser_QueryFailed", Message: "Impossible to create the execute the query", Error: err.Error()})
 		return err
@@ -208,6 +208,25 @@ func (db *SQLiteDB) SetUserNickname(userID int, userNickname string) error {
 	}
 	if rows < 1 {
 		db.AddLogEvent(Log{Event: "SetUserNickname_NoRowsAffected", Message: "No rows affected"})
+		return NoRowsAffected{error: errors.New("No rows affected from the query")}
+	}
+	return err
+}
+
+//SetUserLocale sets the locale of a user
+func (db *SQLiteDB) SetUserLocale(userID int, userLocale string) error {
+	query, err := db.Exec("UPDATE Users SET `Locale` = ? WHERE `ID` = ?", userLocale, userID)
+	if err != nil {
+		db.AddLogEvent(Log{Event: "SetUserLocale_QueryFailed", Message: "Impossible to create the execute the query", Error: err.Error()})
+		return err
+	}
+	rows, err := query.RowsAffected()
+	if err != nil {
+		db.AddLogEvent(Log{Event: "SetUserLocale_RowsInfoNotGot", Message: "Impossible to get afftected rows", Error: err.Error()})
+		return err
+	}
+	if rows < 1 {
+		db.AddLogEvent(Log{Event: "SetUserLocale_NoRowsAffected", Message: "No rows affected"})
 		return NoRowsAffected{error: errors.New("No rows affected from the query")}
 	}
 	return err

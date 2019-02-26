@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS 'Users' (
 	'Nickname'  TEXT UNIQUE,
 	'Biography'  TEXT,
 	'Status'  INTEGER NOT NULL DEFAULT 0,
+	'Locale'  TEXT NOT NULL DEFAULT '` + DefaultLocale + `',
 	'Permissions'  INTEGER NOT NULL DEFAULT 0,
 	'LastSeen'  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	'RegisterDate' TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -163,7 +164,7 @@ CREATE TABLE IF NOT EXISTS 'BotSettings' (
 
 /*
 The BotStrings table will contain all the strings to be used from the bot, like the "cancel" text and so on...
-As the constraint shows, there can only be a pair of key-locale per table(we can't have 2 way of saying the same thing
+As the constraint shows, there can only bae a pair of key-locale per table(we can't have 2 way of saying the same thing
 in the same language; which one should we take?) 
 */
 CREATE TABLE IF NOT EXISTS 'BotStrings' (

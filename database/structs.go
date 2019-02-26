@@ -6,6 +6,7 @@ type User struct {
 	Nickname     string
 	Biography    string
 	Status       int64
+	Locale       string
 	Permissions  int64
 	LastSeen     string
 	RegisterDate string
