@@ -52,16 +52,16 @@ func (db *SQLiteDB) AddUser(usr User) error {
 //GetUser returns a user using the database.user struct
 func (db *SQLiteDB) GetUser(userID int) (User, error) {
 	var (
-		usr User
-		bio sql.NullString
+		usr  User
+		bio  sql.NullString
+		nick sql.NullString
 	)
 	err := db.QueryRow("SELECT `ID`, `Nickname`, `Biography`, `Status`, `LastSeen`, `RegisterDate`, `Permissions`, `Locale` "+
 		"FROM Users WHERE `ID`=?", userID).Scan(
-		&usr.ID, &usr.Nickname, &bio, &usr.Status, &usr.LastSeen, &usr.RegisterDate, &usr.Permissions, &usr.Locale)
+		&usr.ID, &nick, &bio, &usr.Status, &usr.LastSeen, &usr.RegisterDate, &usr.Permissions, &usr.Locale)
 
-	if bio.Valid {
-		usr.Biography = bio.String
-	}
+	usr.Biography = bio.String
+	usr.Nickname = nick.String
 	switch {
 	case err == sql.ErrNoRows:
 		db.AddLogEvent(Log{Event: "GetUser_ErrorNoRows", Message: "Impossible to get rows", Error: err.Error()})
@@ -228,10 +228,10 @@ func (db *SQLiteDB) SetUserNickname(userID int, userNickname string) error {
 
 //SetUserLocale sets the locale of a user
 func (db *SQLiteDB) SetUserLocale(userID int, userLocale string) error {
-	var loc sql.NullString
-	loc.String = userLocale
-	loc.Valid = userLocale == ""
-	query, err := db.Exec("UPDATE Users SET `Locale` = ? WHERE `ID` = ?", loc, userID)
+	if userLocale == "" {
+		return nil
+	}
+	query, err := db.Exec("UPDATE Users SET `Locale` = ? WHERE `ID` = ?", userLocale, userID)
 	if err != nil {
 		db.AddLogEvent(Log{Event: "SetUserLocale_QueryFailed", Message: "Impossible to create the execute the query", Error: err.Error()})
 		return err
