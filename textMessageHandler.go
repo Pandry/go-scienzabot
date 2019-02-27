@@ -262,7 +262,7 @@ func textMessageRoute(ctx *Context) {
 			}
 			break
 
-		case "/iscrivi", "/iscrivimi", "/join", "/iscrizione", "/entra", "/sottoscrivi":
+		case "/iscrivi", "/iscrivimi", "/join", "/iscrizione", "/entra", "/sottoscrivi", "/subscribe":
 			if userInDB {
 				//We want registration to happen in private, not in public
 				if messageInGroup {
