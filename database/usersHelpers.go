@@ -29,7 +29,7 @@ func (db *SQLiteDB) AddUser(usr User) error {
 	}
 	var nick sql.NullString
 	nick.String = usr.Nickname
-	nick.Valid = usr.Nickname == ""
+	nick.Valid = usr.Nickname != ""
 
 	query, err := db.Exec("INSERT INTO Users (`ID`, `Nickname`, `Status`, `Permissions`, `Locale`) VALUES (?,?,?,?,?)",
 		usr.ID, nick, usr.Status, usr.Permissions, usr.Locale)
@@ -208,7 +208,7 @@ func (db *SQLiteDB) GetUserPermissions(userID int) (int64, error) {
 func (db *SQLiteDB) SetUserNickname(userID int, userNickname string) error {
 	var nick sql.NullString
 	nick.String = userNickname
-	nick.Valid = userNickname == ""
+	nick.Valid = userNickname != ""
 	query, err := db.Exec("UPDATE Users SET `Nickname` = ? WHERE `ID` = ?", nick, userID)
 	if err != nil {
 		db.AddLogEvent(Log{Event: "SetUserNickname_QueryFailed", Message: "Impossible to create the execute the query", Error: err.Error()})
@@ -246,6 +246,23 @@ func (db *SQLiteDB) SetUserLocale(userID int, userLocale string) error {
 		return NoRowsAffected{error: errors.New("No rows affected from the query")}
 	}
 	return err
+}
+
+//GetUserLocale returns the locale of a user or the default one if not found (returning an error)
+//It always return a locale
+func (db *SQLiteDB) GetUserLocale(userID int) (string, error) {
+	locale := consts.DefaultLocale
+	err := db.QueryRow("SELECT `Locale` FROM Users WHERE `ID` = ?", userID).Scan(&locale)
+	switch {
+	case err == sql.ErrNoRows:
+		db.AddLogEvent(Log{Event: "GetUserLocale_ErrorNoRows", Message: "Impossible to get rows", Error: err.Error()})
+		return locale, err
+	case err != nil:
+		db.AddLogEvent(Log{Event: "GetUserLocale_ErrorUnknown", Message: "Uknown error verified", Error: err.Error()})
+		return locale, err
+	default:
+		return locale, err
+	}
 }
 
 //UpdateUserLastSeen updates the lastseen field
