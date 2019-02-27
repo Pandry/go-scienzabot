@@ -298,11 +298,12 @@ func callbackQueryRoute(ctx *Context) {
 }
 
 func editInlineMessageDBWithCloseButton(ctx *Context, key string) {
-	messageToSend := tba.NewEditMessageText(ctx.Update.CallbackQuery.Message.Chat.ID, ctx.Update.CallbackQuery.Message.MessageID, ctx.Database.GetBotStringValueOrDefaultNoError(key, ctx.Update.CallbackQuery.Message.From.LanguageCode))
+	locale, _ := ctx.Database.GetUserLocale(ctx.Update.CallbackQuery.From.ID)
+	messageToSend := tba.NewEditMessageText(ctx.Update.CallbackQuery.Message.Chat.ID, ctx.Update.CallbackQuery.Message.MessageID, ctx.Database.GetBotStringValueOrDefaultNoError(key, locale))
 	rm := tba.NewInlineKeyboardMarkup(
 		tba.NewInlineKeyboardRow(
 			tba.NewInlineKeyboardButtonData(
-				ctx.Database.GetBotStringValueOrDefaultNoError("deleteMessageText", ctx.Update.Message.From.LanguageCode), "delme-")))
+				ctx.Database.GetBotStringValueOrDefaultNoError("deleteMessageText", locale), "delme-")))
 	messageToSend.ReplyMarkup = &rm
 	ctx.Bot.Send(messageToSend)
 }
