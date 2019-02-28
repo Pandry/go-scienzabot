@@ -80,7 +80,7 @@ func textMessageRoute(ctx *Context) {
 	if message.IsCommand() {
 		//Command
 
-		switch args := strings.Split(message.Text, " "); args[0] {
+		switch args := strings.Split(strings.Replace(message.Text, "@"+ctx.Bot.Self.UserName, "", 1), " "); args[0] {
 		case "/start":
 			break
 
