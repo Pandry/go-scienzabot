@@ -22,6 +22,7 @@ func textMessageRoute(ctx *Context) {
 	var (
 		err              error
 		messageBody      string
+		userExists       bool
 		user             database.User
 		userPermission   int
 		userIsBotAdmin   bool
@@ -29,14 +30,14 @@ func textMessageRoute(ctx *Context) {
 		groupStatus      int64
 	)
 
-	if userExists := ctx.Database.UserExists(message.From.ID); userExists {
+	if userExists = ctx.Database.UserExists(message.From.ID); userExists {
 		user, err = ctx.Database.GetUser(message.From.ID)
 		ctx.Database.SetUserNickname(message.From.ID, message.From.UserName)
 		ctx.Database.SetUserLocale(message.From.ID, message.From.LanguageCode)
 		userIsBotAdmin = utils.HasPermission(int(user.Permissions), consts.UserPermissionAdmin)
+		ctx.Database.UpdateUserLastSeen(message.From.ID, message.Time())
 	}
 
-	userInDB := ctx.Database.UserExists(message.From.ID)
 	messageInGroup := message.Chat.IsGroup() || message.Chat.IsSuperGroup()
 	if messageInGroup {
 		if !ctx.Database.GroupExists(message.Chat.ID) {
@@ -62,21 +63,18 @@ func textMessageRoute(ctx *Context) {
 			if !userIsBotAdmin && utils.HasPermission(int(groupStatus), consts.GroupBanned) {
 				return
 			}
-			userPermission, err = ctx.Database.GetPermission(int64(message.From.ID), message.Chat.ID)
-			if err != nil {
-				reloadChatAdmins(ctx)
-				userPermission, _ = ctx.Database.GetPermission(int64(message.From.ID), message.Chat.ID)
+
+			if userExists {
+				userPermission, err = ctx.Database.GetPermission(int64(message.From.ID), message.Chat.ID)
+				if err != nil {
+					reloadChatAdmins(ctx)
+					userPermission, _ = ctx.Database.GetPermission(int64(message.From.ID), message.Chat.ID)
+				}
+				userIsGroupAdmin = utils.HasPermission(userPermission, consts.UserPermissionGroupAdmin) || utils.HasPermission(userPermission, consts.UserPermissionAdmin)
+				ctx.Database.IncrementMessageCount(int64(message.From.ID), message.Chat.ID)
 			}
-			userIsGroupAdmin = utils.HasPermission(userPermission, consts.UserPermissionGroupAdmin) || utils.HasPermission(userPermission, consts.UserPermissionAdmin)
 		}
 
-	}
-
-	if userInDB {
-		ctx.Database.UpdateUserLastSeen(message.From.ID, message.Time())
-		if messageInGroup {
-			ctx.Database.IncrementMessageCount(int64(message.From.ID), message.Chat.ID)
-		}
 	}
 
 	if message.IsCommand() {
@@ -158,7 +156,7 @@ func textMessageRoute(ctx *Context) {
 			break
 
 		case "/lists":
-			if userInDB {
+			if userExists {
 				if !messageInGroup {
 					grps, _ := ctx.Database.GetUserGroups(message.From.ID)
 					messageBody := ""
@@ -237,6 +235,37 @@ func textMessageRoute(ctx *Context) {
 
 			break
 
+		case "/deletelist":
+
+			if len(args) != 2 {
+				replyDbMessageWithCloseButton(ctx, "deletelistSyntaxError")
+				return
+			}
+			listNameIsValid, _ := regexp.MatchString("^[a-z\\-_]{1,30}$", args[1])
+			if !listNameIsValid {
+				replyDbMessageWithCloseButton(ctx, "deletelistSyntaxError")
+				return
+			}
+
+			if messageInGroup {
+
+				if userIsBotAdmin || userIsGroupAdmin || utils.HasPermission(userPermission, consts.UserPermissionCanRemoveList) {
+
+					err = ctx.Database.DeleteListByName(message.Chat.ID, args[1])
+					if err == nil {
+						replyDbMessageWithCloseButton(ctx, "listDeletedSuccessfully")
+					}
+				} else {
+					replyDbMessageWithCloseButton(ctx, "notAuthorized")
+				}
+
+			} else {
+				//TODO: implement group choosing where is admin
+				replyDbMessageWithCloseButton(ctx, "notImplemented")
+			}
+
+			break
+
 		case "/del", "/deleteMessage":
 			if message.ReplyToMessage != nil && (userIsBotAdmin || userIsGroupAdmin) {
 				ctx.Bot.DeleteMessage(tba.NewDeleteMessage(message.Chat.ID, message.ReplyToMessage.MessageID))
@@ -244,7 +273,7 @@ func textMessageRoute(ctx *Context) {
 			break
 
 		case "/registrazione", "/registra", "/registrati", "/registrami", "/signup":
-			if !userInDB {
+			if !userExists {
 				//We want registration to happen in private, not in public
 				if messageInGroup {
 					replyDbMessageWithCloseButton(ctx, "onPrivateChatCommand")
@@ -263,7 +292,7 @@ func textMessageRoute(ctx *Context) {
 			break
 
 		case "/iscrivi", "/iscrivimi", "/join", "/iscrizione", "/entra", "/sottoscrivi", "/subscribe":
-			if userInDB {
+			if userExists {
 				//We want registration to happen in private, not in public
 				if messageInGroup {
 					//replyDbMessageWithCloseButton(ctx, "onPrivateChatCommand")
@@ -318,7 +347,7 @@ func textMessageRoute(ctx *Context) {
 			break
 
 		case "/unsubscribe", "/disicrivi", "/disicriviti":
-			if userInDB {
+			if userExists {
 				//We want registration to happen in private, not in public
 				if messageInGroup {
 					//replyDbMessageWithCloseButton(ctx, "onPrivateChatCommand")
