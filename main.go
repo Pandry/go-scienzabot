@@ -11,6 +11,8 @@ import (
 	tba "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
+var verboseMode *bool
+
 func main() {
 
 	//The APIToken variable contains the token, taken by default
@@ -20,7 +22,11 @@ func main() {
 
 	//Debug is an argument passed directly to the Telegram Bot API
 	//Enabilng it, will cause the library to print to STDOUT incoming updates and replies
-	debugPtr := flag.Bool("debug", false, "Sets the Telegram API in debug mode - outputs the data it sends and receives.")
+	verboseMode = flag.Bool("v", false, "Verbose, tells how the messages get elaborated as they \"flow\".")
+
+	//Debug is an argument passed directly to the Telegram Bot API
+	//Enabilng it, will cause the library to print to STDOUT incoming updates and replies
+	vvPtr := flag.Bool("vv", false, "Sets the Telegram API in debug mode and the bot in verbose mode- outputs the data it sends and receives.")
 
 	//The database path is the path of the SQLite3 database, that the bot will use as a base
 	flag.StringVar(&dbPath, "database", "database.sqlite3", "The default databse path")
@@ -31,6 +37,10 @@ func main() {
 
 	//Parses the flags to read the values
 	flag.Parse()
+
+	if *vvPtr == true {
+		*verboseMode = true
+	}
 
 	//Checking if the bot was submitted
 	if APIToken == "" {
@@ -71,10 +81,10 @@ func main() {
 
 	//Assinging the debug variable to the lib.
 	//This will tell if the library will print the updates it receives and send
-	bot.Debug = *debugPtr
+	bot.Debug = *vvPtr
 	//Notifying the successful connection to the telegram servers
 	log.Printf("Bot authorized on account @%s", bot.Self.UserName)
-	log.Println("Setting debug mode to", *debugPtr)
+	log.Println("Setting highly verbose mode to", *vvPtr)
 
 	//creates a long possling stream with 0 as starting offset
 	u := tba.NewUpdate(0)
