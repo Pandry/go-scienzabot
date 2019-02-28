@@ -160,7 +160,26 @@ func (db *SQLiteDB) DeleteList(listID int) error {
 		return nil
 	}
 	db.AddLogEvent(Log{Event: "DeleteList_QueryFailedNoAdded", Message: "Impossible to execute the DeleteList query: no rows were affected by the query", Error: err.Error()})
-	return NoRowsAffected{error: errors.New("No list was created")}
+	return NoRowsAffected{error: errors.New("No list was deleted")}
+}
+
+//DeleteListByName deletes a list from the database given its name and the group it belongs to
+func (db *SQLiteDB) DeleteListByName(groupID int64, listName string) error {
+	query, err := db.Exec("DELETE FROM Lists WHERE `GroupID` = ? AND `Name` = ?", groupID, listName)
+	if err != nil {
+		db.AddLogEvent(Log{Event: "DeleteListByName_QueryFailed", Message: "Impossible to create the execute the query", Error: err.Error()})
+		return err
+	}
+	rows, err := query.RowsAffected()
+	if err != nil {
+		db.AddLogEvent(Log{Event: "DeleteListByName_RowsInfoNotGot", Message: "Impossible to get afftected rows", Error: err.Error()})
+		return err
+	}
+	if rows < 1 {
+		db.AddLogEvent(Log{Event: "DeleteListByName_NoRowsAffected", Message: "No rows affected"})
+		return NoRowsAffected{error: errors.New("No rows affected from the query")}
+	}
+	return err
 }
 
 /*
