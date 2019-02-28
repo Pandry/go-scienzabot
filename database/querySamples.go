@@ -6,6 +6,8 @@ import (
 	"log"
 )
 
+//The query sample file is a copy&paste ready file used when creating a new helper function
+
 func (db *SQLiteDB) insertQuery() error {
 	query, err := db.Exec("INSERT INTO Table (`a`, `b`, `c`) VALUES (?,?,?)", "")
 	if err != nil {

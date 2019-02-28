@@ -6,15 +6,16 @@ import (
 	"fmt"
 )
 
-/*
-CREATE TABLE IF NOT EXISTS 'Groups' (
-	'ID'  INTEGER NOT NULL PRIMARY KEY,
-	'Title'  TEXT NOT NULL,
-	'Ref'	TEXT NOT NULL,
-	'Locale'	TEXT NOT NULL DEFAULT '` + DefaultLocale + `',
-	'Status'	INTEGER NOT NULL DEFAULT 0
-);
-*/
+//The database package is supposed to contain all the database functions and helpers functions
+// A helper function is a function that interfaces with the database via a query.
+// The helper functions were made to avoid a mantainer to interface directly with the database.
+// Each file in the ^([a-zA-Z]+)Helpers.go$ format is supposed to be a "table" helper (Basically
+//	a file that have queries about only one table in the database, to keep things tidy.)
+// The table name is the $1 group in the above regex.
+
+// The groupsHelpers.go file focuses on the Groups table in the database.
+// The table is supposed to keep track of the groups the bot is in and is used by features such as the
+//	list one or the message count one
 
 //AddGroup takes a a database.Group struct as parameter and insert it in the database
 //Only ID, Title, Ref and, if present, Locale will be considered since other ones are supposed to be setted later

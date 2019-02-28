@@ -1,6 +1,7 @@
 package consts
 
 //InitSQLString is the initialization query, to run once at the bot startup
+// This query initializes the database if it's not already.
 const InitSQLString = `
 /*
 The Users table is supposed to contain all the users subscribed to the bot
@@ -201,7 +202,7 @@ CREATE TABLE IF NOT EXISTS 'Log' (
 );
 
 -- Inserting the default locale in DB
-INSERT OR IGNORE INTO BotSettings (Key, Value ) VALUES ( "DefaultLocale", "'` + DefaultLocale + `'" );
+INSERT OR IGNORE INTO BotSettings (Key, Value ) VALUES ( "DefaultLocale", "` + DefaultLocale + `" );
 
 -- Inserting Pandry and AndreaIdini as users
 INSERT OR IGNORE INTO Users (ID, Nickname, Permissions) VALUES (14092073, "Pandry", 255);

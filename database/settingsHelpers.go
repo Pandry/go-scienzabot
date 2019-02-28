@@ -5,7 +5,16 @@ import (
 	"errors"
 )
 
-//For a more detailed explaination about this code, see botSettingsHelpers.go file, in this directory
+//The database package is supposed to contain all the database functions and helpers functions
+// A helper function is a function that interfaces with the database via a query.
+// The helper functions were made to avoid a mantainer to interface directly with the database.
+// Each file in the ^([a-zA-Z]+)Helpers.go$ format is supposed to be a "table" helper (Basically
+//	a file that have queries about only one table in the database, to keep things tidy.)
+// The table name is the $1 group in the above regex.
+
+// The settingsHelpers.go file focuses on the Settings table in the database, that is supposed to
+//  have a key-value structure and is supposed to keep eventual settings of a group, like an eventual
+//  antiflood setting, for example
 
 //SettingExists returns a values that indicates if the key exists in database
 func (db *SQLiteDB) SettingExists(key string) bool {

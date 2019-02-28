@@ -7,17 +7,15 @@ import (
 	"time"
 )
 
-/*
-CREATE TABLE IF NOT EXISTS 'Users' (
-	'ID'  INTEGER NOT NULL PRIMARY KEY,
-	'Nickname'  TEXT UNIQUE,
-	'Biography'  TEXT,
-	'Status'  INTEGER NOT NULL DEFAULT 0,
-	'LastSeen'  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-	'RegisterDate' TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+//The database package is supposed to contain all the database functions and helpers functions
+// A helper function is a function that interfaces with the database via a query.
+// The helper functions were made to avoid a mantainer to interface directly with the database.
+// Each file in the ^([a-zA-Z]+)Helpers.go$ format is supposed to be a "table" helper (Basically
+//	a file that have queries about only one table in the database, to keep things tidy.)
+// The table name is the $1 group in the above regex.
 
-*/
+// The usersHelpers.go file focuses on the Users table in the database, that contains
+//	all the users subrscribed to the bot
 
 //TODO: Remove user
 

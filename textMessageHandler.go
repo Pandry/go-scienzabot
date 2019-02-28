@@ -11,6 +11,8 @@ import (
 	tba "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
+// The textMessageHandler.go file is the route chosen for a text message sent
+
 func textMessageRoute(ctx *Context) {
 	message := ctx.Update.Message
 

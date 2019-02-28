@@ -1,5 +1,8 @@
 package consts
 
+//This package is supposed to have all the values that remain constant.
+// An exaple could be the initiazization query, or the admin permission value (Go does not provide enums)
+
 //Version is the bot version.
 //This number should be incremented for every release
 const Version = "0.0.1-g α"
@@ -7,7 +10,7 @@ const Version = "0.0.1-g α"
 //DefaultLocale identifies the default locale of the bot
 const DefaultLocale = "it"
 
-//MaximumInlineKeyboardRows is the maximum number of rows a keyboard can have
+//MaximumInlineKeyboardRows is the maximum number of rows the inline keyboard can have
 const MaximumInlineKeyboardRows = 7
 
 //User status constants

@@ -5,6 +5,17 @@ import (
 	"errors"
 )
 
+//The database package is supposed to contain all the database functions and helpers functions
+// A helper function is a function that interfaces with the database via a query.
+// The helper functions were made to avoid a mantainer to interface directly with the database.
+// Each file in the ^([a-zA-Z]+)Helpers.go$ format is supposed to be a "table" helper (Basically
+//	a file that have queries about only one table in the database, to keep things tidy.)
+// The table name is the $1 group in the above regex.
+
+// The channelsHelpers.go file focuses on the Channels table in the database.
+// The channel table is supposed to support a feature is basically a feature that permits to forward a discussion to a channel
+// It isn't implemented yet.
+
 //AddChannel inserts a new channel in the database
 func (db *SQLiteDB) AddChannel(chn Channel) error {
 	query, err := db.Exec("INSERT INTO Channels (`ID`, `GroupID`, `Name`, `Ref`) VALUES (?,?,?,?)",

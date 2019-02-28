@@ -1,5 +1,8 @@
 package database
 
+// The structs.go file contains all the structs the query can take in input
+//	or return as output of a query
+
 //User represent the respective table in the database
 type User struct {
 	ID           int64

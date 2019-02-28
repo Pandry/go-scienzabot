@@ -5,17 +5,16 @@ import (
 	"errors"
 )
 
-/*
-CREATE TABLE IF NOT EXISTS 'MessageCount' (
-	'ID'  INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-	'UserID'  INTEGER NOT NULL,
-	'GroupID'  INTEGER NOT NULL,
-	'MessageCount'  INTEGER NOT NULL,
-	FOREIGN KEY('UserID') REFERENCES Users('ID'),
-	FOREIGN KEY('GroupID') REFERENCES Groups('ID'),
-	CONSTRAINT con_msgcoubt_user_group_unique UNIQUE ('UserID','GroupID')
-);
-*/
+//The database package is supposed to contain all the database functions and helpers functions
+// A helper function is a function that interfaces with the database via a query.
+// The helper functions were made to avoid a mantainer to interface directly with the database.
+// Each file in the ^([a-zA-Z]+)Helpers.go$ format is supposed to be a "table" helper (Basically
+//	a file that have queries about only one table in the database, to keep things tidy.)
+// The table name is the $1 group in the above regex.
+
+// The messagecountHelpers.go file focuses on the MessageCount table in the database.
+// The messageCount feaure is used to count the number of messages of each subscribed user
+//	in every group the bot is in
 
 //GetMessageCount returns the message number of a user in a group
 func (db *SQLiteDB) GetMessageCount(user int64, group int64) (int64, error) {

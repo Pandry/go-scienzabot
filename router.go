@@ -4,6 +4,10 @@ import (
 	"log"
 )
 
+// The router.go file is a file that "routes" a message received to the designed
+//	received (e.g. A normal text message should be "routed" to the text message "route"
+//	to be elaborated correctly)
+
 func (ctx *Context) route() {
 
 	switch {

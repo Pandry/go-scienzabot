@@ -5,6 +5,16 @@ import (
 	"errors"
 )
 
+//The database package is supposed to contain all the database functions and helpers functions
+// A helper function is a function that interfaces with the database via a query.
+// The helper functions were made to avoid a mantainer to interface directly with the database.
+// Each file in the ^([a-zA-Z]+)Helpers.go$ format is supposed to be a "table" helper (Basically
+//	a file that have queries about only one table in the database, to keep things tidy.)
+// The table name is the $1 group in the above regex.
+
+// The botSettingsHelpers.go file focuses on the BotSettings table in the database, that is
+//	supposed to contain strings that refer to the bot configuration, like the default locale.
+
 //BotSettingExists returns a values that indicates if the key exists in database
 func (db *SQLiteDB) BotSettingExists(key string) bool {
 	var dummyval int64

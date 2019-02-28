@@ -4,17 +4,16 @@ import (
 	"errors"
 )
 
-/*
-type Bookmark struct {
-	ID             int64
-	UserID         int64
-	GroupID        int64
-	MessageID      int64
-	Alias          string
-	Status         int64
-	MessageContent string
-}
-*/
+//The database package is supposed to contain all the database functions and helpers functions
+// A helper function is a function that interfaces with the database via a query.
+// The helper functions were made to avoid a mantainer to interface directly with the database.
+// Each file in the ^([a-zA-Z]+)Helpers.go$ format is supposed to be a "table" helper (Basically
+//	a file that have queries about only one table in the database, to keep things tidy.)
+// The table name is the $1 group in the above regex.
+
+// The bookmarksHelpers.go file focuses on the Bookmarks table in the database.
+// The bookmark feature is basically a feature that saves a message to read it later moment.
+// It isn't implemented yet.
 
 //CreateBookmark takes a database.Bookmark struct as parameter and insert it in the database
 //The ID will not be considered, since it's automatically inrted in database. ALl the other values will be inserted

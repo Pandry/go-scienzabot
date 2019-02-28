@@ -5,17 +5,15 @@ import (
 	"errors"
 )
 
-/*
-CREATE TABLE IF NOT EXISTS 'Permissions' (
-	'ID'  INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-	'User'	INTEGER NOT NULL,
-	'Group'	INTEGER,
-	'Permission' INTEGER DEFAULT 0,
-	FOREIGN KEY('User') REFERENCES Users('ID'),
-	FOREIGN KEY('Group') REFERENCES Groups('ID'),
-	CONSTRAINT con_perm_user_group_perm_unique UNIQUE ('User','Group','Permission')
-);
-*/
+//The database package is supposed to contain all the database functions and helpers functions
+// A helper function is a function that interfaces with the database via a query.
+// The helper functions were made to avoid a mantainer to interface directly with the database.
+// Each file in the ^([a-zA-Z]+)Helpers.go$ format is supposed to be a "table" helper (Basically
+//	a file that have queries about only one table in the database, to keep things tidy.)
+// The table name is the $1 group in the above regex.
+
+// The permissionHelpers.go file focuses on the Permissions table in the database.
+// A permission row represent the permission of a user in a group (like admin, can create lists, etc)
 
 //SetPermissions sets the permissions of  user in a group
 func (db *SQLiteDB) SetPermissions(prm Permission) error {

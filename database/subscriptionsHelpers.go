@@ -5,13 +5,15 @@ import (
 	"errors"
 )
 
-/*
-type Subscription struct {
-	ID     int64
-	ListID int64
-	UserID int64
-}
-*/
+//The database package is supposed to contain all the database functions and helpers functions
+// A helper function is a function that interfaces with the database via a query.
+// The helper functions were made to avoid a mantainer to interface directly with the database.
+// Each file in the ^([a-zA-Z]+)Helpers.go$ format is supposed to be a "table" helper (Basically
+//	a file that have queries about only one table in the database, to keep things tidy.)
+// The table name is the $1 group in the above regex.
+
+// The subscriptionsHelpers.go file focuses on the Subscriptions table in the database, that is
+//	supposed to keep track of all the users subrscribed to which list
 
 //AddSubscription adds a subscription. takes as a parameter the userID and the listID
 func (db *SQLiteDB) AddSubscription(userID int, listID int) error {

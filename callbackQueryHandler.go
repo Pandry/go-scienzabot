@@ -10,6 +10,9 @@ import (
 	tba "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
+// The callbackQueryHandler.go file contains the code behind a callback query from an
+//	inline keyboard
+
 func callbackQueryRoute(ctx *Context) {
 	message := ctx.Update.CallbackQuery
 	var (
