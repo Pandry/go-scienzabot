@@ -267,11 +267,19 @@ INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("closeMessageText"
 INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("listCreatedSuccessfully","✅  Lista creata con successo", "it");
 INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("listCreatedSuccessfully","✅  List created successfully", "en");
 
+-- List created successfully
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("listDeletedSuccessfully","✅  Lista eliminata con successo", "it");
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("listDeletedSuccessfully","✅  List deleted successfully", "en");
+
 -- Newlist Syntax error
 INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("newlistSyntaxError"," ❗️ Errore di sintassi - l'uso previsto è /newlist <nomelista>
 Il nome deve contenere solo caratteri minuscoli, trattini e underscores [a-z\-_]{1,30}, senza spazi e fino a 30 caratteri.", "it");
 INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("newlistSyntaxError"," ❗️ Syntax error - the use is supposed to be /newlist <listname>
 The name shall only contains lowercase characters, dashed and underscores [a-z\-_]{1,30}, without spaces and up to 30 chars.", "en");
+
+-- Deletelist Syntax error
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("newlistSyntaxError"," ❗️ Errore di sintassi - l'uso previsto è /deletelist <nomelista>", "it");
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("newlistSyntaxError"," ❗️ Syntax error - the use is supposed to be /deletelist <listname>", "en");
 
 -- notAuthorized
 INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("notAuthorized"," 🚷 Errore 403 - permessi insufficienti,
