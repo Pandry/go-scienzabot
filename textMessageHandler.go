@@ -726,8 +726,9 @@ func textMessageRoute(ctx *Context) {
 			} //end subscribed users loop
 		} //end lists loop
 		//Notify the user that the lists were called successfully
-		//listNotificationSuccessMessage
-		replyDbMessage(ctx, "listNotificationSuccessMessage")
+		if len(contactedUsers) > 0 {
+			replyDbMessage(ctx, "listNotificationSuccessMessage")
+		}
 	} //fi message command
 }
 
