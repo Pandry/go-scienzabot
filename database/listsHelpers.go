@@ -5,6 +5,7 @@ import (
 	"errors"
 	"scienzabot/consts"
 	"scienzabot/utils"
+	"time"
 )
 
 //The database package is supposed to contain all the database functions and helpers functions
@@ -62,48 +63,33 @@ func (db *SQLiteDB) GetAvailableLists(groupID int64, userID int, limit int, offs
 
 //GetLists returns an array of lists given a group
 func (db *SQLiteDB) GetLists(groupID int64) ([]List, error) {
-
-	var resultLists []List
-	//asd.GroupID, asd.GroupIndipendent, asd.ID, asd.InviteOnly, asd.Name
-
-	stmt, err := db.Prepare("SELECT `ID`, `Name`, `Properties` FROM Lists WHERE `GroupID` = ?")
+	rows, err := db.Query("SELECT `ID`, `Name`, `Properties`, `LatestInvocation` FROM Lists WHERE `GroupID` = ?", groupID)
+	defer rows.Close()
+	resultLists := make([]List, 0)
 	if err != nil {
-		//Log the error
-		db.AddLogEvent(Log{Event: "GetLists_QueryFailed", Message: "Impossible to create the GetLists preparation query",
-			RelatedGroupID: groupID, Error: err.Error()})
-		return nil, err
+		db.AddLogEvent(Log{Event: "GetLists_ErorExecutingTheQuery", Message: "Impossible to get afftected rows", Error: err.Error()})
+		return resultLists, err
 	}
-	defer stmt.Close()
+	for rows.Next() {
+		var (
+			inv     sql.NullString
+			tmpList List
+		)
 
-	res, err := stmt.Query(groupID)
-	if err != nil {
-		db.AddLogEvent(Log{Event: "GetLists_QueryExecutionFailed", Message: "Impossible to execute the GetLists preparation query",
-			RelatedGroupID: groupID, Error: err.Error()})
-		return nil, err
-	}
-	defer res.Close()
-	var ID, prop sql.NullInt64
-	var Name sql.NullString
-	var tmpList List
-	for res.Next() {
-		err = res.Scan(&ID, &Name, &prop)
-
-		if err != nil {
-			db.AddLogEvent(Log{Event: "GetLists_GroupDontExistsUnknown", Message: "Requested a nickname not present in the database but the error is unknown",
-				RelatedGroupID: groupID, Error: err.Error()})
-			continue
-		}
-
-		tmpList = List{ID: ID.Int64, GroupID: groupID,
-			Name: Name.String, Properties: prop.Int64}
-		if len(resultLists) == 0 {
-			resultLists = []List{tmpList}
+		if err = rows.Scan(&tmpList.ID, &tmpList.Name, &tmpList.Properties, &inv); err != nil {
+			db.AddLogEvent(Log{Event: "GetLists_RowQueryFetchResultFailed", Message: "Impossible to get data from the row", Error: err.Error()})
 		} else {
+			tmpList.LatestInvocation, _ = time.Parse(consts.TimeFormatString, inv.String)
 			resultLists = append(resultLists, tmpList)
 		}
 	}
+	if rows.NextResultSet() {
+		db.AddLogEvent(Log{Event: "GetLists_RowsNotFetched", Message: "Some rows in the query were not fetched"})
+	} else if err := rows.Err(); err != nil {
+		db.AddLogEvent(Log{Event: "GetLists_UnknowQueryError", Message: "An unknown error was thrown", Error: err.Error()})
+	}
 
-	return resultLists, nil
+	return resultLists, err
 }
 
 //AddList takes a a database.List struct as parameter and insert it in the database
@@ -288,6 +274,25 @@ func (db *SQLiteDB) GetListProperties(groupID int64) propertyReturnValue {
 	}
 
 	return propertyReturnValue{int(prop.Int64)}
+}
+
+//UpdateListLastInvokation takes in iput a list id and its latest invokation and update the invokation in the database
+func (db *SQLiteDB) UpdateListLastInvokation(listID int64, invTime time.Time) error {
+	query, err := db.Exec("UPDATE Lists SET `LatestInvocation`=? WHERE ID = ?", invTime.Format(consts.TimeFormatString), listID)
+	if err != nil {
+		db.AddLogEvent(Log{Event: "UpdateListLastInvokation_QueryFailed", Message: "Impossible to create the execute the query", Error: err.Error()})
+		return err
+	}
+	rows, err := query.RowsAffected()
+	if err != nil {
+		db.AddLogEvent(Log{Event: "UpdateListLastInvokation_RowsInfoNotGot", Message: "Impossible to get afftected rows", Error: err.Error()})
+		return err
+	}
+	if rows < 1 {
+		db.AddLogEvent(Log{Event: "UpdateListLastInvokation_NoRowsAffected", Message: "No rows affected"})
+		return NoRowsAffected{error: errors.New("No rows affected from the query")}
+	}
+	return err
 }
 
 //ListIsGroupIndipendent returns a bool that indicates if the list is valid in all the groups
