@@ -3,6 +3,8 @@ package database
 import (
 	"database/sql"
 	"errors"
+	"scienzabot/consts"
+	"time"
 )
 
 //The database package is supposed to contain all the database functions and helpers functions
@@ -154,7 +156,7 @@ func (db *SQLiteDB) GetListSubscribers(usrID int64) ([]Subscription, error) {
 
 //GetUserGroupListsWithLimits returns a database.Subscription slice containing all the list a user is subscribed to in a specif group
 func (db *SQLiteDB) GetUserGroupListsWithLimits(usrID int64, grpID int64, limit int, offset int) ([]List, error) {
-	rows, err := db.Query("SELECT Lists.ID, `Name`, `Properties`, `Parent`, `LatestInvocationDate`, `CreationDate` FROM Lists JOIN Subscriptions ON Lists.ID = Subscriptions.ListID WHERE "+
+	rows, err := db.Query("SELECT Lists.ID, `Name`, `Properties`, `Parent`, `LatestInvocation`, `CreationDate` FROM Lists JOIN Subscriptions ON Lists.ID = Subscriptions.ListID WHERE "+
 		"Subscriptions.UserID=? AND Lists.GroupID=? LIMIT ? OFFSET ?", usrID, grpID, limit, offset)
 	defer rows.Close()
 	if err != nil {
@@ -170,7 +172,11 @@ func (db *SQLiteDB) GetUserGroupListsWithLimits(usrID int64, grpID int64, limit 
 			db.AddLogEvent(Log{Event: "GetUserLists_RowQueryFetchResultFailed", Message: "Impossible to get data from the row", Error: err.Error()})
 		} else {
 			lst.Parent = parent.Int64
-			lst.LatestInvocationDate = linvdate.String
+			lastInvTime, err := time.Parse(consts.TimeFormatString, linvdate.String)
+			if err != nil {
+				lastInvTime = time.Unix(0, 0)
+			}
+			lst.LatestInvocation = lastInvTime
 			lists = append(lists, lst)
 		}
 	}
@@ -186,7 +192,7 @@ func (db *SQLiteDB) GetUserGroupListsWithLimits(usrID int64, grpID int64, limit 
 //GetUserGroupLists returns a database.Subscription slice containing all the list a user is subscribed to in a specif group
 func (db *SQLiteDB) GetUserGroupLists(usrID int64, grpID int64) ([]List, error) {
 
-	rows, err := db.Query("SELECT `ID`, `Name`, `Properties`, `Parent`, `LatestInvocationDate`, `CreationDate` FROM Lists INNER JOIN Subscriptions ON Lists.ID = Subscriptions.ListID WHERE `UserID`=? AND `GroupID`=?", usrID, grpID)
+	rows, err := db.Query("SELECT `ID`, `Name`, `Properties`, `Parent`, `LatestInvocation`, `CreationDate` FROM Lists INNER JOIN Subscriptions ON Lists.ID = Subscriptions.ListID WHERE `UserID`=? AND `GroupID`=?", usrID, grpID)
 	defer rows.Close()
 	if err != nil {
 		db.AddLogEvent(Log{Event: "GetUserLists_ErorExecutingTheQuery", Message: "Impossible to get afftected rows", Error: err.Error()})
@@ -195,7 +201,7 @@ func (db *SQLiteDB) GetUserGroupLists(usrID int64, grpID int64) ([]List, error) 
 	lists := make([]List, 0)
 	for rows.Next() {
 		var lst List
-		if err = rows.Scan(&lst.ID, &lst.Name, &lst.Properties, &lst.Parent, &lst.LatestInvocationDate, &lst.CreationDate); err != nil {
+		if err = rows.Scan(&lst.ID, &lst.Name, &lst.Properties, &lst.Parent, &lst.LatestInvocation, &lst.CreationDate); err != nil {
 			db.AddLogEvent(Log{Event: "GetUserLists_RowQueryFetchResultFailed", Message: "Impossible to get data from the row", Error: err.Error()})
 		} else {
 			lists = append(lists, lst)
@@ -213,7 +219,7 @@ func (db *SQLiteDB) GetUserGroupLists(usrID int64, grpID int64) ([]List, error) 
 //GetUserLists returns a database.Subscription slice containing all the list a user is subscribed to IN ALL THE GROUPS
 func (db *SQLiteDB) GetUserLists(usrID int64) ([]List, error) {
 
-	rows, err := db.Query("SELECT `ID`, `Name`, `Properties`, `Parent`, `LatestInvocationDate`, `CreationDate` FROM Lists INNER JOIN Subscriptions ON Lists.ID = Subscriptions.ListID WHERE `UserID`=?", usrID)
+	rows, err := db.Query("SELECT `ID`, `Name`, `Properties`, `Parent`, `LatestInvocation`, `CreationDate` FROM Lists INNER JOIN Subscriptions ON Lists.ID = Subscriptions.ListID WHERE `UserID`=?", usrID)
 	defer rows.Close()
 	if err != nil {
 		db.AddLogEvent(Log{Event: "GetUserLists_ErorExecutingTheQuery", Message: "Impossible to get afftected rows", Error: err.Error()})
@@ -222,7 +228,7 @@ func (db *SQLiteDB) GetUserLists(usrID int64) ([]List, error) {
 	lists := make([]List, 0)
 	for rows.Next() {
 		var lst List
-		if err = rows.Scan(&lst.ID, &lst.Name, &lst.Properties, &lst.Parent, &lst.LatestInvocationDate, &lst.CreationDate); err != nil {
+		if err = rows.Scan(&lst.ID, &lst.Name, &lst.Properties, &lst.Parent, &lst.LatestInvocation, &lst.CreationDate); err != nil {
 			db.AddLogEvent(Log{Event: "GetUserLists_RowQueryFetchResultFailed", Message: "Impossible to get data from the row", Error: err.Error()})
 		} else {
 			lists = append(lists, lst)
