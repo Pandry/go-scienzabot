@@ -116,7 +116,9 @@ CREATE TABLE IF NOT EXISTS 'MessageCount' (
 	'ID'  INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 	'UserID'  INTEGER NOT NULL,
 	'GroupID'  INTEGER NOT NULL,
-	'MessageCount'  INTEGER NOT NULL,
+	'MessageCount'  INTEGER NOT NULL DEFAULT 0,
+	'ListsInvoked'  INTEGER NOT NULL DEFAULT 0,
+	'LatestListInvokation'  TEXT,
 	FOREIGN KEY('UserID') REFERENCES Users('ID'),
 	FOREIGN KEY('GroupID') REFERENCES Groups('ID'),
 	CONSTRAINT con_msgcoubt_user_group_unique UNIQUE ('UserID','GroupID')

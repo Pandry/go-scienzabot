@@ -75,10 +75,12 @@ type Subscription struct {
 
 //MessageCount represent the respective table in the database
 type MessageCount struct {
-	ID           int64
-	UserID       int64
-	GroupID      int64
-	MessageCount int64
+	ID                   int64
+	UserID               int64
+	GroupID              int64
+	MessageCount         int64
+	ListsInvoked         int64
+	LatestListInvokation time.Time
 }
 
 //Strings represent the respective table in the database
