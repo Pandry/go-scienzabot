@@ -266,7 +266,7 @@ func (db *SQLiteDB) GetUserLocale(userID int) (string, error) {
 //UpdateUserLastSeen updates the lastseen field
 func (db *SQLiteDB) UpdateUserLastSeen(userID int, lastSeen time.Time) error {
 	//lastSeenString := lastSeen.Format("dd/MM/YYYY hh:mm:ss")
-	lastSeenString := lastSeen.Format("2006-01-02 15:04:05")
+	lastSeenString := lastSeen.Format(consts.TimeFormatString)
 	query, err := db.Exec("UPDATE Users SET `LastSeen` = ? WHERE `ID` = ?", lastSeenString, userID)
 	if err != nil {
 		db.AddLogEvent(Log{Event: "UpdateUserLastSeen_QueryFailed", Message: "Impossible to create the execute the query", Error: err.Error()})
