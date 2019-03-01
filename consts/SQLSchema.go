@@ -352,17 +352,17 @@ INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("listNotificationS
 The users subscribed to the list were called successfully!", "en");
 
 -- listtimeoutSyntaxError
-INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("listtimeoutSyntaxError","❗️ Errore di sintassi - l'uso previsto è /listtimeout <minimum internval>
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("listintervalSyntaxError","❗️ Errore di sintassi - l'uso previsto è /listtimeout <minimum internval>
 L'intervallo deve essere in un formato simile a ""1h10m10s"" per impostare 1 ora, 10 minuti e 10 secondi.
 Per impostare un intervallo di 5 minuti è sufficente scrivere 5m", "it");
-INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("listtimeoutSyntaxError","✅ Success!
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("listintervalSyntaxError","✅ Success!
 The interval must be provided in a format like ""1h10m10s"" to set 1 hour, 10 minutes and 10 seconds.
 To set a 5 minutes interval, it's possible to write just 5m for example", "en");
 
 --listtimeoutSuccess
-INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("listtimeoutSuccess","✅ Successo!
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("listintervalSuccess","✅ Successo!
 Il tempo minimo per richiamare le liste è stato impostato con successo!", "it");
-INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("listtimeoutSuccess","✅ Success!
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("listintervalSuccess","✅ Success!
 The minimum time interval required to call the same list was setted successfully!", "en");
 
 
