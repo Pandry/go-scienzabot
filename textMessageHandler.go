@@ -540,8 +540,8 @@ func textMessageRoute(ctx *Context) {
 
 			break
 
-		//The list timeout is the timeout that the list should have
-		case "/listtimeout":
+		//The listinterval is the interval between lists
+		case "/listinterval":
 			//If the message is in a group and the user is a botadmin or a groupadmin
 			if messageInGroup && (userIsGroupAdmin || userIsBotAdmin) {
 				//If the args are 2
@@ -550,14 +550,14 @@ func textMessageRoute(ctx *Context) {
 					_, err := time.ParseDuration(args[1])
 					if err != nil {
 						//There was an error, send the syntax command
-						replyDbMessageWithCloseButton(ctx, "listtimeoutSyntaxError")
+						replyDbMessageWithCloseButton(ctx, "listintervalSyntaxError")
 						//And return
 						return
 					}
 					//If there was no issue, update the setting in the database
 					err = ctx.Database.SetSettingValue("listInterval", args[1], int(message.Chat.ID))
 					if err == nil {
-						replyDbMessageWithCloseButton(ctx, "listtimeoutSuccess")
+						replyDbMessageWithCloseButton(ctx, "listintervalSuccess")
 						//Send success command
 					} else {
 						//Something went wrong but the duration parsed successfully, check the logs and send error message
@@ -565,7 +565,7 @@ func textMessageRoute(ctx *Context) {
 					}
 				} else {
 					//The args are not 2, send the syntax command
-					replyDbMessageWithCloseButton(ctx, "listtimeoutSyntaxError")
+					replyDbMessageWithCloseButton(ctx, "listintervalSyntaxError")
 				}
 			}
 			break
