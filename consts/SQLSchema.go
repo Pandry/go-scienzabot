@@ -13,8 +13,8 @@ CREATE TABLE IF NOT EXISTS 'Users' (
 	'Status'  INTEGER NOT NULL DEFAULT 0,
 	'Locale'  TEXT NOT NULL DEFAULT '` + DefaultLocale + `',
 	'Permissions'  INTEGER NOT NULL DEFAULT 0,
-	'LastSeen'  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-	'RegisterDate' TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+	'LastSeen'  TEXT DEFAULT CURRENT_TIMESTAMP,
+	'RegisterDate' TEXT DEFAULT CURRENT_TIMESTAMP
 );
 
 /*
@@ -65,8 +65,8 @@ CREATE TABLE IF NOT EXISTS 'Lists' (
 	'Name'  TEXT NOT NULL,
 	'GroupID'	INTEGER NOT NULL,
 	'Properties'  INTEGER DEFAULT 0,
-	'CreationDate' TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-	'LatestInvocationDate' TIMESTAMP,
+	'CreationDate' TEXT DEFAULT CURRENT_TIMESTAMP,
+	'LatestInvocation' TEXT,
 	'Parent' INTEGER,
 	FOREIGN KEY('GroupID') REFERENCES Groups('ID'),
 	FOREIGN KEY('Parent') REFERENCES Lists('ID'),
@@ -88,8 +88,8 @@ CREATE TABLE IF NOT EXISTS 'Bookmarks' (
 	'Alias'	TEXT,
 	'Status' INTEGER DEFAULT 0,
 	'MessageContent' TEXT, 
-	'CreationDate' TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-	'LastAccessDate' TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	'CreationDate' TEXT DEFAULT CURRENT_TIMESTAMP,
+	'LastAccessDate' TEXT DEFAULT CURRENT_TIMESTAMP,
 	FOREIGN KEY('UserID') REFERENCES Users('ID'),
 	FOREIGN KEY('GroupID') REFERENCES Groups('ID'),
 	CONSTRAINT con_bookm_user_group_unique UNIQUE ('UserID','GroupID')
@@ -198,7 +198,7 @@ CREATE TABLE IF NOT EXISTS 'Log' (
 	'UpdateValue'		TEXT,
 	'Error'		TEXT,
 	'Severity'		INTEGER,
-	'Date'	TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+	'Date' TEXT DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Inserting the default locale in DB
@@ -344,5 +344,26 @@ INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("tagNotificationMe
 -- tagNotificationTag
 INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("tagNotificationTag","Taggami al messaggio", "it");
 INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("tagNotificationTag","Tag me at the message", "en");
+
+-- listNotificationSuccessMessage
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("listNotificationSuccessMessage","✅ Successo!
+Gli utenti iscritti alla lista sono stati contattati correttamente!", "it");
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("listNotificationSuccessMessage","✅ Success!
+The users subscribed to the list were called successfully!", "en");
+
+-- listtimeoutSyntaxError
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("listtimeoutSyntaxError","❗️ Errore di sintassi - l'uso previsto è /listtimeout <minimum internval>
+L'intervallo deve essere in un formato simile a ""1h10m10s"" per impostare 1 ora, 10 minuti e 10 secondi.
+Per impostare un intervallo di 5 minuti è sufficente scrivere 5m", "it");
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("listtimeoutSyntaxError","✅ Success!
+The interval must be provided in a format like ""1h10m10s"" to set 1 hour, 10 minutes and 10 seconds.
+To set a 5 minutes interval, it's possible to write just 5m for example", "en");
+
+--listtimeoutSuccess
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("listtimeoutSuccess","✅ Successo!
+Il tempo minimo per richiamare le liste è stato impostato con successo!", "it");
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("listtimeoutSuccess","✅ Success!
+The minimum time interval required to call the same list was setted successfully!", "en");
+
 
 `
