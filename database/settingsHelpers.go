@@ -36,7 +36,7 @@ func (db *SQLiteDB) SettingExists(key string) bool {
 //GetSettingValue searches for the value in the database
 func (db *SQLiteDB) GetSettingValue(key string, group int) (string, error) {
 	val := ""
-	err := db.QueryRow("SELECT Value FROM `Settings` WHERE `Key` = ? AND `Group` = ?",
+	err := db.QueryRow("SELECT Value FROM `Settings` WHERE `Key` = ? AND `GroupID` = ?",
 		key, group).Scan(&val)
 	switch {
 	case err == sql.ErrNoRows:
@@ -50,7 +50,7 @@ func (db *SQLiteDB) GetSettingValue(key string, group int) (string, error) {
 	}
 	/*
 		//We're prepaing a query to execute later
-		stmt, err := db.Prepare("SELECT Value FROM `Settings` WHERE `Key` = ? AND `Group` = ? ")
+		stmt, err := db.Prepare("SELECT Value FROM `Settings` WHERE `Key` = ? AND `GroupID` = ? ")
 		if err != nil {
 			return "", err
 		}
@@ -70,8 +70,8 @@ func (db *SQLiteDB) GetSettingValue(key string, group int) (string, error) {
 
 //SetSettingValue sets a value in the bot settings table
 func (db *SQLiteDB) SetSettingValue(key string, value string, group int) error {
-	query, err := db.Exec("INSERT INTO Settings (`Key`, `Value` , `Group`) VALUES (?,?,?) "+
-		"ON CONFLICT(`Key`, `Group`) DO UPDATE SET `Value` = Excluded.Value", key, value, group)
+	query, err := db.Exec("INSERT INTO Settings (`Key`, `Value` , `GroupID`) VALUES (?,?,?) "+
+		"ON CONFLICT(`Key`, `GroupID`) DO UPDATE SET `Value` = Excluded.Value", key, value, group)
 	if err != nil {
 		db.AddLogEvent(Log{Event: "SetSettingValue_QueryFailed", Message: "Impossible to create the execute the query", Error: err.Error()})
 		return err
@@ -87,7 +87,7 @@ func (db *SQLiteDB) SetSettingValue(key string, value string, group int) error {
 	}
 	return err
 	/*
-		stmt, err := db.Prepare("INSERT INTO Settings (`Key`, `Value` , `Group`) VALUES (?,?,?) ON CONFLICT(`Key`, `Group`) DO UPDATE SET `Value` = Excluded.Value")
+		stmt, err := db.Prepare("INSERT INTO Settings (`Key`, `Value` , `GroupID`) VALUES (?,?,?) ON CONFLICT(`Key`, `GroupID`) DO UPDATE SET `Value` = Excluded.Value")
 		if err != nil {
 			return err
 		}
