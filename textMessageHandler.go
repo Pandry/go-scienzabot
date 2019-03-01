@@ -7,6 +7,7 @@ import (
 	"scienzabot/utils"
 	"strconv"
 	"strings"
+	"time"
 
 	tba "github.com/go-telegram-bot-api/telegram-bot-api"
 )
@@ -539,6 +540,36 @@ func textMessageRoute(ctx *Context) {
 
 			break
 
+		//The list timeout is the timeout that the list should have
+		case "/listtimeout":
+			//If the message is in a group and the user is a botadmin or a groupadmin
+			if messageInGroup && (userIsGroupAdmin || userIsBotAdmin) {
+				//If the args are 2
+				if len(args) == 2 {
+					//Try to parse the 2nd argument as a time duration
+					_, err := time.ParseDuration(args[1])
+					if err != nil {
+						//There was an error, send the syntax command
+						replyDbMessageWithCloseButton(ctx, "listtimeoutSyntaxError")
+						//And return
+						return
+					}
+					//If there was no issue, update the setting in the database
+					err = ctx.Database.SetSettingValue("listInterval", args[1], int(message.Chat.ID))
+					if err == nil {
+						replyDbMessageWithCloseButton(ctx, "listtimeoutSuccess")
+						//Send success command
+					} else {
+						//Something went wrong but the duration parsed successfully, check the logs and send error message
+						replyDbMessageWithCloseButton(ctx, "generalError")
+					}
+				} else {
+					//The args are not 2, send the syntax command
+					replyDbMessageWithCloseButton(ctx, "listtimeoutSyntaxError")
+				}
+			}
+			break
+
 		//restart is used to reload the telegram admins within a group
 		case "/reloadpermissions", "/ricarica", "/riavvia", "/restart":
 			reloadChatAdmins(ctx)
@@ -611,8 +642,32 @@ func textMessageRoute(ctx *Context) {
 		//We create a slice of the users who were contacted
 		contactedUsers := make([]int64, 0)
 
+		var listInterval time.Duration
+		//We get the minimum interval a list should be called
+		intervalString, intervalError := ctx.Database.GetSettingValue("listInterval", int(message.Chat.ID))
+		if intervalError == nil {
+			listInterval, intervalError = time.ParseDuration(intervalString)
+		}
 		//For each list
 		for _, list := range lists {
+
+			//If the list has a interval calling limit (wee see if the error is nil or not)
+			if intervalError == nil {
+				//If the minimum interval is not passed yet and the list interval is valid (greather than 0)
+				//To check so, we add the minimum list timespan to the latest list invokation time
+				//  and convert the number to an integer we can compare
+				//If the integer is greater than the time of the message, the list cannot be called
+				//  so we continue the loop
+
+				if listInterval.Seconds() > 0 && list.LatestInvocation.Add(listInterval).Unix() > message.Time().Unix() {
+					//If we go there, it means that the last time we called the list
+					//  summed to the list interval is greater than the message time,
+					//  so the list shouldn't be calle
+					continue
+				}
+			}
+			//Update the list invokation time
+			ctx.Database.UpdateListLastInvokation(list.ID, message.Time())
 			//We get the list of the subscribers
 			subs, _ := ctx.Database.GetSubscribedUsers(list.ID)
 			//For each subscriber
@@ -667,10 +722,13 @@ func textMessageRoute(ctx *Context) {
 					ctx.Bot.Send(messageToSend)
 					//And add the ID of the user to the slice of the contacted users
 					contactedUsers = append(contactedUsers, sub.UserID)
-				}
-			}
-		}
-	}
+				} //fi user found
+			} //end subscribed users loop
+		} //end lists loop
+		//Notify the user that the lists were called successfully
+		//listNotificationSuccessMessage
+		replyDbMessage(ctx, "listNotificationSuccessMessage")
+	} //fi message command
 }
 
 func reloadChatAdmins(ctx *Context) {
@@ -753,6 +811,12 @@ func replyMessageWithCloseButton(ctx *Context, messageBody string) {
 	ctx.Bot.Send(messageToSend)
 }
 
+func replyDbMessage(ctx *Context, keyString string) {
+	messageBody := ctx.Database.GetBotStringValueOrDefaultNoError(keyString, ctx.Update.Message.From.LanguageCode)
+	messageToSend := tba.NewMessage(ctx.Update.Message.Chat.ID, messageBody)
+	messageToSend.ReplyToMessageID = ctx.Update.Message.MessageID
+	ctx.Bot.Send(messageToSend)
+}
 func replyDbMessageWithCloseButton(ctx *Context, keyString string) {
 	messageBody := ctx.Database.GetBotStringValueOrDefaultNoError(keyString, ctx.Update.Message.From.LanguageCode)
 	messageToSend := tba.NewMessage(ctx.Update.Message.Chat.ID, messageBody)
