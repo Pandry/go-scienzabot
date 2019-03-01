@@ -50,13 +50,17 @@ func (db *SQLiteDB) AddUser(usr User) error {
 //GetUser returns a user using the database.user struct
 func (db *SQLiteDB) GetUser(userID int) (User, error) {
 	var (
-		usr  User
-		bio  sql.NullString
-		nick sql.NullString
+		usr         User
+		bio         sql.NullString
+		nick        sql.NullString
+		lstsn, rgsd string
 	)
 	err := db.QueryRow("SELECT `ID`, `Nickname`, `Biography`, `Status`, `LastSeen`, `RegisterDate`, `Permissions`, `Locale` "+
 		"FROM Users WHERE `ID`=?", userID).Scan(
-		&usr.ID, &nick, &bio, &usr.Status, &usr.LastSeen, &usr.RegisterDate, &usr.Permissions, &usr.Locale)
+		&usr.ID, &nick, &bio, &usr.Status, &lstsn, &rgsd, &usr.Permissions, &usr.Locale)
+
+	usr.LastSeen, _ = time.Parse(consts.TimeFormatString, lstsn)
+	usr.RegisterDate, _ = time.Parse(consts.TimeFormatString, rgsd)
 
 	usr.Biography = bio.String
 	usr.Nickname = nick.String
@@ -79,7 +83,7 @@ func (db *SQLiteDB) UpdateUser(user User) error {
 		user.Locale = consts.DefaultLocale
 	}
 	query, err := db.Exec("UPDATE Users SET `Nickname` = ?,`Biography` = ?, `Status` = ?, `LastSeen` = ?, `Permissions` = ?, `Locale` = ?  WHERE `ID`=?",
-		user.Nickname, user.Biography, user.Status, user.LastSeen, user.Permissions, user.Locale, user.ID)
+		user.Nickname, user.Biography, user.Status, user.LastSeen.Format(consts.TimeFormatString), user.Permissions, user.Locale, user.ID)
 	if err != nil {
 		db.AddLogEvent(Log{Event: "UpdateUser_QueryFailed", Message: "Impossible to create the execute the query", Error: err.Error()})
 		return err
