@@ -10,6 +10,11 @@ const Version = "0.0.1-g α"
 //DefaultLocale identifies the default locale of the bot
 const DefaultLocale = "it"
 
+//TimeFormatString is the format the time is parsed to and from string
+//The T and the Z was inserted because when pulling the string from the
+//  database the chars was there and was influenciating the time parsing
+const TimeFormatString = "2006-01-02T15:04:05Z-0700UTC"
+
 //MaximumInlineKeyboardRows is the maximum number of rows the inline keyboard can have
 const MaximumInlineKeyboardRows = 7
 
