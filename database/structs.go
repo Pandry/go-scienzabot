@@ -1,5 +1,7 @@
 package database
 
+import "time"
+
 // The structs.go file contains all the structs the query can take in input
 //	or return as output of a query
 
@@ -11,8 +13,8 @@ type User struct {
 	Status       int64
 	Locale       string
 	Permissions  int64
-	LastSeen     string
-	RegisterDate string
+	LastSeen     time.Time
+	RegisterDate time.Time
 }
 
 //Group represent the respective table in the database
@@ -42,13 +44,13 @@ type Permission struct {
 
 //List represent the respective table in the database
 type List struct {
-	ID                   int64
-	Name                 string
-	GroupID              int64
-	Properties           int64
-	CreationDate         string
-	LatestInvocationDate string
-	Parent               int64
+	ID               int64
+	Name             string
+	GroupID          int64
+	Properties       int64
+	CreationDate     string
+	LatestInvocation time.Time
+	Parent           int64
 }
 
 //Bookmark represent the respective table in the database
@@ -60,8 +62,8 @@ type Bookmark struct {
 	Alias          string
 	Status         int64
 	MessageContent string
-	CreationDate   string
-	LastAccessDate string
+	CreationDate   time.Time
+	LastAccessDate time.Time
 }
 
 //Subscription represent the respective table in the database
