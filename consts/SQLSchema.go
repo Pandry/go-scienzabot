@@ -215,7 +215,7 @@ INSERT OR IGNORE INTO BotSettings (Key,Value) VALUES ("version", "⚛️ v 0.1g 
 
 -- Message to ask used to use the command in private chat
 INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("onPrivateChatCommand","Please, ask me that in private chat", "en");
-INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("onPrivateChatCommand","Perfavore, usa questo comando in chat privata", "it");
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("onPrivateChatCommand","Per favore, usa questo comando in chat privata", "it");
 
 -- Help message
 INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("helpCommand","Comandi per aiuto:
@@ -309,7 +309,7 @@ INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("callbackQueryAnsw
 
 -- callbackQueryAnswerError
 INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("callbackQueryAnswerError","❌ Errore
-Perfavore, contattare @Pandry", "it");
+Per favore, contattare @Pandry", "it");
 INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("callbackQueryAnswerError","❌ Error
 Please contact @Pandry", "en");
 
