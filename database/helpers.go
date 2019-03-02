@@ -1,5 +1,9 @@
 package database
 
+import (
+	"strconv"
+)
+
 //The database package is supposed to contain all the database functions and helpers functions
 // A helper function is a function that interfaces with the database via a query.
 // The helper functions were made to avoid a mantainer to interface directly with the database.
@@ -12,25 +16,107 @@ package database
 
 //ExecuteRawSQLQuery executes a RAW statement on the databse.
 //VERY DANGEROUS
-func (db *SQLiteDB) ExecuteRawSQLQuery(query string) (string, error) {
-	rows, err := db.Query(query)
+func (db *SQLiteDB) ExecuteRawSQLQuery(queryString string) string {
+
+	query, err := db.Exec(queryString)
 	if err != nil {
-		return "", err
+		return "err executing"
 	}
+	rows, err := query.RowsAffected()
+	if err != nil {
+		return "err getting affected rows"
+	}
+	if rows < 1 {
+		return "no rows affected"
+	}
+	return "✅ OK"
+
+}
+
+func (db *SQLiteDB) QueryRawSQLQuery(queryString string) string {
+
+	rows, err := db.Query(queryString)
 	defer rows.Close()
-	for rows.Next() {
-		var id int
-		var name string
-		if err != nil {
-			err = rows.Scan(&id, &name)
-			return "", err
-		}
-		//fmt.Println(id, name)
-	}
-	err = rows.Err()
+	//bkms := make([]Bookmark, 0)
 	if err != nil {
-		return "", err
+		return "Error executing the query"
 	}
-	//TODO: Fix
-	return "", nil
+	res := ""
+
+	var result [][]string
+	cols, _ := rows.Columns()
+	colTypes, _ := rows.ColumnTypes()
+	pointers := make([]interface{}, len(cols))
+	container := make([]string, len(cols))
+
+	for i := range pointers {
+		pointers[i] = &container[i]
+	}
+	i := -1
+	for rows.Next() {
+		res += "Rows[" + strconv.Itoa(i) + "]: \n"
+
+		rows.Scan(pointers...)
+		result = append(result, container)
+
+		{
+			for i, c := range container {
+				res += colTypes[i].Name() + ": " + c + "\n"
+			}
+		}
+		/*
+			var values []interface{}
+			//values := make(map[string]interface{}, 0)
+			rows.Scan(values...)
+			for i, val := range values {
+				str := fmt.Sprintf("%v", val)
+				res += colTypes[i].Name() + ": " + str + "\n"
+
+			}*/
+		/*
+			for _, colType := range colTypes {
+				switch colType.DatabaseTypeName() {
+				case "TEXT":
+					res += colType.Name() + ": "
+					var str sql.NullString
+
+					err = rows.Scan(&str)
+					if err != nil {
+						res += "ERR:" + err.Error() + "\n"
+					} else {
+						if str.Valid {
+							res += "```" + str.String + "```\n"
+						} else {
+							res += "NIL\n"
+						}
+					}
+
+					break
+				case "INT", "BIGINT":
+					res += colType.Name() + ": "
+					var num sql.NullInt64
+					err = rows.Scan(&num)
+					if err != nil {
+						res += "ERR\n"
+					} else {
+						if num.Valid {
+							res += "```" + strconv.FormatInt(num.Int64, 10) + "```\n"
+						} else {
+							res += "NIL\n"
+						}
+					}
+					break
+				}
+			}
+		*/
+		res += "\n"
+	}
+	if rows.NextResultSet() {
+		res += "Some roes weren't fetched \n"
+	} else if err := rows.Err(); err != nil {
+		res += "Error: " + err.Error() + " \n"
+	}
+
+	return res
+
 }
