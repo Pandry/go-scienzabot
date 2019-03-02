@@ -199,7 +199,7 @@ func (db *SQLiteDB) UpdateLastSeen(userID int, groupID int64, lstInv time.Time) 
 func (db *SQLiteDB) GetLastSeen(user int, group int64) (time.Time, error) {
 	var lastSeen time.Time
 	var timeStr sql.NullString
-	err := db.QueryRow("SELECT LastSeen FROM Stats WHERE `UserID` AND `GroupID`", user, group).Scan(&timeStr)
+	err := db.QueryRow("SELECT LastSeen FROM Stats WHERE `UserID`=? AND `GroupID`=?", user, group).Scan(&timeStr)
 	lastSeen, _ = time.Parse(consts.TimeFormatString, timeStr.String)
 	switch {
 	case err == sql.ErrNoRows:
