@@ -103,7 +103,8 @@ func textMessageRoute(ctx *Context) {
 			//See if the user is an administrator of the group
 			userIsGroupAdmin = utils.HasPermission(userPermission, consts.UserPermissionGroupAdmin) || utils.HasPermission(userPermission, consts.UserPermissionAdmin)
 			//Increment the message count of the user in the group
-			ctx.Database.IncrementMessageCount(int64(message.From.ID), message.Chat.ID)
+			ctx.Database.IncrementMessageCount(message.From.ID, message.Chat.ID)
+			ctx.Database.UpdateLastSeen(message.From.ID, message.Chat.ID, message.Time())
 		}
 
 	}
