@@ -19,7 +19,7 @@ import (
 //	in every group the bot is in
 
 //GetMessageCount returns the message number of a user in a group
-func (db *SQLiteDB) GetMessageCount(user int64, group int64) (int64, error) {
+func (db *SQLiteDB) GetMessageCount(user int, group int64) (int64, error) {
 	var messageCount int64
 	err := db.QueryRow("SELECT MessageCount FROM Stats WHERE `UserID` AND `GroupID`", user, group).Scan(&messageCount)
 	switch {
@@ -51,7 +51,7 @@ func (db *SQLiteDB) GetListsInvokedCount(user int, group int64) (int64, error) {
 }
 
 //SetMessageCount sets the message of a user in a group
-func (db *SQLiteDB) SetMessageCount(user int64, group int64, messageCount int64) error {
+func (db *SQLiteDB) SetMessageCount(user int, group int64, messageCount int64) error {
 	query, err := db.Exec(
 		"INSERT INTO Stats (`UserID`, `GroupID`, `MessageCount`) VALUES (?,?,?) "+
 			"ON CONFLICT(`UserID`, `GroupID`) DO UPDATE SET `MessageCount` = Excluded.MessageCount",
@@ -95,7 +95,7 @@ func (db *SQLiteDB) SetListsInvokedCount(user int, group int64, listsInvoked int
 }
 
 //IncrementMessageCount increments by 1 the number of messages from a user
-func (db *SQLiteDB) IncrementMessageCount(user int64, group int64) error {
+func (db *SQLiteDB) IncrementMessageCount(user int, group int64) error {
 	msgCnt, err := db.GetMessageCount(user, group)
 	/*if err != nil {
 		//User may not exist yet in DB
