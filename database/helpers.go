@@ -64,51 +64,6 @@ func (db *SQLiteDB) QueryRawSQLQuery(queryString string) string {
 				res += colTypes[i].Name() + ": " + c + "\n"
 			}
 		}
-		/*
-			var values []interface{}
-			//values := make(map[string]interface{}, 0)
-			rows.Scan(values...)
-			for i, val := range values {
-				str := fmt.Sprintf("%v", val)
-				res += colTypes[i].Name() + ": " + str + "\n"
-
-			}*/
-		/*
-			for _, colType := range colTypes {
-				switch colType.DatabaseTypeName() {
-				case "TEXT":
-					res += colType.Name() + ": "
-					var str sql.NullString
-
-					err = rows.Scan(&str)
-					if err != nil {
-						res += "ERR:" + err.Error() + "\n"
-					} else {
-						if str.Valid {
-							res += "```" + str.String + "```\n"
-						} else {
-							res += "NIL\n"
-						}
-					}
-
-					break
-				case "INT", "BIGINT":
-					res += colType.Name() + ": "
-					var num sql.NullInt64
-					err = rows.Scan(&num)
-					if err != nil {
-						res += "ERR\n"
-					} else {
-						if num.Valid {
-							res += "```" + strconv.FormatInt(num.Int64, 10) + "```\n"
-						} else {
-							res += "NIL\n"
-						}
-					}
-					break
-				}
-			}
-		*/
 		res += "\n"
 	}
 	if rows.NextResultSet() {
