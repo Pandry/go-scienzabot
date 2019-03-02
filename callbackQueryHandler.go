@@ -21,13 +21,21 @@ func callbackQueryRoute(ctx *Context) {
 		userExists     bool
 		messageInGroup bool
 		err            error
+		locale         string
 	)
+
+	locale = consts.DefaultLocale
 
 	messageInGroup = message.Message != nil && message.Message.Chat.IsGroup() || message.Message.Chat.IsSuperGroup()
 
 	if userExists = ctx.Database.UserExists(message.From.ID); userExists {
 		user, err = ctx.Database.GetUser(message.From.ID)
 		isAdmin = utils.HasPermission(int(user.Permissions), consts.UserPermissionAdmin)
+		locale, _ = ctx.Database.GetUserLocale(ctx.Update.CallbackQuery.From.ID)
+	}
+
+	if message.From.LanguageCode != "" {
+		locale = message.From.LanguageCode
 	}
 
 	switch {
@@ -47,7 +55,7 @@ func callbackQueryRoute(ctx *Context) {
 									//callbackQueryAnswerSuccess
 
 									ctx.Bot.AnswerCallbackQuery(tba.CallbackConfig{CallbackQueryID: message.ID,
-										Text: ctx.Database.GetBotStringValueOrDefaultNoError("callbackQueryAnswerSuccess", message.From.LanguageCode)})
+										Text: ctx.Database.GetBotStringValueOrDefaultNoError("callbackQueryAnswerSuccess", locale)})
 
 									//lists, _ := ctx.Database.GetAvailableLists(message.Message.Chat.ID, message.From.ID, consts.MaximumInlineKeyboardRows+1, 0)
 									lists, _ := ctx.Database.GetUserGroupListsWithLimits(int64(message.From.ID), message.Message.Chat.ID, consts.MaximumInlineKeyboardRows+1, 0)
@@ -59,11 +67,12 @@ func callbackQueryRoute(ctx *Context) {
 
 									rows := make([][]tba.InlineKeyboardButton, 0)
 									paginationPresent := false
+									locale, _ := ctx.Database.GetUserLocale(message.Message.From.ID)
 									for i, lst := range lists {
 										if i+2 > consts.MaximumInlineKeyboardRows {
 											rows = append(rows, []tba.InlineKeyboardButton{
 												//tba.NewInlineKeyboardButtonData("‌‌ ", "ignore"),
-												tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("deleteMessageText", message.Message.From.LanguageCode), "delme-"),
+												tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("deleteMessageText", locale), "delme-"),
 												tba.NewInlineKeyboardButtonData("➡️", "uo-"+strconv.Itoa(consts.MaximumInlineKeyboardRows-1))})
 											paginationPresent = true
 											break
@@ -72,7 +81,7 @@ func callbackQueryRoute(ctx *Context) {
 									}
 									if !paginationPresent {
 										rows = append(rows, []tba.InlineKeyboardButton{
-											tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("closeMessageText", message.Message.From.LanguageCode), "delme-"),
+											tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("closeMessageText", locale), "delme-"),
 											tba.NewInlineKeyboardButtonData("‌‌ ", "ignore")})
 									}
 
@@ -80,7 +89,7 @@ func callbackQueryRoute(ctx *Context) {
 
 								} else {
 									ctx.Bot.AnswerCallbackQuery(tba.CallbackConfig{CallbackQueryID: message.ID, ShowAlert: true,
-										Text: ctx.Database.GetBotStringValueOrDefaultNoError("callbackQueryAnswerError", message.From.LanguageCode)})
+										Text: ctx.Database.GetBotStringValueOrDefaultNoError("callbackQueryAnswerError", locale)})
 								}
 							}
 						}
@@ -108,7 +117,7 @@ func callbackQueryRoute(ctx *Context) {
 									leftOffset = 0
 								}
 								leftBtn := tba.NewInlineKeyboardButtonData("⬅️", "uo-"+strconv.Itoa(leftOffset))
-								closeBtn := tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("deleteMessageText", message.Message.From.LanguageCode), "delme-")
+								closeBtn := tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("deleteMessageText", locale), "delme-")
 								if offset < consts.MaximumInlineKeyboardRows-1 {
 									leftBtn = closeBtn
 								}
@@ -152,7 +161,7 @@ func callbackQueryRoute(ctx *Context) {
 									//callbackQueryAnswerSuccess
 
 									ctx.Bot.AnswerCallbackQuery(tba.CallbackConfig{CallbackQueryID: message.ID,
-										Text: ctx.Database.GetBotStringValueOrDefaultNoError("callbackQueryAnswerSuccess", message.From.LanguageCode)})
+										Text: ctx.Database.GetBotStringValueOrDefaultNoError("callbackQueryAnswerSuccess", locale)})
 
 									lists, _ := ctx.Database.GetAvailableLists(message.Message.Chat.ID, message.From.ID, consts.MaximumInlineKeyboardRows+1, 0)
 
@@ -167,7 +176,7 @@ func callbackQueryRoute(ctx *Context) {
 										if len(lists) > consts.MaximumInlineKeyboardRows && i+2 > consts.MaximumInlineKeyboardRows {
 											rows = append(rows, []tba.InlineKeyboardButton{
 												//tba.NewInlineKeyboardButtonData("‌‌ ", "ignore"),
-												tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("deleteMessageText", message.Message.From.LanguageCode), "delme-"),
+												tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("deleteMessageText", locale), "delme-"),
 												tba.NewInlineKeyboardButtonData("➡️", "jo-"+strconv.Itoa(consts.MaximumInlineKeyboardRows-1))})
 											paginationPresent = true
 											break
@@ -176,7 +185,7 @@ func callbackQueryRoute(ctx *Context) {
 									}
 									if !paginationPresent {
 										rows = append(rows, []tba.InlineKeyboardButton{
-											tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("closeMessageText", message.Message.From.LanguageCode), "delme-"),
+											tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("closeMessageText", locale), "delme-"),
 											tba.NewInlineKeyboardButtonData("‌‌ ", "ignore")})
 									}
 
@@ -184,7 +193,7 @@ func callbackQueryRoute(ctx *Context) {
 
 								} else {
 									ctx.Bot.AnswerCallbackQuery(tba.CallbackConfig{CallbackQueryID: message.ID, ShowAlert: true,
-										Text: ctx.Database.GetBotStringValueOrDefaultNoError("callbackQueryAnswerError", message.From.LanguageCode)})
+										Text: ctx.Database.GetBotStringValueOrDefaultNoError("callbackQueryAnswerError", locale)})
 								}
 							}
 						}
@@ -211,7 +220,7 @@ func callbackQueryRoute(ctx *Context) {
 									leftOffset = 0
 								}
 								leftBtn := tba.NewInlineKeyboardButtonData("⬅️", "jo-"+strconv.Itoa(leftOffset))
-								closeBtn := tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("deleteMessageText", message.Message.From.LanguageCode), "delme-")
+								closeBtn := tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("deleteMessageText", locale), "delme-")
 								if offset < consts.MaximumInlineKeyboardRows-1 {
 									leftBtn = closeBtn
 								}
@@ -261,7 +270,7 @@ func callbackQueryRoute(ctx *Context) {
 				rm := tba.NewInlineKeyboardMarkup(
 					tba.NewInlineKeyboardRow(
 						tba.NewInlineKeyboardButtonData(
-							ctx.Database.GetBotStringValueOrDefaultNoError("deleteMessageText", message.From.LanguageCode), "delme-")))
+							ctx.Database.GetBotStringValueOrDefaultNoError("deleteMessageText", locale), "delme-")))
 
 				replymessage.ReplyMarkup = rm
 				replymessage.ParseMode = tba.ModeMarkdown
