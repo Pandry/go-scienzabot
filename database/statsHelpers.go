@@ -174,3 +174,41 @@ func (db *SQLiteDB) GetLastListInvocation(user int, group int64) (time.Time, err
 		return listInvocation, nil
 	}
 }
+
+//UpdateLastSeen updates the lastseen field, that indicates the last time the user was seen on the group
+func (db *SQLiteDB) UpdateLastSeen(userID int, groupID int64, lstInv time.Time) error {
+	lastSeen := lstInv.Format(consts.TimeFormatString)
+	query, err := db.Exec("UPDATE Stats SET `LastSeen` = ? WHERE `UserID` = ? AND `GroupID` = ?", lastSeen, userID, groupID)
+	if err != nil {
+		db.AddLogEvent(Log{Event: "UpdateLastSeen_QueryFailed", Message: "Impossible to create the execute the query", Error: err.Error()})
+		return err
+	}
+	rows, err := query.RowsAffected()
+	if err != nil {
+		db.AddLogEvent(Log{Event: "UpdateLastSeen_RowsInfoNotGot", Message: "Impossible to get afftected rows", Error: err.Error()})
+		return err
+	}
+	if rows < 1 {
+		db.AddLogEvent(Log{Event: "UpdateLastSeen_NoRowsAffected", Message: "No rows affected"})
+		return NoRowsAffected{error: errors.New("No rows affected from the query")}
+	}
+	return err
+}
+
+//GetLastSeen returns the last time when the user inwas seen on a group
+func (db *SQLiteDB) GetLastSeen(user int, group int64) (time.Time, error) {
+	var lastSeen time.Time
+	var timeStr sql.NullString
+	err := db.QueryRow("SELECT LastSeen FROM Stats WHERE `UserID` AND `GroupID`", user, group).Scan(&timeStr)
+	lastSeen, _ = time.Parse(consts.TimeFormatString, timeStr.String)
+	switch {
+	case err == sql.ErrNoRows:
+		db.AddLogEvent(Log{Event: "GetLastSeen_ErrorNoRows", Message: "Impossible to get rows", Error: err.Error()})
+		return lastSeen, err
+	case err != nil:
+		db.AddLogEvent(Log{Event: "GetLastSeen_ErrorUnknown", Message: "Uknown error verified", Error: err.Error()})
+		return lastSeen, err
+	default:
+		return lastSeen, nil
+	}
+}
