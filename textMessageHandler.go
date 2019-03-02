@@ -664,7 +664,6 @@ func textMessageRoute(ctx *Context) {
 			//To do so we have a set of prefixes
 			listPrefixes := []string{"@", "#", "!", "."}
 			//We add the the possibleList every word that has one of the prefixes
-			//TODO: Check with regex the lists to make sorting faster
 			possibleLists := make([]string, 0)
 			//Then we iterate the prefixes, and for each one we see if there are possible lists
 			for _, prefix := range listPrefixes {
@@ -679,7 +678,12 @@ func textMessageRoute(ctx *Context) {
 							//And hase the prefix
 							if word[0] == prefix[0] {
 								//We add it to the list without the prefix
-								possibleLists = append(possibleLists, strings.ToLower(word[1:]))
+								listNameIsValid, _ := regexp.MatchString(consts.ListRegex, strings.ToLower(word[1:]))
+								//If the list name is valid
+								if listNameIsValid {
+									//Add the value to the possible lists
+									possibleLists = append(possibleLists, strings.ToLower(word[1:]))
+								} //fi list name valid
 							} //fi prefix check
 						} //fi world len
 					} //end words loop
