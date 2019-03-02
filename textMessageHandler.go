@@ -570,6 +570,36 @@ func textMessageRoute(ctx *Context) {
 			}
 			break
 
+		//The userinterval is the interval between invocations from a user
+		case "/userinterval":
+			//If the message is in a group and the user is a botadmin or a groupadmin
+			if messageInGroup && (userIsGroupAdmin || userIsBotAdmin) {
+				//If the args are 2
+				if len(args) == 2 {
+					//Try to parse the 2nd argument as a time duration
+					_, err := time.ParseDuration(args[1])
+					if err != nil {
+						//There was an error, send the syntax command
+						replyDbMessageWithCloseButton(ctx, "userintervalSyntaxError")
+						//And return
+						return
+					}
+					//If there was no issue, update the setting in the database
+					err = ctx.Database.SetSettingValue("userInterval", args[1], int(message.Chat.ID))
+					if err == nil {
+						replyDbMessageWithCloseButton(ctx, "userintervalSuccess")
+						//Send success command
+					} else {
+						//Something went wrong but the duration parsed successfully, check the logs and send error message
+						replyDbMessageWithCloseButton(ctx, "generalError")
+					}
+				} else {
+					//The args are not 2, send the syntax command
+					replyDbMessageWithCloseButton(ctx, "userintervalSyntaxError")
+				}
+			}
+			break
+
 		//restart is used to reload the telegram admins within a group
 		case "/reloadpermissions", "/ricarica", "/riavvia", "/restart":
 			reloadChatAdmins(ctx)
@@ -580,155 +610,180 @@ func textMessageRoute(ctx *Context) {
 
 		}
 	} else { //The message is not a command
-		//Check if list was invoked
-		//To do so we have a set of prefixes
-		listPrefixes := []string{"@", "#", "!", "."}
-		//We add the the possibleList every word that has one of the prefixes
-		//TODO: Check with reges the lists
-		possibleLists := make([]string, 0)
-		//Then we iterate the prefixes, and for each one we see if there are possible lists
-		for _, prefix := range listPrefixes {
-			//If the message contains the prefix
-			if strings.Contains(message.Text, prefix) {
-				//we split all the words of the message (by the space), removing eventual commas and semicolons
-				words := strings.Split(strings.Replace(strings.Replace(message.Text, ",", "", -1), ";", "", -1), " ")
-				//And fore each word
-				for _, word := range words {
-					//If the word is longer than 1 char
-					if len(word) > 1 {
-						//And hase the prefix
-						if word[0] == prefix[0] {
-							//We add it to the list without the prefix
-							possibleLists = append(possibleLists, strings.ToLower(word[1:]))
-						} //fi prefix check
-					} //fi world len
-				} //end words loop
-			} //fi message contains prefix
-		} //end prefix loop
 
-		//If there are not, there's no need to continue
-		if len(possibleLists) < 1 {
-			return
-		}
-
-		//Then we get all the lists in the group
-		groupLists, err := ctx.Database.GetLists(message.Chat.ID)
-		//And we check for errors
-		if err != nil {
-			replyDbMessageWithCloseButton(ctx, "generalError")
-			return
-		}
-		//Then we create a slice that will contain all the invoked list
-		lists := make([]database.List, 0)
-		//We iterate throught all the possible lists
-		for _, plist := range possibleLists {
-			//And iterate throught all the lists present in the group
-			for _, glist := range groupLists {
-				//If the list name is the same as the possible list, there'sa match
-				if plist == glist.Name {
-					//So we append the current list to the lists to "call"
-					lists = append(lists, glist)
-					//And we interrupt the iteration
-					break
-				} //fi check for list match
-			} //end loop of the lists in the groyp
-		} //end loop of possible lists in the message
-
-		//if there was no match return
-		if len(lists) < 1 {
-			return
-		}
-
-		//We create a slice of the users who were contacted
-		contactedUsers := make([]int64, 0)
-
-		var listInterval time.Duration
-		//We get the minimum interval a list should be called
-		intervalString, intervalError := ctx.Database.GetSettingValue("listInterval", int(message.Chat.ID))
-		if intervalError == nil {
-			listInterval, intervalError = time.ParseDuration(intervalString)
-		}
-		//For each list
-		for _, list := range lists {
-
-			//If the list has a interval calling limit (wee see if the error is nil or not)
-			if intervalError == nil {
-				//If the minimum interval is not passed yet and the list interval is valid (greather than 0)
-				//To check so, we add the minimum list timespan to the latest list invokation time
-				//  and convert the number to an integer we can compare
-				//If the integer is greater than the time of the message, the list cannot be called
-				//  so we continue the loop
-
-				if listInterval.Seconds() > 0 && list.LatestInvocation.Add(listInterval).Unix() > message.Time().Unix() {
-					//If we go there, it means that the last time we called the list
-					//  summed to the list interval is greater than the message time,
-					//  so the list shouldn't be calle
-					continue
+		//If the message is in a group we can check for thins like lists invocations etc
+		if messageInGroup {
+			//Get the user interval if present
+			userIntervalString, userIntervalError := ctx.Database.GetSettingValue("userInterval", int(message.Chat.ID))
+			//If it's nil the setting exists
+			if userIntervalError == nil {
+				//Convert the string to a timespan
+				userInterval, _ := time.ParseDuration(userIntervalString)
+				//Get the last time the user invoked a list
+				lastInvocation, _ := ctx.Database.GetLastListInvocation(message.From.ID, message.Chat.ID)
+				//If the time is greater than the message, the user shouldn't be able to call a list and should be ignored
+				if userInterval.Seconds() > 0 && lastInvocation.Add(userInterval).Unix() > message.Time().Unix() {
+					return
 				}
 			}
-			//Update the list invokation time
-			ctx.Database.UpdateListLastInvokation(list.ID, message.Time())
-			//We get the list of the subscribers
-			subs, _ := ctx.Database.GetSubscribedUsers(list.ID)
-			//For each subscriber
-			for _, sub := range subs {
-				//We set a flag to see if we already called to user (maybe he was in another list)
-				found := false
-				//And we iterate through the contacted users
-				for _, cUse := range contactedUsers {
-					//If the user was contacted
-					if sub.UserID == cUse {
-						//We set the flag to true
-						found = true
-						//And end the loop
-						break
-					} //fi check for contacted user
-				} //end loop of contacted users
 
-				//If the user was not contacted
-				if !found {
-					//Then we get info of the user to contact via the ID
-					user, _ := ctx.Database.GetUser(int(sub.UserID))
-					//Then we get the message to send to the user from the database, and replace the keywords
-					//  such as {{categoryName}} with the real category name
-					messageToSend := tba.NewMessage(sub.UserID, strings.Replace(strings.Replace(ctx.Database.GetBotStringValueOrDefaultNoError("tagNotification", user.Locale), "{{categoryName}}", list.Name, -1), "{{groupName}}", message.Chat.Title, -1))
-					//If the message is in a supergroup, it's possible to get a link to the message
-					if message.Chat.IsSuperGroup() {
-						//If the group has a username
-						if message.Chat.UserName != "" {
-							//We generate the links, always by taking from the database the strings
-							ikm1 := tba.NewInlineKeyboardButtonURL(ctx.Database.GetBotStringValueOrDefaultNoError("tagNotificationGroupLink", user.Locale), "t.me/"+message.Chat.UserName)
-							ikm2 := tba.NewInlineKeyboardButtonURL(ctx.Database.GetBotStringValueOrDefaultNoError("tagNotificationMessageLink", user.Locale), "t.me/"+message.Chat.UserName+"/"+strconv.Itoa(message.MessageID))
-							ikm3 := tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("tagNotificationTag", user.Locale), "tag-"+strconv.FormatInt(message.Chat.ID, 10)+"-"+strconv.Itoa(message.MessageID))
-							ikl := []tba.InlineKeyboardButton{ikm1, ikm2, ikm3}
-							ikm := tba.NewInlineKeyboardMarkup(ikl)
-							//And add to the message the buttons
-							messageToSend.ReplyMarkup = ikm
-						} else { //The chat hasn't a nickname
-							//We add the button to be tagged from the bot at the mesage
+			//Check if the user can invoke a list
+
+			//Check if list was invoked
+			//To do so we have a set of prefixes
+			listPrefixes := []string{"@", "#", "!", "."}
+			//We add the the possibleList every word that has one of the prefixes
+			//TODO: Check with reges the lists
+			possibleLists := make([]string, 0)
+			//Then we iterate the prefixes, and for each one we see if there are possible lists
+			for _, prefix := range listPrefixes {
+				//If the message contains the prefix
+				if strings.Contains(message.Text, prefix) {
+					//we split all the words of the message (by the space), removing eventual commas and semicolons
+					words := strings.Split(strings.Replace(strings.Replace(message.Text, ",", "", -1), ";", "", -1), " ")
+					//And fore each word
+					for _, word := range words {
+						//If the word is longer than 1 char
+						if len(word) > 1 {
+							//And hase the prefix
+							if word[0] == prefix[0] {
+								//We add it to the list without the prefix
+								possibleLists = append(possibleLists, strings.ToLower(word[1:]))
+							} //fi prefix check
+						} //fi world len
+					} //end words loop
+				} //fi message contains prefix
+			} //end prefix loop
+
+			//If there are not, there's no need to continue
+			if len(possibleLists) < 1 {
+				return
+			}
+
+			//Then we get all the lists in the group
+			groupLists, err := ctx.Database.GetLists(message.Chat.ID)
+			//And we check for errors
+			if err != nil {
+				replyDbMessageWithCloseButton(ctx, "generalError")
+				return
+			}
+			//Then we create a slice that will contain all the invoked list
+			lists := make([]database.List, 0)
+			//We iterate throught all the possible lists
+			for _, plist := range possibleLists {
+				//And iterate throught all the lists present in the group
+				for _, glist := range groupLists {
+					//If the list name is the same as the possible list, there'sa match
+					if plist == glist.Name {
+						//So we append the current list to the lists to "call"
+						lists = append(lists, glist)
+						//Increment the number of lists contacted by the user if possible
+						if userIntervalError == nil {
+							ctx.Database.IncrementListsInvokedCount(message.From.ID, message.Chat.ID)
+							//and updated the last time the user contacted a list
+							ctx.Database.UpdateLastInvocation(message.From.ID, message.Chat.ID, message.Time())
+						}
+						//And we interrupt the iteration
+						break
+					} //fi check for list match
+				} //end loop of the lists in the groyp
+			} //end loop of possible lists in the message
+
+			//if there was no match return
+			if len(lists) < 1 {
+				return
+			}
+			//We create a slice of the users who were contacted
+			contactedUsers := make([]int64, 0)
+
+			var listInterval time.Duration
+			//We get the minimum interval a list should be called
+			intervalString, intervalError := ctx.Database.GetSettingValue("listInterval", int(message.Chat.ID))
+			if intervalError == nil {
+				listInterval, intervalError = time.ParseDuration(intervalString)
+			}
+			//For each list
+			for _, list := range lists {
+
+				//If the list has a interval calling limit (wee see if the error is nil or not)
+				if intervalError == nil {
+					//If the minimum interval is not passed yet and the list interval is valid (greather than 0)
+					//To check so, we add the minimum list timespan to the latest list invokation time
+					//  and convert the number to an integer we can compare
+					//If the integer is greater than the time of the message, the list cannot be called
+					//  so we continue the loop
+
+					if listInterval.Seconds() > 0 && list.LatestInvocation.Add(listInterval).Unix() > message.Time().Unix() {
+						//If we go there, it means that the last time we called the list
+						//  summed to the list interval is greater than the message time,
+						//  so the list shouldn't be calle
+						continue
+					}
+				}
+				//Update the list invokation time
+				ctx.Database.UpdateListLastInvokation(list.ID, message.Time())
+				//We get the list of the subscribers
+				subs, _ := ctx.Database.GetSubscribedUsers(list.ID)
+				//For each subscriber
+				for _, sub := range subs {
+					//We set a flag to see if we already called to user (maybe he was in another list)
+					found := false
+					//And we iterate through the contacted users
+					for _, cUse := range contactedUsers {
+						//If the user was contacted
+						if sub.UserID == cUse {
+							//We set the flag to true
+							found = true
+							//And end the loop
+							break
+						} //fi check for contacted user
+					} //end loop of contacted users
+
+					//If the user was not contacted
+					if !found {
+						//Then we get info of the user to contact via the ID
+						user, _ := ctx.Database.GetUser(int(sub.UserID))
+						//Then we get the message to send to the user from the database, and replace the keywords
+						//  such as {{categoryName}} with the real category name
+						messageToSend := tba.NewMessage(sub.UserID, strings.Replace(strings.Replace(ctx.Database.GetBotStringValueOrDefaultNoError("tagNotification", user.Locale), "{{categoryName}}", list.Name, -1), "{{groupName}}", message.Chat.Title, -1))
+						//If the message is in a supergroup, it's possible to get a link to the message
+						if message.Chat.IsSuperGroup() {
+							//If the group has a username
+							if message.Chat.UserName != "" {
+								//We generate the links, always by taking from the database the strings
+								ikm1 := tba.NewInlineKeyboardButtonURL(ctx.Database.GetBotStringValueOrDefaultNoError("tagNotificationGroupLink", user.Locale), "t.me/"+message.Chat.UserName)
+								ikm2 := tba.NewInlineKeyboardButtonURL(ctx.Database.GetBotStringValueOrDefaultNoError("tagNotificationMessageLink", user.Locale), "t.me/"+message.Chat.UserName+"/"+strconv.Itoa(message.MessageID))
+								ikm3 := tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("tagNotificationTag", user.Locale), "tag-"+strconv.FormatInt(message.Chat.ID, 10)+"-"+strconv.Itoa(message.MessageID))
+								ikl := []tba.InlineKeyboardButton{ikm1, ikm2, ikm3}
+								ikm := tba.NewInlineKeyboardMarkup(ikl)
+								//And add to the message the buttons
+								messageToSend.ReplyMarkup = ikm
+							} else { //The chat hasn't a nickname
+								//We add the button to be tagged from the bot at the mesage
+								ikm3 := tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("tagNotificationTag", user.Locale), "tag-"+strconv.FormatInt(message.Chat.ID, 10)+"-"+strconv.Itoa(message.MessageID))
+								ikl := []tba.InlineKeyboardButton{ikm3}
+								ikm := tba.NewInlineKeyboardMarkup(ikl)
+								//And add to the message the buttons
+								messageToSend.ReplyMarkup = ikm
+							}
+						} else { //The message is not a supergroup
 							ikm3 := tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("tagNotificationTag", user.Locale), "tag-"+strconv.FormatInt(message.Chat.ID, 10)+"-"+strconv.Itoa(message.MessageID))
 							ikl := []tba.InlineKeyboardButton{ikm3}
 							ikm := tba.NewInlineKeyboardMarkup(ikl)
-							//And add to the message the buttons
 							messageToSend.ReplyMarkup = ikm
 						}
-					} else { //The message is not a supergroup
-						ikm3 := tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("tagNotificationTag", user.Locale), "tag-"+strconv.FormatInt(message.Chat.ID, 10)+"-"+strconv.Itoa(message.MessageID))
-						ikl := []tba.InlineKeyboardButton{ikm3}
-						ikm := tba.NewInlineKeyboardMarkup(ikl)
-						messageToSend.ReplyMarkup = ikm
-					}
-					//We then send the message to the user
-					ctx.Bot.Send(messageToSend)
-					//And add the ID of the user to the slice of the contacted users
-					contactedUsers = append(contactedUsers, sub.UserID)
-				} //fi user found
-			} //end subscribed users loop
-		} //end lists loop
-		//Notify the user that the lists were called successfully
-		if len(contactedUsers) > 0 {
-			replyDbMessage(ctx, "listNotificationSuccessMessage")
-		}
+						//We then send the message to the user
+						ctx.Bot.Send(messageToSend)
+						//And add the ID of the user to the slice of the contacted users
+						contactedUsers = append(contactedUsers, sub.UserID)
+					} //fi user found
+				} //end subscribed users loop
+			} //end lists loop
+			//Notify the user that the lists were called successfully
+			if len(contactedUsers) > 0 {
+				replyDbMessage(ctx, "listNotificationSuccessMessage")
+			}
+		} //fi messageIngroup
 	} //fi message command
 }
 

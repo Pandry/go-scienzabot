@@ -118,7 +118,7 @@ CREATE TABLE IF NOT EXISTS 'MessageCount' (
 	'GroupID'  INTEGER NOT NULL,
 	'MessageCount'  INTEGER NOT NULL DEFAULT 0,
 	'ListsInvoked'  INTEGER NOT NULL DEFAULT 0,
-	'LatestListInvokation'  TEXT,
+	'LatestListInvocation'  TEXT,
 	FOREIGN KEY('UserID') REFERENCES Users('ID'),
 	FOREIGN KEY('GroupID') REFERENCES Groups('ID'),
 	CONSTRAINT con_msgcoubt_user_group_unique UNIQUE ('UserID','GroupID')
@@ -353,18 +353,32 @@ Gli utenti iscritti alla lista sono stati contattati correttamente!", "it");
 INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("listNotificationSuccessMessage","✅ Success!
 The users subscribed to the list were called successfully!", "en");
 
--- listtimeoutSyntaxError
-INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("listintervalSyntaxError","❗️ Errore di sintassi - l'uso previsto è /listtimeout <minimum internval>
+-- listintervalSyntaxError
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("listintervalSyntaxError","❗️ Errore di sintassi - l'uso previsto è /listinterval <intervallo minimo>
 L'intervallo deve essere in un formato simile a ""1h10m10s"" per impostare 1 ora, 10 minuti e 10 secondi.
 Per impostare un intervallo di 5 minuti è sufficente scrivere 5m", "it");
-INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("listintervalSyntaxError","✅ Success!
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("listintervalSyntaxError","❗️ Syntax error - the usage is /listinterval <minimum interval>
 The interval must be provided in a format like ""1h10m10s"" to set 1 hour, 10 minutes and 10 seconds.
 To set a 5 minutes interval, it's possible to write just 5m for example", "en");
 
---listtimeoutSuccess
+--listintervalSuccess
 INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("listintervalSuccess","✅ Successo!
 Il tempo minimo per richiamare le liste è stato impostato con successo!", "it");
 INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("listintervalSuccess","✅ Success!
+The minimum time interval required to call the same list was setted successfully!", "en");
+
+-- userintervalSyntaxError
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("userintervalSyntaxError","❗️ Errore di sintassi - l'uso previsto è /userinterval <intervallo minimo>
+L'intervallo deve essere in un formato simile a ""1h10m10s"" per impostare 1 ora, 10 minuti e 10 secondi.
+Per impostare un intervallo di 5 minuti è sufficente scrivere 5m", "it");
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("userintervalSyntaxError","❗️ Syntax error - the usage is /userinterval <minimum interval>
+The interval must be provided in a format like ""1h10m10s"" to set 1 hour, 10 minutes and 10 seconds.
+To set a 5 minutes interval, it's possible to write just 5m for example", "en");
+
+--userintervalSuccess
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("userintervalSuccess","✅ Successo!
+L'intervallo minimo per richiamare una lista da parte di un utente è stato impostato con successo!", "it");
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("userintervalSuccess","✅ Success!
 The minimum time interval required to call the same list was setted successfully!", "en");
 
 

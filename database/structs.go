@@ -80,7 +80,7 @@ type MessageCount struct {
 	GroupID              int64
 	MessageCount         int64
 	ListsInvoked         int64
-	LatestListInvokation time.Time
+	LatestListInvocation time.Time
 }
 
 //Strings represent the respective table in the database
