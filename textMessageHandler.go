@@ -138,6 +138,29 @@ func textMessageRoute(ctx *Context) {
 			}
 			replyDbMessageWithCloseButton(ctx, messageBody)
 			break
+		// Help message
+		case "/setwelcomemessage":
+			if messageInGroup {
+				if userIsBotAdmin || userIsGroupAdmin || utils.HasPermission(userPermission, consts.UserPermissionAdmin) {
+					if len(args) == 2 {
+						if message.ReplyToMessage != nil && message.ReplyToMessage.Text != "" {
+							ctx.Database.SetStringValue("welcomeMessage", message.ReplyToMessage.Text, message.Chat.ID, args[1])
+							replyDbMessageWithCloseButton(ctx, "welcomeMessageSet")
+						} else { //No reply message
+							replyDbMessageWithCloseButton(ctx, "welcomeMessageUsage")
+							//usage
+						}
+					} else { //Len != 2
+						replyDbMessageWithCloseButton(ctx, "welcomeMessageUsage")
+						//usage
+					}
+				} else { //Does not have permissions
+					//403
+					replyDbMessageWithCloseButton(ctx, "notAuthroized")
+				}
+
+			}
+			break
 
 		//Info message
 		case "/info", "/informazioni", "/about", "/github":

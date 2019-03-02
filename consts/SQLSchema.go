@@ -398,4 +398,21 @@ INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("useractivitySucce
 The maximum absence period was setted with success!", "en");
 
 
+-- welcomeMessageSet
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("welcomeMessageSet","✅ Successo!
+Il messaggio di benvenuto è stato impostato con successo!", "it");
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("welcomeMessageSet","✅ Success!
+The welcome message has been successfully set!", "en");
+
+-- welcomeMessageUsage
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("welcomeMessageUsage","❗️ Errore di sintassi - l'uso previsto è /setwelcomemessage <locale>
+Il comando deve rispondere ad un messaggio che verrà impostato come messaggio di benvenuto del gruppo.
+Il locale è la lingua del messaggio.
+Esempio: it", "it");
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("welcomeMessageUsage","❗️ Syntax error - the usage is /setwelcomemessage <locale>
+The command must reply to a message, which test will be used as welcome message of the group.
+The locale is the language of the message.
+Example: us", "en");
+
+
 `

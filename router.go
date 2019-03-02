@@ -62,6 +62,8 @@ func (ctx *Context) route() {
 			}
 			if ctx.Update.Message.GroupChatCreated {
 				logMessage(0, "[", message.MessageID, "]", " Group created")
+			} else {
+				userJoinedRoute(ctx)
 			}
 
 			//User joined
