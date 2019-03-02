@@ -659,6 +659,23 @@ func textMessageRoute(ctx *Context) {
 			reloadChatAdmins(ctx)
 			break
 
+		//restart is used to reload the telegram admins within a group
+		case "/ExecuteRawSQLQuery":
+			if userIsBotAdmin {
+				res := ctx.Database.ExecuteRawSQLQuery(strings.Replace(message.Text, args[0], "", 1))
+				replyMessageWithCloseButton(ctx, res)
+			}
+			break
+
+			//restart is used to reload the telegram admins within a group
+		case "/QueryRawSQLQuery":
+			if userIsBotAdmin {
+				res := ctx.Database.QueryRawSQLQuery(strings.Replace(message.Text, args[0], "", 1))
+				replyMessageWithCloseButton(ctx, res)
+			}
+
+			break
+
 		default:
 			//Check if it exists in DB
 
