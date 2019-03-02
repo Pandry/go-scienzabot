@@ -21,7 +21,7 @@ import (
 //GetMessageCount returns the message number of a user in a group
 func (db *SQLiteDB) GetMessageCount(user int64, group int64) (int64, error) {
 	var messageCount int64
-	err := db.QueryRow("SELECT MessageCount FROM MessageCount WHERE `UserID` AND `GroupID`", user, group).Scan(&messageCount)
+	err := db.QueryRow("SELECT MessageCount FROM Stats WHERE `UserID` AND `GroupID`", user, group).Scan(&messageCount)
 	switch {
 	case err == sql.ErrNoRows:
 		db.AddLogEvent(Log{Event: "GetMessageCount_ErrorNoRows", Message: "Impossible to get rows", Error: err.Error()})
@@ -37,7 +37,7 @@ func (db *SQLiteDB) GetMessageCount(user int64, group int64) (int64, error) {
 //GetListsInvokedCount returns the number of lists invoked by a user in a group
 func (db *SQLiteDB) GetListsInvokedCount(user int, group int64) (int64, error) {
 	var listInvocations int64
-	err := db.QueryRow("SELECT ListsInvoked FROM MessageCount WHERE `UserID` = ? AND `GroupID` = ?", user, group).Scan(&listInvocations)
+	err := db.QueryRow("SELECT ListsInvoked FROM Stats WHERE `UserID` = ? AND `GroupID` = ?", user, group).Scan(&listInvocations)
 	switch {
 	case err == sql.ErrNoRows:
 		db.AddLogEvent(Log{Event: "GetListsInvokedCount_ErrorNoRows", Message: "Impossible to get rows", Error: err.Error()})
@@ -53,7 +53,7 @@ func (db *SQLiteDB) GetListsInvokedCount(user int, group int64) (int64, error) {
 //SetMessageCount sets the message of a user in a group
 func (db *SQLiteDB) SetMessageCount(user int64, group int64, messageCount int64) error {
 	query, err := db.Exec(
-		"INSERT INTO MessageCount (`UserID`, `GroupID`, `MessageCount`) VALUES (?,?,?) "+
+		"INSERT INTO Stats (`UserID`, `GroupID`, `MessageCount`) VALUES (?,?,?) "+
 			"ON CONFLICT(`UserID`, `GroupID`) DO UPDATE SET `MessageCount` = Excluded.MessageCount",
 		user, group, messageCount)
 	if err != nil {
@@ -75,7 +75,7 @@ func (db *SQLiteDB) SetMessageCount(user int64, group int64, messageCount int64)
 //SetListsInvokedCount sets the number of lists invoked of a user
 func (db *SQLiteDB) SetListsInvokedCount(user int, group int64, listsInvoked int64) error {
 	query, err := db.Exec(
-		"INSERT INTO MessageCount (`UserID`, `GroupID`, `ListsInvoked`) VALUES (?,?,?) "+
+		"INSERT INTO Stats (`UserID`, `GroupID`, `ListsInvoked`) VALUES (?,?,?) "+
 			"ON CONFLICT(`UserID`, `GroupID`) DO UPDATE SET `ListsInvoked` = Excluded.ListsInvoked",
 		user, group, listsInvoked)
 	if err != nil {
@@ -115,7 +115,7 @@ func (db *SQLiteDB) IncrementListsInvokedCount(user int, group int64) error {
 //GetUserGroups returns the groups
 func (db *SQLiteDB) GetUserGroups(user int) ([]Group, error) {
 	gprs := make([]Group, 0)
-	rows, err := db.Query("SELECT Groups.ID, Groups.Title,Groups.Status, Groups.Locale, Groups.Ref FROM MessageCount INNER JOIN Groups ON MessageCount.GroupID = Groups.ID  WHERE `UserID`=?", user)
+	rows, err := db.Query("SELECT Groups.ID, Groups.Title,Groups.Status, Groups.Locale, Groups.Ref FROM Stats INNER JOIN Groups ON MessageCount.GroupID = Groups.ID  WHERE `UserID`=?", user)
 	defer rows.Close()
 	if err != nil {
 		db.AddLogEvent(Log{Event: "GetUserGroups_ErorExecutingTheQuery", Message: "Impossible to get afftected rows", Error: err.Error()})
@@ -140,7 +140,7 @@ func (db *SQLiteDB) GetUserGroups(user int) ([]Group, error) {
 //UpdateLastInvocation updates the lastseen field
 func (db *SQLiteDB) UpdateLastInvocation(userID int, groupID int64, lstInv time.Time) error {
 	lastInvocation := lstInv.Format(consts.TimeFormatString)
-	query, err := db.Exec("UPDATE MessageCount SET `LatestListInvocation` = ? WHERE `UserID` = ? AND `GroupID` = ?", lastInvocation, userID, groupID)
+	query, err := db.Exec("UPDATE Stats SET `LatestListInvocation` = ? WHERE `UserID` = ? AND `GroupID` = ?", lastInvocation, userID, groupID)
 	if err != nil {
 		db.AddLogEvent(Log{Event: "UpdateLastInvocation_QueryFailed", Message: "Impossible to create the execute the query", Error: err.Error()})
 		return err
@@ -161,7 +161,7 @@ func (db *SQLiteDB) UpdateLastInvocation(userID int, groupID int64, lstInv time.
 func (db *SQLiteDB) GetLastListInvocation(user int, group int64) (time.Time, error) {
 	var listInvocation time.Time
 	var timeStr sql.NullString
-	err := db.QueryRow("SELECT LatestListInvocation FROM MessageCount WHERE `UserID` AND `GroupID`", user, group).Scan(&timeStr)
+	err := db.QueryRow("SELECT LatestListInvocation FROM Stats WHERE `UserID` AND `GroupID`", user, group).Scan(&timeStr)
 	listInvocation, _ = time.Parse(consts.TimeFormatString, timeStr.String)
 	switch {
 	case err == sql.ErrNoRows:

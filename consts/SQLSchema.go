@@ -109,19 +109,20 @@ CREATE TABLE IF NOT EXISTS 'Subscriptions' (
 );
 
 /*
-The MessageCount table is used to count the message of each user in the various groups
+The Stats table is used to count the message of each user in the various groups
 This allows the bot to count the message of a specific user on a multitude of groups
 */
-CREATE TABLE IF NOT EXISTS 'MessageCount' (
+CREATE TABLE IF NOT EXISTS 'Stats' (
 	'ID'  INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 	'UserID'  INTEGER NOT NULL,
 	'GroupID'  INTEGER NOT NULL,
 	'MessageCount'  INTEGER NOT NULL DEFAULT 0,
 	'ListsInvoked'  INTEGER NOT NULL DEFAULT 0,
 	'LatestListInvocation'  TEXT,
+	'LastSeen'  TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	FOREIGN KEY('UserID') REFERENCES Users('ID'),
 	FOREIGN KEY('GroupID') REFERENCES Groups('ID'),
-	CONSTRAINT con_msgcoubt_user_group_unique UNIQUE ('UserID','GroupID')
+	CONSTRAINT con_stats_user_group_unique UNIQUE ('UserID','GroupID')
 );
 
 /*
