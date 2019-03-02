@@ -33,6 +33,8 @@ func (db *SQLiteDB) ExecuteRawSQLQuery(queryString string) string {
 
 }
 
+//QueryRawSQLQuery executes a RAW statement on the databse and return a string containing the result
+//VERY DANGEROUS
 func (db *SQLiteDB) QueryRawSQLQuery(queryString string) string {
 
 	rows, err := db.Query(queryString)
@@ -44,10 +46,9 @@ func (db *SQLiteDB) QueryRawSQLQuery(queryString string) string {
 	res := ""
 
 	var result [][]string
-	cols, _ := rows.Columns()
 	colTypes, _ := rows.ColumnTypes()
-	pointers := make([]interface{}, len(cols))
-	container := make([]string, len(cols))
+	pointers := make([]interface{}, len(colTypes))
+	container := make([]string, len(colTypes))
 
 	for i := range pointers {
 		pointers[i] = &container[i]
