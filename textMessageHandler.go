@@ -601,6 +601,36 @@ func textMessageRoute(ctx *Context) {
 			}
 			break
 
+		//The userinterval is the maximum inactive time of a user
+		case "/useractivity":
+			//If the message is in a group and the user is a botadmin or a groupadmin
+			if messageInGroup && (userIsGroupAdmin || userIsBotAdmin) {
+				//If the args are 2
+				if len(args) == 2 {
+					//Try to parse the 2nd argument as a time duration
+					_, err := time.ParseDuration(args[1])
+					if err != nil {
+						//There was an error, send the syntax command
+						replyDbMessageWithCloseButton(ctx, "useractivitySyntaxError")
+						//And return
+						return
+					}
+					//If there was no issue, update the setting in the database
+					err = ctx.Database.SetSettingValue("userActivity", args[1], int(message.Chat.ID))
+					if err == nil {
+						replyDbMessageWithCloseButton(ctx, "useractivitySuccess")
+						//Send success command
+					} else {
+						//Something went wrong but the duration parsed successfully, check the logs and send error message
+						replyDbMessageWithCloseButton(ctx, "generalError")
+					}
+				} else {
+					//The args are not 2, send the syntax command
+					replyDbMessageWithCloseButton(ctx, "useractivitySyntaxError")
+				}
+			}
+			break
+
 		//restart is used to reload the telegram admins within a group
 		case "/reloadpermissions", "/ricarica", "/riavvia", "/restart":
 			reloadChatAdmins(ctx)
@@ -634,7 +664,7 @@ func textMessageRoute(ctx *Context) {
 			//To do so we have a set of prefixes
 			listPrefixes := []string{"@", "#", "!", "."}
 			//We add the the possibleList every word that has one of the prefixes
-			//TODO: Check with reges the lists
+			//TODO: Check with regex the lists to make sorting faster
 			possibleLists := make([]string, 0)
 			//Then we iterate the prefixes, and for each one we see if there are possible lists
 			for _, prefix := range listPrefixes {
@@ -721,6 +751,24 @@ func textMessageRoute(ctx *Context) {
 						continue
 					}
 				}
+
+				var (
+					maxAbsencePeriod time.Duration
+					intervalError    error
+				)
+
+				//We do a block to delete the unused variables after the usage
+				{
+					var maxAbsencePeriodString string
+					//Get the max absence period of the group
+					maxAbsencePeriodString, intervalError = ctx.Database.GetSettingValue("userActivity", int(message.Chat.ID))
+					//If there's no error
+					if intervalError == nil {
+						//Set the max absence period
+						maxAbsencePeriod, _ = time.ParseDuration(maxAbsencePeriodString)
+					}
+				}
+
 				//Update the list invokation time
 				ctx.Database.UpdateListLastInvokation(list.ID, message.Time())
 				//We get the list of the subscribers
@@ -733,8 +781,23 @@ func textMessageRoute(ctx *Context) {
 					for _, cUse := range contactedUsers {
 						//If the user was contacted
 						if sub.UserID == cUse {
-							//We set the flag to true
-							found = true
+							//If there's a mx activity period for a user
+							if intervalError == nil {
+								//Get the user's last seen
+								lastSeen, err := ctx.Database.GetLastSeen(int(sub.UserID), message.Chat.ID)
+								//If there's no error
+								if err == nil {
+									//If the last time the user was seen on the group + the max idle time
+									//  point to a date after the message, the needs to be notified
+									if lastSeen.Add(maxAbsencePeriod).Unix() > message.Time().Unix() {
+										found = true
+									}
+
+								}
+							} else {
+								//We set the flag to true
+								found = true
+							}
 							//And end the loop
 							break
 						} //fi check for contacted user

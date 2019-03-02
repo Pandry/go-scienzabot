@@ -383,4 +383,19 @@ INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("userintervalSucce
 The minimum time interval required to call the same list was setted successfully!", "en");
 
 
+-- useractivitySyntaxError
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("useractivitySyntaxError","❗️ Errore di sintassi - l'uso previsto è /useractivity <intervallo massimo>
+L'intervallo deve essere in un formato simile a ""1h10m10s"" per impostare 1 ora, 10 minuti e 10 secondi.
+Per impostare un intervallo di 2 settimale è sufficente scrivere 2w", "it");
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("useractivitySyntaxError","❗️ Syntax error - the usage is /useractivity <maximum interval>
+The interval must be provided in a format like ""1h10m10s"" to set 1 hour, 10 minutes and 10 seconds.
+To set a 2 weeks interval, it's possible to write just 2w for example", "en");
+
+-- useractivitySuccess
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("useractivitySuccess","✅ Successo!
+L'intervallo di assenza massima è stato impostato!", "it");
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("useractivitySuccess","✅ Success!
+The maximum absence period was setted with success!", "en");
+
+
 `
