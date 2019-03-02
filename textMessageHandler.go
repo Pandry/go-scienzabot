@@ -779,30 +779,27 @@ func textMessageRoute(ctx *Context) {
 				subs, _ := ctx.Database.GetSubscribedUsers(list.ID)
 				//For each subscriber
 				for _, sub := range subs {
+					//If there's a max activity period for a user
+					if intervalError == nil {
+						//Get the user's last seen
+						lastSeen, err := ctx.Database.GetLastSeen(int(sub.UserID), message.Chat.ID)
+						//If there's no error
+						if err == nil {
+							//If the last time the user was seen on the group + the max idle time
+							//  point to a date after the message, the needs to be notified
+							if !(lastSeen.Add(maxAbsencePeriod).Unix() > message.Time().Unix()) {
+								continue
+							}
+
+						}
+					}
 					//We set a flag to see if we already called to user (maybe he was in another list)
 					found := false
 					//And we iterate through the contacted users
 					for _, cUse := range contactedUsers {
 						//If the user was contacted
 						if sub.UserID == cUse {
-							//If there's a mx activity period for a user
-							if intervalError == nil {
-								//Get the user's last seen
-								lastSeen, err := ctx.Database.GetLastSeen(int(sub.UserID), message.Chat.ID)
-								//If there's no error
-								if err == nil {
-									//If the last time the user was seen on the group + the max idle time
-									//  point to a date after the message, the needs to be notified
-									if lastSeen.Add(maxAbsencePeriod).Unix() > message.Time().Unix() {
-										found = true
-									}
-
-								}
-							} else {
-								//We set the flag to true
-								found = true
-							}
-							//And end the loop
+							found = true
 							break
 						} //fi check for contacted user
 					} //end loop of contacted users
