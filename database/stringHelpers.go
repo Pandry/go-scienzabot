@@ -17,13 +17,13 @@ import (
 //  have a key-value structure and keep strings from group, like a welcome message for example
 
 //StringExists returns a values that indicates if the key exists in database
-func (db *SQLiteDB) StringExists(key string, locale string) bool {
+func (db *SQLiteDB) StringExists(key string, locale string, group int64) bool {
 	if locale == "" {
 		locale = consts.DefaultLocale
 	}
 	var dummyval int64
-	err := db.QueryRow("SELECT 1 FROM `Strings` WHERE `Key` = ? AND `Locale` = ?",
-		key, locale).Scan(&dummyval)
+	err := db.QueryRow("SELECT 1 FROM `Strings` WHERE `Key` = ? AND `Locale` = ? AND `GroupID`=?",
+		key, locale, group).Scan(&dummyval)
 	switch {
 	case err == sql.ErrNoRows:
 		//db.AddLogEvent(Log{Event: "_ErrorNoRows", Message: "Impossible to get rows", Error: err.Error()})
@@ -37,12 +37,12 @@ func (db *SQLiteDB) StringExists(key string, locale string) bool {
 }
 
 //GetStringValue searches for the string value in the database
-func (db *SQLiteDB) GetStringValue(key string, group int, locale string) (string, error) {
+func (db *SQLiteDB) GetStringValue(key string, group int64, locale string) (string, error) {
 	var res sql.NullString
 	if locale == "" {
 		locale = consts.DefaultLocale
 	}
-	err := db.QueryRow("SELECT Value FROM `Strings` WHERE `Key` = ? AND `Group` = ? AND `Locale` = ?",
+	err := db.QueryRow("SELECT Value FROM `Strings` WHERE `Key` = ? AND `GroupID` = ? AND `Locale` = ?",
 		key, group, locale).Scan(&res)
 	switch {
 	case err == sql.ErrNoRows:
@@ -57,14 +57,14 @@ func (db *SQLiteDB) GetStringValue(key string, group int, locale string) (string
 }
 
 //SetStringValue sets a value in the bot settings table
-func (db *SQLiteDB) SetStringValue(key string, value string, group int, locale string) error {
+func (db *SQLiteDB) SetStringValue(key string, value string, group int64, locale string) error {
 	if locale == "" {
 		locale = consts.DefaultLocale
 	}
 	query, err := db.Exec(
-		"INSERT INTO Strings (`Key`, `Value` , `Group`) VALUES (?,?,?) "+
-			"ON CONFLICT(`Key`, `Group`) DO UPDATE SET `Value` = Excluded.Value",
-		key, value, group)
+		"INSERT INTO Strings (`Key`, `Value`, `Locale`, `GroupID`) VALUES (?,?,?,?) "+
+			"ON CONFLICT(`Key`, `GroupID`, `Locale`) DO UPDATE SET `Value` = Excluded.Value",
+		key, value, locale, group)
 	if err != nil {
 		db.AddLogEvent(Log{Event: "SetStringValue_QueryFailed", Message: "Impossible to create the execute the query", Error: err.Error()})
 		return err
@@ -97,7 +97,7 @@ import (
 //GetStringValue searches for the string value in the database
 func (db *SQLiteDB) GetStringValue(key string, group int, locale string) (string, error) {
 	//We're prepaing a query to execute later
-	stmt, err := db.Prepare("SELECT Value FROM `Strings` WHERE `Key` = ? AND `Group` = ? AND `Locale` = ? ")
+	stmt, err := db.Prepare("SELECT Value FROM `Strings` WHERE `Key` = ? AND `GroupID` = ? AND `Locale` = ? ")
 	if err != nil {
 		return "", err
 	}
@@ -120,7 +120,7 @@ func (db *SQLiteDB) GetStringValue(key string, group int, locale string) (string
 func (db *SQLiteDB) GetDefaultStringValue(key string, group int) (string, error) {
 
 	//We're prepaing a query to execute later
-	stmt, err := db.Prepare("SELECT Value FROM `Strings` WHERE `Key` = ? AND `Group` = ? AND `Locale` = ? ")
+	stmt, err := db.Prepare("SELECT Value FROM `Strings` WHERE `Key` = ? AND `GroupID` = ? AND `Locale` = ? ")
 	if err != nil {
 		return "", err
 	}
@@ -151,7 +151,7 @@ func (db *SQLiteDB) GetDefaultStringValue(key string, group int) (string, error)
 
 //SetStringValue sets a value in the bot settings table
 func (db *SQLiteDB) SetStringValue(key string, value string, group int, locale string) error {
-	stmt, err := db.Prepare("INSERT INTO Settings (`Key`, `Value` , `Group`) VALUES (?,?,?) ON CONFLICT(`Key`, `Group`) DO UPDATE SET `Value` = Excluded.Value")
+	stmt, err := db.Prepare("INSERT INTO Settings (`Key`, `Value` , `GroupID`) VALUES (?,?,?) ON CONFLICT(`Key`, `GroupID`) DO UPDATE SET `Value` = Excluded.Value")
 	if err != nil {
 		return err
 	}
