@@ -18,6 +18,9 @@ const TimeFormatString = "2006-01-02T15:04:05Z-0700UTC"
 //MaximumInlineKeyboardRows is the maximum number of rows the inline keyboard can have
 const MaximumInlineKeyboardRows = 7
 
+//ListRegex is the expression that determines if a list name is valid or not
+const ListRegex = "^[a-z\\-_]{1,30}$"
+
 //User status constants
 //UserStatusActive Is assigned when the user is created and it's immediately active
 //UserStatusWaitingForBio Is assigned when the user wants to edit its biography

@@ -314,7 +314,7 @@ func textMessageRoute(ctx *Context) {
 				return
 			}
 			//Get if the list name is valid via regex expression of the 2nd argument (/newlist listname <- 2nd argument)
-			listNameIsValid, _ := regexp.MatchString("^[a-z\\-_]{1,30}$", args[1])
+			listNameIsValid, _ := regexp.MatchString(consts.ListRegex, args[1])
 			//If the list name is invalid
 			if !listNameIsValid {
 				//Return the message syntax message
@@ -359,7 +359,7 @@ func textMessageRoute(ctx *Context) {
 				return
 			}
 			//Reply to the message with the syntax error string
-			listNameIsValid, _ := regexp.MatchString("^[a-z\\-_]{1,30}$", args[1])
+			listNameIsValid, _ := regexp.MatchString(consts.ListRegex, args[1])
 			if !listNameIsValid {
 				replyDbMessageWithCloseButton(ctx, "deletelistSyntaxError")
 				//And stop elaborating the message
