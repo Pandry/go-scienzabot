@@ -35,10 +35,11 @@ func (t *Tgbotapi) SendLongMessage(chatID int64, message string, ReplyToMessageI
 						//We found where the message can be splitted
 						splitterOffset = sentChars + i - len(messageSplitter)
 						splitterLen = len(messageSplitter)
+						//If splitter offset was found, we can exit the loop
+						break
 					}
 				}
-				//If splitter offset was found, we can exit the loop
-				break
+
 			}
 			//If splitter offset is still -1, a "hard split" needs to be done
 			if splitterOffset == -1 {
@@ -47,12 +48,13 @@ func (t *Tgbotapi) SendLongMessage(chatID int64, message string, ReplyToMessageI
 				//A splitter was found
 				messageToSend = message[sentChars : sentChars+splitterOffset+splitterLen]
 			}
-			//Finally we update the sent chars for the next iteration
-			sentChars += len(messageToSend)
+
 		} else {
 			//The chars left to send are less than the max message len and does not need to be splitted
 			messageToSend = message[sentChars:]
 		}
+		//Finally we update the sent chars for the next iteration
+		sentChars += len(messageToSend)
 		//send the message
 		msg := tba.NewMessage(chatID, messageToSend)
 		msg.ReplyToMessageID = ReplyToMessageID
