@@ -5,6 +5,7 @@ package consts
 
 //Version is the bot version.
 //This number should be incremented for every release
+//Also, this shoud be inserted in the database and be incremented from it
 const Version = "0.0.1-g α"
 
 //DefaultLocale identifies the default locale of the bot
@@ -13,6 +14,7 @@ const DefaultLocale = "it"
 //TimeFormatString is the format the time is parsed to and from string
 //The T and the Z was inserted because when pulling the string from the
 //  database the chars was there and was influenciating the time parsing
+//Also the UTC was added, since telegram returns a UTC UNIX timestamp
 const TimeFormatString = "2006-01-02T15:04:05Z-0700UTC"
 
 //MaximumInlineKeyboardRows is the maximum number of rows the inline keyboard can have
@@ -20,6 +22,19 @@ const MaximumInlineKeyboardRows = 7
 
 //ListRegex is the expression that determines if a list name is valid or not
 const ListRegex = "^[a-z\\-_]{1,30}$"
+
+//MaximumMessageLength is the maximun length a message can have
+//  this constant is used only in the send long message function extended in the bot itself
+//  nad is implemented in the embtypes package
+const MaximumMessageLength = 4000
+
+//MaximumMessageLengthMargin is the margin given to the maximum length
+//Basically it means MaximumMessageLength +- MaximumMessageLengthMargin
+//  This because the bot tries to plit the message bsed on muktuple chars
+//  and tries to find the most adapt char
+const MaximumMessageLengthMargin = 100
+
+//const MessageSplitter = []string{"\n\n\n", "\n\n", "\n", " "}
 
 //User status constants
 //UserStatusActive Is assigned when the user is created and it's immediately active
