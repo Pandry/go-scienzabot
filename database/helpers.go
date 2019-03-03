@@ -55,6 +55,7 @@ func (db *SQLiteDB) QueryRawSQLQuery(queryString string) string {
 	}
 	i := -1
 	for rows.Next() {
+		i++
 		res += "Rows[" + strconv.Itoa(i) + "]: \n"
 
 		rows.Scan(pointers...)
