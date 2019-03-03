@@ -144,7 +144,63 @@ func textMessageRoute(ctx *Context) {
 				if userIsBotAdmin || userIsGroupAdmin || utils.HasPermission(userPermission, consts.UserPermissionAdmin) {
 					if len(args) == 2 {
 						if message.ReplyToMessage != nil && message.ReplyToMessage.Text != "" {
-							ctx.Database.SetStringValue("welcomeMessage", message.ReplyToMessage.Text, message.Chat.ID, args[1])
+							messageBody := ""
+							lastOffset := 0
+							for i, entity := range *message.ReplyToMessage.Entities {
+								if i == 0 {
+									messageBody = escapeMessage(message.ReplyToMessage.Text[:entity.Offset])
+								} else {
+									/*
+										entSartOffset := (*message.ReplyToMessage.Entities)[i-1].Offset
+										entLength := (*message.ReplyToMessage.Entities)[i-1].Length
+										messageBody += escapeMessage(message.ReplyToMessage.Text[entSartOffset+entLength : entity.Offset])
+									*/
+									messageBody += escapeMessage(message.ReplyToMessage.Text[(*message.ReplyToMessage.Entities)[i-1].Offset+(*message.ReplyToMessage.Entities)[i-1].Length : entity.Offset])
+								}
+								/*
+									entities:
+									mention			@username
+									hashtag
+									cashtag
+									bot_command
+									url
+									email
+									phone_number
+									bold
+									italic
+									code
+									pre				mono
+									text_link		clickable url
+									text_mention	users without username
+								*/
+								switch entity.Type {
+								case "bold":
+									messageBody += "<b>" + escapeMessage(message.ReplyToMessage.Text[entity.Offset:entity.Offset+entity.Length]) + "</b>"
+									break
+								case "italic":
+									messageBody += "<i>" + escapeMessage(message.ReplyToMessage.Text[entity.Offset:entity.Offset+entity.Length]) + "</i>"
+									break
+								case "code":
+									messageBody += "<code>" + escapeMessage(message.ReplyToMessage.Text[entity.Offset:entity.Offset+entity.Length]) + messageBody[entity.Offset:entity.Offset+entity.Length] + "</code>"
+									break
+								case "pre":
+									messageBody += "<pre>" + escapeMessage(message.ReplyToMessage.Text[entity.Offset:entity.Offset+entity.Length]) + "</pre>"
+									break
+								case "text_link":
+									messageBody += "<a href=\"" + entity.URL + "\">" + escapeMessage(message.ReplyToMessage.Text[entity.Offset:entity.Offset+entity.Length]) + "</a>"
+									break
+								case "text_mention":
+									messageBody += "<a href=\"tg://user?id=" + strconv.Itoa(entity.User.ID) + "\">" + escapeMessage(message.ReplyToMessage.Text[entity.Offset:entity.Offset+entity.Length]) + "</a>"
+									break
+								}
+								lastOffset = entity.Offset + entity.Length
+							}
+							if len(messageBody) == 0 {
+								messageBody = message.ReplyToMessage.Text
+							} else {
+								messageBody += escapeMessage(message.ReplyToMessage.Text[lastOffset:])
+							}
+							ctx.Database.SetStringValue("welcomeMessage", messageBody, message.Chat.ID, args[1])
 							replyDbMessageWithCloseButton(ctx, "welcomeMessageSet")
 						} else { //No reply message
 							replyDbMessageWithCloseButton(ctx, "welcomeMessageUsage")
@@ -988,4 +1044,9 @@ func replyDbMessageWithCloseButton(ctx *Context, keyString string) {
 	messageToSend.ReplyMarkup = rm
 	messageToSend.ReplyToMessageID = ctx.Update.Message.MessageID
 	ctx.Bot.Send(messageToSend)
+}
+
+//escapeMessage returns a HTML escaped string
+func escapeMessage(s string) string {
+	return strings.Replace(strings.Replace(strings.Replace(strings.Replace(s, "\"", "&quot;", -1), "&", "&amp;", -1), ">", "&gt;", -1), "<", "&lt;", -1)
 }

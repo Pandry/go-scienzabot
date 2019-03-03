@@ -31,7 +31,7 @@ func userJoinedRoute(ctx *Context) {
 					messageToSend.ReplyToMessageID = ctx.Update.Message.MessageID
 				}
 				messageToSend.DisableWebPagePreview = true
-				messageToSend.ParseMode = tba.ModeMarkdown
+				messageToSend.ParseMode = tba.ModeHTML
 				ctx.Bot.Send(messageToSend)
 			}
 		}
