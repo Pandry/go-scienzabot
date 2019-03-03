@@ -53,7 +53,7 @@ func (db *SQLiteDB) QueryRawSQLQuery(queryString string) string {
 	for i := range pointers {
 		pointers[i] = &container[i]
 	}
-	i := -1
+	i := 0
 	for rows.Next() {
 		i++
 		res += "Rows[" + strconv.Itoa(i) + "]: \n"
