@@ -511,7 +511,7 @@ func textMessageRoute(ctx *Context) {
 			}
 			break
 
-		case "/unsubscribe", "/disicrivi", "/disicriviti":
+		case "/unsubscribe", "/disicrivi", "/disicriviti", "/leave":
 			//If the user exists
 			if userExists {
 				//We want registration to happen in private, not in public
