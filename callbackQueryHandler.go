@@ -112,13 +112,13 @@ func callbackQueryRoute(ctx *Context) {
 
 								rows := make([][]tba.InlineKeyboardButton, 0)
 								paginationPresent := false
-								leftOffset := offset - consts.MaximumInlineKeyboardRows - 1
-								if leftOffset < 0 {
+								leftOffset := offset - (consts.MaximumInlineKeyboardRows - 1)
+								if leftOffset <= 0 {
 									leftOffset = 0
 								}
 								leftBtn := tba.NewInlineKeyboardButtonData("⬅️", "uo-"+strconv.Itoa(leftOffset))
 								closeBtn := tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("closeMessageText", locale), "delme-")
-								if offset < consts.MaximumInlineKeyboardRows-1 {
+								if offset-leftOffset < consts.MaximumInlineKeyboardRows-1 {
 									leftBtn = closeBtn
 								}
 
@@ -215,14 +215,14 @@ func callbackQueryRoute(ctx *Context) {
 
 								rows := make([][]tba.InlineKeyboardButton, 0)
 								paginationPresent := false
-								leftOffset := offset - consts.MaximumInlineKeyboardRows - 1
-								if leftOffset < 0 {
+								leftOffset := offset - (consts.MaximumInlineKeyboardRows - 1)
+								if leftOffset <= 0 {
 									leftOffset = 0
 								}
 								leftBtn := tba.NewInlineKeyboardButtonData("⬅️", "jo-"+strconv.Itoa(leftOffset))
 								closeBtn := tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("closeMessageText", locale), "delme-")
 								rightBtn := tba.NewInlineKeyboardButtonData("‌‌ ", "ignore")
-								if offset < consts.MaximumInlineKeyboardRows-1 {
+								if offset-leftOffset < consts.MaximumInlineKeyboardRows-1 {
 									leftBtn = closeBtn
 								}
 
