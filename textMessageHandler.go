@@ -192,6 +192,9 @@ func textMessageRoute(ctx *Context) {
 								case "text_mention":
 									messageBody += "<a href=\"tg://user?id=" + strconv.Itoa(entity.User.ID) + "\">" + escapeMessage(message.ReplyToMessage.Text[entity.Offset:entity.Offset+entity.Length]) + "</a>"
 									break
+								default:
+									messageBody += escapeMessage(message.ReplyToMessage.Text[entity.Offset : entity.Offset+entity.Length])
+									break
 								}
 								lastOffset = entity.Offset + entity.Length
 							}
