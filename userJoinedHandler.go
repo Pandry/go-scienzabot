@@ -30,6 +30,8 @@ func userJoinedRoute(ctx *Context) {
 				if len(locales) == 1 {
 					messageToSend.ReplyToMessageID = ctx.Update.Message.MessageID
 				}
+				messageToSend.DisableWebPagePreview = true
+				messageToSend.ParseMode = tba.ModeMarkdown
 				ctx.Bot.Send(messageToSend)
 			}
 		}
