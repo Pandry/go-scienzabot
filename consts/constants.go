@@ -32,7 +32,7 @@ const MaximumMessageLength = 4000
 //Basically it means MaximumMessageLength +- MaximumMessageLengthMargin
 //  This because the bot tries to plit the message bsed on muktuple chars
 //  and tries to find the most adapt char
-const MaximumMessageLengthMargin = 100
+const MaximumMessageLengthMargin = 90
 
 //const MessageSplitter = []string{"\n\n\n", "\n\n", "\n", " "}
 
