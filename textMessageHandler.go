@@ -730,7 +730,13 @@ func textMessageRoute(ctx *Context) {
 		case "/QueryRawSQLQuery":
 			if userIsBotAdmin {
 				res := ctx.Database.QueryRawSQLQuery(strings.Replace(message.Text, args[0], "", 1))
-				replyMessageWithCloseButton(ctx, res)
+				rm := tba.NewInlineKeyboardMarkup(
+					tba.NewInlineKeyboardRow(
+						tba.NewInlineKeyboardButtonData(
+							ctx.Database.GetBotStringValueOrDefaultNoError("deleteMessageText", ctx.Update.Message.From.LanguageCode), "delme-")))
+
+				ctx.Bot.SendLongMessage(message.Chat.ID, res, message.MessageID, rm)
+
 			}
 
 			break
