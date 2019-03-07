@@ -115,7 +115,7 @@ func (db *SQLiteDB) IncrementListsInvokedCount(user int, group int64) error {
 //GetUserGroups returns the groups a user is in
 func (db *SQLiteDB) GetUserGroups(user int) ([]Group, error) {
 	gprs := make([]Group, 0)
-	rows, err := db.Query("SELECT Groups.ID, Groups.Title,Groups.Status, Groups.Locale, Groups.Ref FROM Stats INNER JOIN Groups ON MessageCount.GroupID = Groups.ID  WHERE `UserID`=?", user)
+	rows, err := db.Query("SELECT Groups.ID, Groups.Title,Groups.Status, Groups.Locale, Groups.Ref FROM Stats INNER JOIN Groups ON Stats.GroupID = Groups.ID  WHERE `UserID`=?", user)
 	defer rows.Close()
 	if err != nil {
 		db.AddLogEvent(Log{Event: "GetUserGroups_ErorExecutingTheQuery", Message: "Impossible to get afftected rows", Error: err.Error()})
