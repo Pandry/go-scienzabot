@@ -79,6 +79,28 @@ The bot will in fact save the group and the message, and will bind it to a user.
 The bot will also save a copy of the message content (when possible).
 Deletion of a row should be impossibilitated to a user
 TODO: Remembere to check if the message still exists
+
+Update query:
+CREATE TABLE IF NOT EXISTS 'Bookmarks2' (
+	'ID'  INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+	'UserID'  INTEGER NOT NULL,
+	'GroupID'  INTEGER NOT NULL,
+	'MessageID'	INTEGER NOT NULL,
+	'Alias'	TEXT,
+	'Status' INTEGER DEFAULT 0,
+	'MessageContent' TEXT, 
+	'CreationDate' TEXT DEFAULT CURRENT_TIMESTAMP,
+	'LastAccessDate' TEXT DEFAULT CURRENT_TIMESTAMP,
+	FOREIGN KEY('UserID') REFERENCES Users('ID'),
+	FOREIGN KEY('GroupID') REFERENCES Groups('ID'),
+	CONSTRAINT con_bookm_user_group_msgid_unique UNIQUE ('UserID','GroupID', 'MessageID')
+);
+
+INSERT INTO Bookmarks2 ('ID', 'UserID', 'GroupID', 'MessageID', 'Alias', 'Status', 'MessageContent', 'CreationDate' , 'LastAccessDate')
+   SELECT 'ID', 'UserID', 'GroupID', 'MessageID', 'Alias', 'Status', 'MessageContent', 'CreationDate' , 'LastAccessDate' FROM Bookmarks;
+DROP TABLE Bookmarks;
+ALTER TABLE Bookmarks2 RENAME TO Bookmarks;
+
 */
 CREATE TABLE IF NOT EXISTS 'Bookmarks' (
 	'ID'  INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
@@ -92,8 +114,7 @@ CREATE TABLE IF NOT EXISTS 'Bookmarks' (
 	'LastAccessDate' TEXT DEFAULT CURRENT_TIMESTAMP,
 	FOREIGN KEY('UserID') REFERENCES Users('ID'),
 	FOREIGN KEY('GroupID') REFERENCES Groups('ID'),
-	CONSTRAINT con_bookm_user_group_unique UNIQUE ('UserID','GroupID')
-
+	CONSTRAINT con_bookm_user_group_msgid_unique UNIQUE ('UserID','GroupID', 'MessageID')
 );
 
 /*
