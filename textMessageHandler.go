@@ -621,26 +621,24 @@ func textMessageRoute(ctx *Context) {
 
 		case "/segnalibro", "/salva", "/save", "/bookmark":
 			if userExists {
-				if len(args) < 3 {
-					//If the message is in a group, we already know the group to subscribe the user to
-					if messageInGroup {
-						if message.ReplyToMessage != nil && message.ReplyToMessage.Text != "" {
-							alias := ""
-							if len(args) == 2 {
-								alias = args[1]
-							}
-							err = ctx.Database.CreateBookmark(database.Bookmark{GroupID: message.Chat.ID, UserID: int64(message.From.ID), MessageID: int64(message.ReplyToMessage.MessageID), MessageContent: escapeMessage(message.ReplyToMessage.Text), Alias: alias})
-							if err == nil {
-								replyDbMessageWithCloseButton(ctx, "bookmarkAdded")
-							} else {
-								replyDbMessageWithCloseButton(ctx, "bookmarkError")
-							}
+				//If the message is in a group, we already know the group to subscribe the user to
+				if messageInGroup {
+					if message.ReplyToMessage != nil && message.ReplyToMessage.Text != "" {
+						alias := ""
+						if len(args) > 1 {
+							alias = strings.Replace(message.Text, args[0], "", 1)
 						}
-					} else {
-						replyDbMessageWithCloseButton(ctx, "onGroupChatCommand")
+						err = ctx.Database.CreateBookmark(database.Bookmark{GroupID: message.Chat.ID, UserID: int64(message.From.ID), MessageID: int64(message.ReplyToMessage.MessageID), MessageContent: escapeMessage(message.ReplyToMessage.Text), Alias: alias})
+						if err == nil {
+							replyDbMessageWithCloseButton(ctx, "bookmarkAdded")
+						} else {
+							replyDbMessageWithCloseButton(ctx, "bookmarkError")
+						}
 					}
-
+				} else {
+					replyDbMessageWithCloseButton(ctx, "onGroupChatCommand")
 				}
+
 			} else { //User is not in DB
 				replyDbMessageWithCloseButton(ctx, "userNotRegistred")
 			}
@@ -667,20 +665,28 @@ func textMessageRoute(ctx *Context) {
 							for _, agrp := range grps {
 								if agrp.ID == grp.ID {
 									found = true
+									break
 								}
-								if !found {
-									grps = append(grps, grp)
-								}
+							}
+							if !found {
+								grps = append(grps, grp)
 							}
 						}
 						msgBody := ""
 						for _, gp := range grps {
-							msgBody += "<b>" + gp.Title + "</b>\n\n"
+							messageTitlePresent := false
 							for _, bm := range bms {
 								if gp.ID == bm.GroupID {
-									msgBody += "<a href=\"tg://user?id=" + strconv.Itoa(int(bm.UserID)) + "\">Sender</a>\n"
-									msgBody += "Message: ```\n" + escapeMessage(bm.MessageContent) + "\n```\n\n"
-									break
+									if !messageTitlePresent {
+										msgBody += "<b>" + gp.Title + "</b>\n\n"
+										messageTitlePresent = true
+									}
+									msgBody += "Name: " + escapeMessage(bm.Alias) + "\n"
+									if gp.Ref != "" {
+										msgBody += "Link: t.me/" + gp.Ref + "/" + strconv.Itoa(int(bm.MessageID)) + " \n"
+
+									}
+									msgBody += "Message:\n" + escapeMessage(bm.MessageContent) + "\n\n"
 								}
 							}
 							msgBody += "\n\n\n"
