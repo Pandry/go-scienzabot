@@ -181,7 +181,7 @@ func textMessageRoute(ctx *Context) {
 									messageBody += "<i>" + escapeMessage(message.ReplyToMessage.Text[entity.Offset:entity.Offset+entity.Length]) + "</i>"
 									break
 								case "code":
-									messageBody += "<code>" + escapeMessage(message.ReplyToMessage.Text[entity.Offset:entity.Offset+entity.Length]) + messageBody[entity.Offset:entity.Offset+entity.Length] + "</code>"
+									messageBody += "<code>" + escapeMessage(message.ReplyToMessage.Text[entity.Offset:entity.Offset+entity.Length]) + "</code>"
 									break
 								case "pre":
 									messageBody += "<pre>" + escapeMessage(message.ReplyToMessage.Text[entity.Offset:entity.Offset+entity.Length]) + "</pre>"
@@ -619,8 +619,26 @@ func textMessageRoute(ctx *Context) {
 			}
 			break
 
-		case "/segnalibro", "/salva":
+		case "/segnalibro", "/salva", "/save", "/bookmark":
+			if userExists {
+				if len(args) < 3 {
+					//If the message is in a group, we already know the group to subscribe the user to
+					if messageInGroup {
+						if message.ReplyToMessage != nil && message.ReplyToMessage.Text != "" {
+							alias := ""
+							if len(args) == 2 {
+								alias = args[1]
+							}
+							ctx.Database.CreateBookmark(database.Bookmark{GroupID: message.Chat.ID, UserID: int64(message.From.ID), MessageID: int64(message.ReplyToMessage.MessageID), MessageContent: message.ReplyToMessage.Text, Alias: alias})
+						}
+					} else {
+						replyDbMessageWithCloseButton(ctx, "notImplemented")
+					}
 
+				}
+			} else { //User is not in DB
+				replyDbMessageWithCloseButton(ctx, "userNotRegistred")
+			}
 			break
 
 		//The listinterval is the interval between lists
