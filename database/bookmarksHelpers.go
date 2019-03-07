@@ -19,7 +19,7 @@ import (
 //The ID will not be considered, since it's automatically inrted in database. ALl the other values will be inserted
 func (db *SQLiteDB) CreateBookmark(bkm Bookmark) error {
 	query, err := db.Exec("INSERT INTO Bookmarks (`UserID`, `GroupID`, `MessageID`, `Alias`, `Status`, `MessageContent`) VALUES (?,?,?,?,?,?)",
-		bkm.UserID, bkm.UserID, bkm.GroupID, bkm.MessageID, bkm.Alias, bkm.Status, bkm.MessageContent)
+		bkm.UserID, bkm.GroupID, bkm.MessageID, bkm.Alias, bkm.Status, bkm.MessageContent)
 	if err != nil {
 		db.AddLogEvent(Log{Event: "CreateBookmark_QueryFailed", Message: "Impossible to create the execute the query", Error: err.Error()})
 		return err
