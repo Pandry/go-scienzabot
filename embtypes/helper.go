@@ -60,6 +60,7 @@ func (t *Tgbotapi) SendLongMessage(chatID int64, message string, ReplyToMessageI
 		msg.ReplyToMessageID = ReplyToMessageID
 		msg.ReplyMarkup = replyMarkup
 		msg.ParseMode = parseMode
+		msg.DisableWebPagePreview = true
 		t.Send(msg)
 	}
 }
