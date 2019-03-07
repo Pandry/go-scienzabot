@@ -10,7 +10,7 @@ import (
 //TODO: needs to be tested, written offline
 
 //SendLongMessage is used to send a message longer than the telegram limit (splitting it in more messages)
-func (t *Tgbotapi) SendLongMessage(chatID int64, message string, ReplyToMessageID int, replyMarkup interface{}) {
+func (t *Tgbotapi) SendLongMessage(chatID int64, message string, ReplyToMessageID int, replyMarkup interface{}, parseMode string) {
 	//TODO: make messageSplitters a constant
 	messageSplitters := []string{"\n\n\n", "\n\n", "\n", " "}
 	sentChars := 0
@@ -59,6 +59,7 @@ func (t *Tgbotapi) SendLongMessage(chatID int64, message string, ReplyToMessageI
 		msg := tba.NewMessage(chatID, messageToSend)
 		msg.ReplyToMessageID = ReplyToMessageID
 		msg.ReplyMarkup = replyMarkup
+		msg.ParseMode = parseMode
 		t.Send(msg)
 	}
 }
