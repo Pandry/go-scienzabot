@@ -440,4 +440,16 @@ The locale is the language of the message.
 Example: us", "en");
 
 
+-- bookmarkAdded
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("bookmarkAdded","✅ Successo!
+Il segnalibro è stato aggiunto con successo!", "it");
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("bookmarkAdded","✅ Success!
+The bookmark has been saved successfully!", "en");
+
+-- bookmarkError
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("bookmarkError","❌ Errore!
+Il segnalibro non può essere salvato, controlla che non sia già esistente!", "it");
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("bookmarkError","❌ Error!
+The bookmark cannot be added, please, check it hasn't been already saved!", "en");
+
 `
