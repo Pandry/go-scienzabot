@@ -798,9 +798,14 @@ func textMessageRoute(ctx *Context) {
 				//If the message contains the prefix
 				if strings.Contains(message.Text, prefix) {
 					//we split all the words of the message (by the space), removing eventual commas and semicolons
-					words := strings.Split(strings.Replace(strings.Replace(message.Text, ",", "", -1), ";", "", -1), " ")
+					words := strings.Split(message.Text, " ")
 					//And fore each word
 					for _, word := range words {
+						//Remove useless syntax
+						strings.Replace(strings.Replace(word, ",", "", -1), ";", "", -1)
+						if len(word) > 1 && word[len(word)-1] == '.' {
+							word = word[:len(word)-2]
+						}
 						//If the word is longer than 1 char
 						if len(word) > 1 {
 							//And hase the prefix
