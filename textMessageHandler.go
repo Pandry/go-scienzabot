@@ -785,7 +785,7 @@ func textMessageRoute(ctx *Context) {
 			break
 
 		//restart is used to reload the telegram admins within a group
-		case "/ExecuteRawSQLQuery":
+		case "/Exec":
 			if userIsBotAdmin {
 				res := ctx.Database.ExecuteRawSQLQuery(strings.Replace(message.Text, args[0], "", 1))
 				replyMessageWithCloseButton(ctx, res)
@@ -793,7 +793,7 @@ func textMessageRoute(ctx *Context) {
 			break
 
 			//restart is used to reload the telegram admins within a group
-		case "/QueryRawSQLQuery":
+		case "/Query":
 			if userIsBotAdmin {
 				res := ctx.Database.QueryRawSQLQuery(strings.Replace(message.Text, args[0], "", 1))
 				rm := tba.NewInlineKeyboardMarkup(
@@ -801,7 +801,7 @@ func textMessageRoute(ctx *Context) {
 						tba.NewInlineKeyboardButtonData(
 							ctx.Database.GetBotStringValueOrDefaultNoError("deleteMessageText", ctx.Update.Message.From.LanguageCode), "delme-")))
 
-				ctx.Bot.SendLongMessage(message.Chat.ID, res, message.MessageID, rm)
+				ctx.Bot.SendLongMessage(message.Chat.ID, res, message.MessageID, rm, "")
 
 			}
 
