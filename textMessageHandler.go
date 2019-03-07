@@ -629,10 +629,15 @@ func textMessageRoute(ctx *Context) {
 							if len(args) == 2 {
 								alias = args[1]
 							}
-							ctx.Database.CreateBookmark(database.Bookmark{GroupID: message.Chat.ID, UserID: int64(message.From.ID), MessageID: int64(message.ReplyToMessage.MessageID), MessageContent: message.ReplyToMessage.Text, Alias: alias})
+							err = ctx.Database.CreateBookmark(database.Bookmark{GroupID: message.Chat.ID, UserID: int64(message.From.ID), MessageID: int64(message.ReplyToMessage.MessageID), MessageContent: message.ReplyToMessage.Text, Alias: alias})
+							if err == nil {
+								replyDbMessageWithCloseButton(ctx, "bookmarkAdded")
+							} else {
+								replyDbMessageWithCloseButton(ctx, "bookmarkError")
+							}
 						}
 					} else {
-						replyDbMessageWithCloseButton(ctx, "notImplemented")
+						replyDbMessageWithCloseButton(ctx, "onGroupChatCommand")
 					}
 
 				}
