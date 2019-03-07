@@ -629,7 +629,7 @@ func textMessageRoute(ctx *Context) {
 							if len(args) == 2 {
 								alias = args[1]
 							}
-							err = ctx.Database.CreateBookmark(database.Bookmark{GroupID: message.Chat.ID, UserID: int64(message.From.ID), MessageID: int64(message.ReplyToMessage.MessageID), MessageContent: message.ReplyToMessage.Text, Alias: alias})
+							err = ctx.Database.CreateBookmark(database.Bookmark{GroupID: message.Chat.ID, UserID: int64(message.From.ID), MessageID: int64(message.ReplyToMessage.MessageID), MessageContent: escapeMessage(message.ReplyToMessage.Text), Alias: alias})
 							if err == nil {
 								replyDbMessageWithCloseButton(ctx, "bookmarkAdded")
 							} else {
@@ -641,6 +641,49 @@ func textMessageRoute(ctx *Context) {
 					}
 
 				}
+			} else { //User is not in DB
+				replyDbMessageWithCloseButton(ctx, "userNotRegistred")
+			}
+			break
+
+		case "/segnalibri", "/bookmarks":
+			if userExists {
+				//If the message is in a group, we already know the group to subscribe the user to
+				if !messageInGroup {
+					if len(args) == 1 {
+						bms, err := ctx.Database.GetUserBookmarks(message.From.ID)
+						if err != nil {
+							replyDbMessageWithCloseButton(ctx, "generalError")
+							return
+						}
+						grps, err := ctx.Database.GetUserGroups(message.From.ID)
+						if err != nil {
+							replyDbMessageWithCloseButton(ctx, "generalError")
+							return
+						}
+						msgBody := ""
+						for _, gp := range grps {
+							msgBody += "<b>" + gp.Title + "</b>\n\n"
+							for _, bm := range bms {
+								if gp.ID == bm.GroupID {
+									msgBody += "<a href=\"tg://user?id=" + strconv.Itoa(int(bm.UserID)) + "\">Sender</a>\n"
+									msgBody += "Message: <pre>" + escapeMessage(bm.MessageContent) + "<pre>\n\n"
+									break
+								}
+							}
+							msgBody += "\n\n\n"
+						}
+						rm := tba.NewInlineKeyboardMarkup(
+							tba.NewInlineKeyboardRow(
+								tba.NewInlineKeyboardButtonData(
+									ctx.Database.GetBotStringValueOrDefaultNoError("deleteMessageText", ctx.Update.Message.From.LanguageCode), "delme-")))
+
+						ctx.Bot.SendLongMessage(message.Chat.ID, msgBody, message.MessageID, rm, tba.ModeHTML)
+					}
+				} else {
+					replyDbMessageWithCloseButton(ctx, "onPrivateChatCommand")
+				}
+
 			} else { //User is not in DB
 				replyDbMessageWithCloseButton(ctx, "userNotRegistred")
 			}
