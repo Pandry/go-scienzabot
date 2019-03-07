@@ -238,6 +238,10 @@ INSERT OR IGNORE INTO BotSettings (Key,Value) VALUES ("version", "⚛️ v 0.1g 
 INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("onPrivateChatCommand","Please, ask me that in private chat", "en");
 INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("onPrivateChatCommand","Per favore, usa questo comando in chat privata", "it");
 
+-- Message to ask used to use the command in group chat
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("onGroupChatCommand","Please, ask me that in the group chat", "en");
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("onGroupChatCommand","Per favore, usa questo comando nella chat di gruppo", "it");
+
 -- Help message
 INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("helpCommand","Comandi per aiuto:
 /help - Don't ya know?", "it");
