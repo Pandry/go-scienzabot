@@ -656,10 +656,22 @@ func textMessageRoute(ctx *Context) {
 							replyDbMessageWithCloseButton(ctx, "generalError")
 							return
 						}
-						grps, err := ctx.Database.GetUserGroups(message.From.ID)
+						ugrps, err := ctx.Database.GetUserGroups(message.From.ID)
 						if err != nil {
 							replyDbMessageWithCloseButton(ctx, "generalError")
 							return
+						}
+						grps := make([]database.Group, 0)
+						for _, grp := range ugrps {
+							found := false
+							for _, agrp := range grps {
+								if agrp.ID == grp.ID {
+									found = true
+								}
+								if !found {
+									grps = append(grps, grp)
+								}
+							}
 						}
 						msgBody := ""
 						for _, gp := range grps {
@@ -667,7 +679,7 @@ func textMessageRoute(ctx *Context) {
 							for _, bm := range bms {
 								if gp.ID == bm.GroupID {
 									msgBody += "<a href=\"tg://user?id=" + strconv.Itoa(int(bm.UserID)) + "\">Sender</a>\n"
-									msgBody += "Message: <pre>" + escapeMessage(bm.MessageContent) + "<pre>\n\n"
+									msgBody += "Message: ```\n" + escapeMessage(bm.MessageContent) + "\n```\n\n"
 									break
 								}
 							}
