@@ -244,9 +244,15 @@ INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("onGroupChatComman
 
 -- Help message
 INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("helpCommand","Comandi per aiuto:
-/help - Don't ya know?", "it");
+/lists - Elenco delle liste
+/signup - registrazione al bot
+/join - vi permette di entrare in una lista (siete pregati di usare l'apposito bottone per eliminare il messaggio quando avete fatto)
+/leave - elenco delle liste alle quali siete iscritti + disiscrizione", "it");
 INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("helpCommand","Help commands:
-/help - Don't ya know?", "en");
+/lists - Shows list in the actual group
+/signup - register to the bot
+/join - let the user subscribe to a list
+/leave - lists the list you are subscribed to and permits you to leave them", "en");
 
 
 INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("infoCommand","That's the @scienza custom bot and things", "en");
