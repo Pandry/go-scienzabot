@@ -139,7 +139,7 @@ func textMessageRoute(ctx *Context) {
 			replyDbMessageWithCloseButton(ctx, messageBody)
 			break
 		// Help message
-		case "/setwelcomemessage":
+		case "/setwelcomemessage", "/welcome":
 			if messageInGroup {
 				if userIsBotAdmin || userIsGroupAdmin || utils.HasPermission(userPermission, consts.UserPermissionAdmin) {
 					if len(args) == 2 {
@@ -312,7 +312,7 @@ func textMessageRoute(ctx *Context) {
 			replyDbMessageWithCloseButton(ctx, "notImplemented")
 			break
 
-		case "/lists":
+		case "/lists", "/liste", "/argomenti", "/topics":
 			//If the user is registered
 			if userExists {
 				//If the user is not in a group
@@ -386,7 +386,7 @@ func textMessageRoute(ctx *Context) {
 			break
 
 			//Newlist is created to create a new list in a group
-		case "/newlist":
+		case "/newlist", "/newtopic", "/nuovalista", "/nuovoargomento", "/nuovotopic":
 
 			//If the commands are not 2, the syntax is wrong
 			if len(args) != 2 {
@@ -432,7 +432,7 @@ func textMessageRoute(ctx *Context) {
 
 			break
 
-		case "/deletelist":
+		case "/deletelist", "/deletetopic", "/eliminalista", "/eliminatopic", "/eliminaargomento":
 			//If the commands are not 2, the syntax is wrong
 			if len(args) != 2 {
 				//Reply to the message with the syntax error string
@@ -563,7 +563,8 @@ func textMessageRoute(ctx *Context) {
 				} //fi messageInGroup
 
 				//The message is not in a group
-				replyDbMessageWithCloseButton(ctx, "notImplemented")
+				//replyDbMessageWithCloseButton(ctx, "notImplemented")
+				replyDbMessageWithCloseButton(ctx, "onGroupChatCommand")
 
 			} else { //User is not in DB
 				replyDbMessageWithCloseButton(ctx, "userNotRegistred")
@@ -708,7 +709,7 @@ func textMessageRoute(ctx *Context) {
 			break
 
 		//The listinterval is the interval between lists
-		case "/listinterval":
+		case "/listinterval", "/listint", "/topicint", "/topicinterval":
 			//If the message is in a group and the user is a botadmin or a groupadmin
 			if messageInGroup && (userIsGroupAdmin || userIsBotAdmin) {
 				//If the args are 2
@@ -738,7 +739,7 @@ func textMessageRoute(ctx *Context) {
 			break
 
 		//The userinterval is the interval between invocations from a user
-		case "/userinterval":
+		case "/userinterval", "/userint":
 			//If the message is in a group and the user is a botadmin or a groupadmin
 			if messageInGroup && (userIsGroupAdmin || userIsBotAdmin) {
 				//If the args are 2
@@ -768,7 +769,7 @@ func textMessageRoute(ctx *Context) {
 			break
 
 		//The userinterval is the maximum inactive time of a user
-		case "/useractivity":
+		case "/useractivity", "/useract":
 			//If the message is in a group and the user is a botadmin or a groupadmin
 			if messageInGroup && (userIsGroupAdmin || userIsBotAdmin) {
 				//If the args are 2
@@ -1104,7 +1105,6 @@ func reloadChatAdmins(ctx *Context) {
 	for _, p := range privUsers {
 		ctx.Database.SetPermissions(p)
 	}
-
 }
 
 func replyMessageDBWithInlineKeyboard(ctx *Context, keyString string, ikm tba.InlineKeyboardMarkup) {
