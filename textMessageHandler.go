@@ -224,13 +224,9 @@ func textMessageRoute(ctx *Context) {
 		//Info message
 		case "/info", "/informazioni", "/about", "/github":
 			if messageInGroup {
-				messageBody = "onPrivateChatCommand"
+				replyDbMessageWithCloseButton(ctx, "onPrivateChatCommand")
 			} else {
-				messageBody = "infoCommand"
-			}
-
-			if messageBody, err = ctx.Database.GetBotStringValueOrDefault(messageBody, message.From.LanguageCode); err == nil {
-				ctx.Bot.Send(tba.NewMessage(message.Chat.ID, messageBody))
+				replyDbMessageWithCloseButton(ctx, "infoCommand")
 			}
 			break
 
