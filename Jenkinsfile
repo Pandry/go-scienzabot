@@ -10,8 +10,12 @@ pipeline {
       }
       steps {
         echo 'Building..'
-        sh 'go get ./...'
+        sh '''go get "github.com/go-telegram-bot-api/telegram-bot-api"
+
+
+'''
         sh 'go build ./...'
+        sh 'go get "github.com/mattn/go-sqlite3"'
       }
     }
     stage('Static Analysis') {
