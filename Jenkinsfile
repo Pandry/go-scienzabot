@@ -10,6 +10,7 @@ pipeline {
       }
       steps {
         echo 'Building..'
+        sh 'go get ./...'
         sh 'go build ./...'
       }
     }
