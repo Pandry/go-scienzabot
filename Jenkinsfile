@@ -14,8 +14,8 @@ pipeline {
 
 
 '''
-        sh 'go build ./...'
         sh 'go get "github.com/mattn/go-sqlite3"'
+        sh 'go build ./...'
       }
     }
     stage('Static Analysis') {
