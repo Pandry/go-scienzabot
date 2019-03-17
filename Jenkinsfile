@@ -25,6 +25,7 @@ pipeline {
         sh 'golint .'
         sh 'go vet .'
         sh 'maligned ./...'
+        sh 'dingo-hunter migo ./...'
       }
     }
   }
