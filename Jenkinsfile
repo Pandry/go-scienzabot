@@ -1,21 +1,31 @@
 pipeline {
-    agent any
+  agent any
+  stages {
+    stage('Build') {
+      agent {
+        docker {
+          image 'pandry:goanalysis'
+        }
 
-    stages {
-        stage('Build') {
-            steps {
-                echo 'Building..'
-            }
-        }
-        stage('Test') {
-            steps {
-                echo 'Testing..'
-            }
-        }
-        stage('Deploy') {
-            steps {
-                echo 'Deploying....'
-            }
-        }
+      }
+      steps {
+        echo 'Building..'
+        sh 'go build ./...'
+      }
     }
+    stage('Static Analysis') {
+      agent {
+        docker {
+          image 'pandry:goanalysis'
+        }
+
+      }
+      steps {
+        echo 'Testing..'
+        sh 'golint .'
+        sh 'go vet .'
+        sh 'maligned ./...'
+      }
+    }
+  }
 }
