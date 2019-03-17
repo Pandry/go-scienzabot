@@ -4,7 +4,7 @@ pipeline {
     stage('Build') {
       agent {
         docker {
-          image 'pandry:goanalysis'
+          image 'pandry/goanalysis'
         }
 
       }
@@ -16,7 +16,7 @@ pipeline {
     stage('Static Analysis') {
       agent {
         docker {
-          image 'pandry:goanalysis'
+          image 'pandry/goanalysis'
         }
 
       }
