@@ -14,6 +14,7 @@ pipeline {
 
 
 '''
+        sh 'apk add --update --no-cache alpine-sdk'
         sh 'go get "github.com/mattn/go-sqlite3"'
         sh 'go build ./...'
       }
