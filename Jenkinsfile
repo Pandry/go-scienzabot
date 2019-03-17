@@ -9,14 +9,15 @@ pipeline {
 
       }
       steps {
-        echo 'Building..'
+        echo 'Gaining deps'
         sh '''go get "github.com/go-telegram-bot-api/telegram-bot-api"
 
 
 '''
         sh 'apk add --update --no-cache alpine-sdk'
         sh 'go get "github.com/mattn/go-sqlite3"'
-        sh 'go build ./...'
+        echo 'Building..'
+        sh 'go build .'
       }
     }
     stage('Static Analysis') {
