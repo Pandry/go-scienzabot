@@ -5,12 +5,10 @@ steps:
 - name: build
   image: pandry/scienzabotb
   commands:
-  - cp -r $(pwd) $GOPATH/src/scienzabot/
   - go build .
 - name: static analysis
   image: pandry/scienzabotb
   commands:
-  - cp -r $(pwd) $GOPATH/src/scienzabot/
   - golint .
   - go vet .
   - maligned ./...
