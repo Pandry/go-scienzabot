@@ -22,6 +22,7 @@ pipeline {
 
       }
       steps {
+        sh 'cp -r $(pwd)  $GOPATH/src/scienzabot/'
         echo 'Testing..'
         sh 'golint .'
         sh 'go vet .'
