@@ -5,17 +5,12 @@ steps:
 - name: build
   image: pandry/scienzabotb
   commands:
-  - go env
-  - export GOPATH=/go
-  - mkdir -p $GOPATH/src/scienzabot/
-  - cp -r * $GOPATH/src/scienzabot/
+  - cp -r $(pwd) $GOPATH/src/scienzabot/
   - go build .
 - name: static analysis
   image: pandry/scienzabotb
   commands:
-  - export GOPATH=/go
-  - mkdir -p $GOPATH/src/scienzabot/
-  - cp -r * $GOPATH/src/scienzabot/
+  - cp -r $(pwd) $GOPATH/src/scienzabot/
   - golint .
   - go vet .
   - maligned ./...
