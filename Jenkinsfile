@@ -9,6 +9,7 @@ pipeline {
 
       }
       steps {
+        sh 'cp -r $(pwd)  $GOPATH/src/scienzabot/'
         echo 'Building..'
         sh 'go build .'
       }
@@ -21,11 +22,11 @@ pipeline {
 
       }
       steps {
+        sh 'cp -r $(pwd)  $GOPATH/src/scienzabot/'
         echo 'Testing..'
         sh 'golint .'
         sh 'go vet .'
         sh 'maligned ./...'
-        sh 'dingo-hunter migo ./...'
       }
     }
   }
