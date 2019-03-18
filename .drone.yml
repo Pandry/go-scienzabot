@@ -5,7 +5,7 @@ steps:
 - name: build
   image: plugins/docker
   settings:
-  - dockerfile: CIDockerfile
+    dockerfile: CIDockerfile
   commands:
   - go get "github.com/go-telegram-bot-api/telegram-bot-api"
   - apk add --update --no-cache alpine-sdk
