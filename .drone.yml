@@ -6,7 +6,7 @@ steps:
   image: plugins/docker
   settings:
     tags: latest
-    repo: repository.geekfor.science
+    repo: repository.geekfor.science/scienzabotb
     #  from_secret: docker_registry
   commands:
   - go build .
