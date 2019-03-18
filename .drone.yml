@@ -5,6 +5,7 @@ steps:
 - name: build
   image: pandry/scienzabotb
   commands:
+  - export GOPATH=/go
   - mkdir -p $GOPATH/src/scienzabot/
   - cp -r * $GOPATH/src/scienzabot/
   - go get
@@ -12,6 +13,7 @@ steps:
 - name: static analysis
   image: pandry/scienzabotb
   commands:
+  - export GOPATH=/go
   - mkdir -p $GOPATH/src/scienzabot/
   - cp -r * $GOPATH/src/scienzabot/
   - go get
