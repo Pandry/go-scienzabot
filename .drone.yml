@@ -5,6 +5,7 @@ steps:
 - name: build
   image: pandry/scienzabotb
   commands:
+  - go env
   - export GOPATH=/go
   - mkdir -p $GOPATH/src/scienzabot/
   - cp -r * $GOPATH/src/scienzabot/
