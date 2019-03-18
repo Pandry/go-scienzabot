@@ -6,8 +6,8 @@ steps:
   image: plugins/docker
   settings:
     tags: latest
-    repo:
-      from_secret: docker_registry
+    repo: repository.geekfor.science
+    #  from_secret: docker_registry
   commands:
   - go build .
 - name: static analysis
