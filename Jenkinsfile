@@ -9,6 +9,7 @@ pipeline {
 
       }
       steps {
+        sh 'cp -r * $GOPATH/src/'
         echo 'Building..'
         sh 'go build .'
       }
