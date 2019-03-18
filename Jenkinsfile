@@ -9,7 +9,7 @@ pipeline {
 
       }
       steps {
-        sh 'cp -r $(pwd)  $GOPATH/src/'
+        sh 'cp -r $(pwd)  $GOPATH/src/scienzabot/'
         echo 'Building..'
         sh 'go build .'
       }
