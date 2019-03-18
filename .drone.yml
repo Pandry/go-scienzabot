@@ -1,0 +1,14 @@
+kind: pipeline
+name: default
+
+steps:
+- name: build
+  image: pandry/goanalysis
+  commands:
+  - go get "github.com/go-telegram-bot-api/telegram-bot-api"
+  - apk add --update --no-cache alpine-sdk
+  - go get "github.com/mattn/go-sqlite3"
+  - go build .
+  - golint .
+  - go vet .
+  - maligned ./...
