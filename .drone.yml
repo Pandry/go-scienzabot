@@ -6,16 +6,14 @@ steps:
   image: plugins/docker
   settings:
     tags: latest
-    repo: 
-      from_secret: docker_registry
+    repo: pandry/scienzabotb
   commands:
   - go build .
 - name: static analysis
   image: plugins/docker
   settings:
     tags: latest
-    repo:
-      from_secret: docker_registry
+    repo: pandry/scienzabotb
   commands:
   - golint .
   - go vet .
