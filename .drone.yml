@@ -3,17 +3,11 @@ name: default
 
 steps:
 - name: build
-  image: plugins/docker
-  settings:
-    tags: latest
-    repo: pandry/scienzabotb
+  image: pandry/scienzabotb
   commands:
   - go build .
 - name: static analysis
-  image: plugins/docker
-  settings:
-    tags: latest
-    repo: pandry/scienzabotb
+  image: pandry/scienzabotb
   commands:
   - golint .
   - go vet .
