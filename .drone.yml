@@ -3,7 +3,9 @@ name: default
 
 steps:
 - name: build
-  image: pandry/goanalysis
+  image: plugins/docker
+  settings:
+  - dockerfile: CIDockerfile
   commands:
   - go get "github.com/go-telegram-bot-api/telegram-bot-api"
   - apk add --update --no-cache alpine-sdk
