@@ -36,7 +36,7 @@ steps:
     key: 
       from_secret: production_server_privatekey
     port: 22
-    target: /root/scienzabot
+    target: /root
     source: ./scienzabot
 
 - name: Building and tagging the container solution
