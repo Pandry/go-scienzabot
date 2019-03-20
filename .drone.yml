@@ -31,15 +31,15 @@ steps:
   commands:
   - CGO_ENABLED=1 GOOS=linux go build -a -ldflags '-extldflags "-static"' .
   
-- scp:
-    image: appleboy/drone-scp
-    settings:
-      host:
-        from_secret: production_server_address
-      username: 
-        from_secret: production_server_username
-      key: 
-        from_secret: production_server_privatekey
-      port: 22
-      target: /root/scienzabot
-      source: scienzabot
+- name: Application deploy
+  image: appleboy/drone-scp
+  settings:
+    host:
+      from_secret: production_server_address
+    username: 
+      from_secret: production_server_username
+    key: 
+      from_secret: production_server_privatekey
+    port: 22
+    target: /root/scienzabot
+    source: ./scienzabot
