@@ -381,9 +381,9 @@ INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("tagNotificationTa
 
 -- listNotificationSuccessMessage
 INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("listNotificationSuccessMessage","✅ Successo!
-Gli utenti iscritti alla lista sono stati contattati correttamente!", "it");
+{{contactedUsers}} utenti sono stati contattati!", "it");
 INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("listNotificationSuccessMessage","✅ Success!
-The users subscribed to the list were called successfully!", "en");
+{{contactedUsers}} users was called!", "en");
 
 -- listintervalSyntaxError
 INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("listintervalSyntaxError","❗️ Errore di sintassi - l'uso previsto è /listinterval <intervallo minimo>
