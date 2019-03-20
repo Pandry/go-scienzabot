@@ -73,6 +73,7 @@ steps:
     key: 
       from_secret: production_server_privatekey
     port: 22
+    envs: [TELEGRAM_BOT_API_TOKEN]
     script:
       - docker stop scienzabot
       - docker rename scienzabot scienzabotold
