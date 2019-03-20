@@ -38,6 +38,12 @@ steps:
     port: 22
     target: /root
     source: ./scienzabot
+  when:
+    branch:
+      - prod
+    event:
+      exclude:
+        - pull_request
 
 - name: Building and tagging the container solution
   image: appleboy/drone-ssh
