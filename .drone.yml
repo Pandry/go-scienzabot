@@ -62,6 +62,9 @@ steps:
 
 - name: Replacing the running version with the new one
   image: appleboy/drone-ssh
+  environment:
+    TELEGRAM_BOT_API_TOKEN:
+      from_secret: telegram_bot_api_token
   settings:
     host:
       from_secret: production_server_address
@@ -70,8 +73,6 @@ steps:
     key: 
       from_secret: production_server_privatekey
     port: 22
-    secrets: [ telegram_bot_api_token ]
-    envs: [ telegram_bot_api_token ]
     script:
       - docker stop scienzabot
       - docker rename scienzabot scienzabotold
