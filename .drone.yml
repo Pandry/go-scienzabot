@@ -1,16 +1,25 @@
 kind: pipeline
 name: default
 
+workspace:
+  base: /go
+  path: src/scienzabot
+
 steps:
+- name: test
+  image: golang
+  commands:
+  - go get
+  - go test
 - name: build
-  image: pandry/scienzabotb
+  image: golang
   commands:
-  - cp -r $(pwd) $GOPATH/src/scienzabot/ 
-  - go build .
+  - go get
+  - go build
 - name: static analysis
-  image: pandry/scienzabotb
+  image: golang
   commands:
-  - cp -r $(pwd) $GOPATH/src/scienzabot/ 
+  - go get
   - golint .
   - go vet .
   - maligned ./...
