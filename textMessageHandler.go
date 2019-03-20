@@ -921,6 +921,9 @@ func textMessageRoute(ctx *Context) {
 			}
 			//We create a slice of the users who were contacted
 			contactedUsers := make([]int64, 0)
+			//We add the calling used to the contacted list users to avoid the user to be
+			//	contacted for a request he made
+			contactedUsers = append(contactedUsers, int64(message.From.ID))
 
 			var listInterval time.Duration
 			//We get the minimum interval a list should be called
@@ -1036,8 +1039,12 @@ func textMessageRoute(ctx *Context) {
 				} //end subscribed users loop
 			} //end lists loop
 			//Notify the user that the lists were called successfully
-			if len(contactedUsers) > 0 {
-				replyDbMessage(ctx, "listNotificationSuccessMessage")
+			if len(contactedUsers)-1 > 0 {
+				//We say to the user how many people were contacted
+				messageBody := strings.Replace(ctx.Database.GetBotStringValueOrDefaultNoError("listNotificationSuccessMessage", ctx.Update.Message.From.LanguageCode), "{{contactedUsers}}", strconv.Itoa(len(contactedUsers)-1), -1)
+				messageToSend := tba.NewMessage(ctx.Update.Message.Chat.ID, messageBody)
+				messageToSend.ReplyToMessageID = ctx.Update.Message.MessageID
+				ctx.Bot.Send(messageToSend)
 			}
 		} //fi messageIngroup
 	} //fi message command
