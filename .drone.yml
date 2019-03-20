@@ -76,7 +76,7 @@ steps:
       - docker stop scienzabot
       - docker rename scienzabot scienzabotold
       - cp $(docker volume inspect scienzabot | grep Mountpoint | awk {' print $2 '} | cut -c 2- | rev | cut -c 3- | rev)/sqlite db_backup_$(date +%y-%m-%d_%H:%M:%S).sqlite
-      - docker run --name=scienzabot --env="TELEGRAM_TOKEN=$telegram_bot_api_token" --volume="scienzabot:/db" --restart=unless-stopped --detach=true scienzabot:latest /scienzabot -database /db/sqlite -vv
+      - docker run --name=scienzabot --env="TELEGRAM_TOKEN=$TELEGRAM_BOT_API_TOKEN" --volume="scienzabot:/db" --restart=unless-stopped --detach=true scienzabot:latest /scienzabot -database /db/sqlite -vv
       - docker rm scienzabotold
     when:
       branch:
