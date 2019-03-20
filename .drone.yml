@@ -50,9 +50,15 @@ steps:
       from_secret: production_server_privatekey
     port: 22
     script:
-      - mv scienzabot scienza/ -f 
+      - mv -f scienzabot scienza/scienzabot
       - cd scienza/ 
       - docker image tag $(docker build . | tail -n 1 | awk ' { print $3 } ') scienzabot
+    when:
+      branch:
+        - master
+      event:
+        exclude:
+          - pull_request
 
 - name: Replacing the running version with the new one
   image: appleboy/drone-ssh
@@ -71,3 +77,9 @@ steps:
       - docker stop scienzabotold
       - cp $(docker volume inspect scienzabot | grep Mountpoint | awk {' print $2 '} | cut -c 2- | rev | cut -c 3- | rev)/sqlite db_backup_$(date +%y-%m-%d_%H:%M:%S).sqlite
       - docker run --name=scienzabot --env="TELEGRAM_TOKEN=$TELEGRAM_BOT_API_TOKEN" --volume="scienzabot:/db" --restart=unless-stopped --detach=true scienzabot:latest /scienzabot -database /db/sqlite -vv
+    when:
+      branch:
+        - master
+      event:
+        exclude:
+          - pull_request
