@@ -6,18 +6,13 @@ workspace:
   path: src/scienzabot
 
 steps:
-- name: test
+- name: Running Unit Tests
   image: golang
   commands:
   - go get
   - go test ./...
-  
-- name: build
-  image: golang
-  commands:
-  - go build
-  
-- name: static analysis
+    
+- name: Doing Static Analysis
   image: golang
   commands:
   - go get -u golang.org/x/lint/golint
@@ -26,12 +21,12 @@ steps:
   - go vet .
   - maligned ./...
   
-- name: Container build
+- name: Statically compiling the solution
   image: golang
   commands:
   - CGO_ENABLED=1 GOOS=linux go build -a -ldflags '-extldflags "-static"' .
   
-- name: Application deploy
+- name: Solution executable upload
   image: appleboy/drone-scp
   settings:
     host:
@@ -43,3 +38,36 @@ steps:
     port: 22
     target: /root/scienzabot
     source: ./scienzabot
+
+- name: Building and tagging the container solution
+  image: appleboy/drone-ssh
+  settings:
+    host:
+      from_secret: production_server_address
+    username: 
+      from_secret: production_server_username
+    key: 
+      from_secret: production_server_privatekey
+    port: 22
+    script:
+      - mv scienzabot scienza/ -f 
+      - cd scienza/ 
+      - docker image tag $(docker build . | tail -n 1 | awk ' { print $3 } ') scienzabot
+
+- name: Replacing the running version with the new one
+  image: appleboy/drone-ssh
+  settings:
+    host:
+      from_secret: production_server_address
+    username: 
+      from_secret: production_server_username
+    key: 
+      from_secret: production_server_privatekey
+    port: 22
+    secrets: [ telegram_bot_api_token ]
+    envs: [ telegram_bot_api_token ]
+    script:
+      - docker rename scienzabot scienzabotold
+      - docker stop scienzabotold
+      - cp $(docker volume inspect scienzabot | grep Mountpoint | awk {' print $2 '} | cut -c 2- | rev | cut -c 3- | rev)/sqlite db_backup_$(date +%y-%m-%d_%H:%M:%S).sqlite
+      - docker run --name=scienzabot --env="TELEGRAM_TOKEN=$TELEGRAM_BOT_API_TOKEN" --volume="scienzabot:/db" --restart=unless-stopped --detach=true scienzabot:latest /scienzabot -database /db/sqlite -vv
