@@ -10,16 +10,16 @@ steps:
   image: golang
   commands:
   - go get
-  - go test
+  - go test ./...
 - name: build
   image: golang
   commands:
-  - go get
   - go build
 - name: static analysis
   image: golang
   commands:
-  - go get
+  - go get -u golang.org/x/lint/golint
+  - go get github.com/mdempsky/maligned
   - golint .
   - go vet .
   - maligned ./...
