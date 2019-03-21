@@ -232,9 +232,7 @@ func textMessageRoute(ctx *Context) {
 
 		//Get bot version
 		case "/version", "/v":
-			if val, err := ctx.Database.GetBotSettingValue("version"); err == nil {
-				replyMessageWithCloseButton(ctx, val)
-			}
+			replyMessageWithCloseButton(ctx, consts.Version)
 			break
 
 		//If the user is a bot admin, he can ping the bot
