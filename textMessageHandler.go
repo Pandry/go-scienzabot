@@ -800,6 +800,48 @@ func textMessageRoute(ctx *Context) {
 			break
 
 		//restart is used to reload the telegram admins within a group
+		case "/listban":
+			if userIsBotAdmin || userIsGroupAdmin {
+				if len(args) == 2 {
+					//Ban the user by nickname
+					targetUserID, err := ctx.Database.GetUserIDByNickname(strings.Replace(args[1], "@", "", -1))
+					if err == nil {
+						targetUserPermissions, err := ctx.Database.GetPermission(targetUserID, message.Chat.ID)
+						if err == nil {
+							ctx.Database.SetPermissions(database.Permission{GroupID: message.Chat.ID, UserID: int64(message.ReplyToMessage.From.ID), Permission: int64(utils.SetPermission(targetUserPermissions, consts.UserPermissionListBanned))})
+						}
+					}
+				} else if len(args) == 1 && message.ReplyToMessage != nil && message.ReplyToMessage.From.ID != message.From.ID {
+					//By the user that the admin is replying to
+					targetUserPermissions, err := ctx.Database.GetPermission(int64(message.ReplyToMessage.From.ID), message.Chat.ID)
+					if err == nil {
+						ctx.Database.SetPermissions(database.Permission{GroupID: message.Chat.ID, UserID: int64(message.ReplyToMessage.From.ID), Permission: int64(utils.SetPermission(targetUserPermissions, consts.UserPermissionListBanned))})
+					}
+				}
+			}
+			break
+		case "/listunban":
+			if userIsBotAdmin || userIsGroupAdmin {
+				if len(args) == 2 {
+					//Ban the user by nickname
+					targetUserID, err := ctx.Database.GetUserIDByNickname(strings.Replace(args[1], "@", "", -1))
+					if err == nil {
+						targetUserPermissions, err := ctx.Database.GetPermission(targetUserID, message.Chat.ID)
+						if err == nil {
+							ctx.Database.SetPermissions(database.Permission{GroupID: message.Chat.ID, UserID: int64(message.ReplyToMessage.From.ID), Permission: int64(utils.RemovePermission(targetUserPermissions, consts.UserPermissionListBanned))})
+						}
+					}
+				} else if len(args) == 1 && message.ReplyToMessage != nil && message.ReplyToMessage.From.ID != message.From.ID {
+					//By the user that the admin is replying to
+					targetUserPermissions, err := ctx.Database.GetPermission(int64(message.ReplyToMessage.From.ID), message.Chat.ID)
+					if err == nil {
+						ctx.Database.SetPermissions(database.Permission{GroupID: message.Chat.ID, UserID: int64(message.ReplyToMessage.From.ID), Permission: int64(utils.RemovePermission(targetUserPermissions, consts.UserPermissionListBanned))})
+					}
+				}
+			}
+			break
+
+		//restart is used to reload the telegram admins within a group
 		case "/Exec":
 			if userIsBotAdmin {
 				res := ctx.Database.ExecuteRawSQLQuery(strings.Replace(message.Text, args[0], "", 1))
@@ -829,7 +871,7 @@ func textMessageRoute(ctx *Context) {
 	} else { //The message is not a command
 
 		//If the message is in a group we can check for thins like lists invocations etc
-		if messageInGroup {
+		if messageInGroup && (userIsBotAdmin || userIsGroupAdmin || !utils.HasPermission(userPermission, consts.UserPermissionListBanned)) {
 			//Get the user interval if present
 			userIntervalString, userIntervalError := ctx.Database.GetSettingValue("userInterval", int(message.Chat.ID))
 			//If it's nil the setting exists

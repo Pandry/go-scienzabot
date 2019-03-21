@@ -64,6 +64,7 @@ const (
 	UserPermissionCanCreateList
 	UserPermissionCanRemoveList
 	UserPermissionGroupAdmin
+	UserPermissionListBanned
 )
 
 //ListPropertyGroupIndipendent is the property that defines a list that is available in any group
