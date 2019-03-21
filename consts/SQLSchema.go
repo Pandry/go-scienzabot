@@ -458,4 +458,25 @@ Il segnalibro non può essere salvato, controlla che non sia già esistente!", "
 INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("bookmarkError","❌ Error!
 The bookmark cannot be added, please, check it hasn't been already saved!", "en");
 
+
+-- userNicknameNotFound (maybe user not registered)
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("userNicknameNotFound","❌ Errore!
+Il nickname dell'utente non è stato trovato", "it");
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("userNicknameNotFound","❌ Error!
+The user nickname was not found!", "en");
+
+-- userBannedFromCalling
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("userBannedFromCalling","✅ Successo!
+All'utente è stato negato di invocare liste.", "it");
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("userBannedFromCalling","✅ Success!
+The user was suspended from invoking lists!", "en");
+
+-- userUnbannedFromCalling
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("userUnbannedFromCalling","✅ Successo!
+All'utente è nuovamente permesso di invocare liste", "it");
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("userUnbannedFromCalling","✅ Success!
+The user can now invoke lists again!", "en");
+
+
+
 `
