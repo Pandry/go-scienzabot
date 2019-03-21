@@ -859,24 +859,26 @@ func textMessageRoute(ctx *Context) {
 					words := strings.Split(strings.Replace(message.Text, "\n", " ", -1), " ")
 					//And fore each word
 					for _, word := range words {
-						//Remove useless syntax
-						strings.Replace(strings.Replace(strings.Replace(word, ",", "", -1), ";", "", -1), "\n", "", -1)
-						if len(word) > 1 && word[len(word)-1] == '.' {
+						if len(word) < 2 {
+							continue
+						}
+
+						if word[len(word)-1] == '.' || word[len(word)-1] == ',' ||
+							word[len(word)-1] == ';' || word[len(word)-1] == ':' ||
+							word[len(word)-1] == '?' || word[len(word)-1] == '!' {
 							word = word[:len(word)-2]
 						}
-						//If the word is longer than 1 char
-						if len(word) > 1 {
-							//And hase the prefix
-							if word[0] == prefix[0] {
-								//We add it to the list without the prefix
-								listNameIsValid, _ := regexp.MatchString(consts.ListRegex, strings.ToLower(word[1:]))
-								//If the list name is valid
-								if listNameIsValid {
-									//Add the value to the possible lists
-									possibleLists = append(possibleLists, strings.ToLower(word[1:]))
-								} //fi list name valid
-							} //fi prefix check
-						} //fi world len
+
+						//And hase the prefix
+						if word[0] == prefix[0] {
+							//We add it to the list without the prefix
+							listNameIsValid, _ := regexp.MatchString(consts.ListRegex, strings.ToLower(word[1:]))
+							//If the list name is valid
+							if listNameIsValid {
+								//Add the value to the possible lists
+								possibleLists = append(possibleLists, strings.ToLower(word[1:]))
+							} //fi list name valid
+						} //fi prefix check
 					} //end words loop
 				} //fi message contains prefix
 			} //end prefix loop
