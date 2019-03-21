@@ -800,42 +800,55 @@ func textMessageRoute(ctx *Context) {
 		//restart is used to reload the telegram admins within a group
 		case "/listban":
 			if userIsBotAdmin || userIsGroupAdmin {
+				targetUserID := int64(message.ReplyToMessage.From.ID)
+				targetUserPermissions := 0
 				if len(args) == 2 {
 					//Ban the user by nickname
-					targetUserID, err := ctx.Database.GetUserIDByNickname(strings.Replace(args[1], "@", "", -1))
+					targetUserID, err = ctx.Database.GetUserIDByNickname(strings.Replace(args[1], "@", "", -1))
 					if err == nil {
-						targetUserPermissions, err := ctx.Database.GetPermission(targetUserID, message.Chat.ID)
-						if err == nil {
-							ctx.Database.SetPermissions(database.Permission{GroupID: message.Chat.ID, UserID: int64(message.ReplyToMessage.From.ID), Permission: int64(utils.SetPermission(targetUserPermissions, consts.UserPermissionListBanned))})
-						}
+						targetUserPermissions, err = ctx.Database.GetPermission(targetUserID, message.Chat.ID)
+					} else {
+						replyDbMessageWithCloseButton(ctx, "userNicknameNotFound")
 					}
 				} else if len(args) == 1 && message.ReplyToMessage != nil && message.ReplyToMessage.From.ID != message.From.ID {
 					//By the user that the admin is replying to
-					targetUserPermissions, err := ctx.Database.GetPermission(int64(message.ReplyToMessage.From.ID), message.Chat.ID)
-					if err == nil {
-						ctx.Database.SetPermissions(database.Permission{GroupID: message.Chat.ID, UserID: int64(message.ReplyToMessage.From.ID), Permission: int64(utils.SetPermission(targetUserPermissions, consts.UserPermissionListBanned))})
-					}
+					targetUserPermissions, err = ctx.Database.GetPermission(int64(message.ReplyToMessage.From.ID), message.Chat.ID)
 				}
+				err = ctx.Database.SetPermissions(database.Permission{GroupID: message.Chat.ID, UserID: targetUserID, Permission: int64(utils.SetPermission(targetUserPermissions, consts.UserPermissionListBanned))})
+				if err == nil {
+					replyDbMessageWithCloseButton(ctx, "userBannedFromCalling")
+				} else {
+					replyDbMessageWithCloseButton(ctx, "generalError")
+				}
+			} else {
+				replyDbMessageWithCloseButton(ctx, "notAuthorized")
 			}
 			break
+
 		case "/listunban":
 			if userIsBotAdmin || userIsGroupAdmin {
+				targetUserID := int64(message.ReplyToMessage.From.ID)
+				targetUserPermissions := 0
 				if len(args) == 2 {
 					//Ban the user by nickname
-					targetUserID, err := ctx.Database.GetUserIDByNickname(strings.Replace(args[1], "@", "", -1))
+					targetUserID, err = ctx.Database.GetUserIDByNickname(strings.Replace(args[1], "@", "", -1))
 					if err == nil {
-						targetUserPermissions, err := ctx.Database.GetPermission(targetUserID, message.Chat.ID)
-						if err == nil {
-							ctx.Database.SetPermissions(database.Permission{GroupID: message.Chat.ID, UserID: int64(message.ReplyToMessage.From.ID), Permission: int64(utils.RemovePermission(targetUserPermissions, consts.UserPermissionListBanned))})
-						}
+						targetUserPermissions, err = ctx.Database.GetPermission(targetUserID, message.Chat.ID)
+					} else {
+						replyDbMessageWithCloseButton(ctx, "userNicknameNotFound")
 					}
 				} else if len(args) == 1 && message.ReplyToMessage != nil && message.ReplyToMessage.From.ID != message.From.ID {
 					//By the user that the admin is replying to
-					targetUserPermissions, err := ctx.Database.GetPermission(int64(message.ReplyToMessage.From.ID), message.Chat.ID)
-					if err == nil {
-						ctx.Database.SetPermissions(database.Permission{GroupID: message.Chat.ID, UserID: int64(message.ReplyToMessage.From.ID), Permission: int64(utils.RemovePermission(targetUserPermissions, consts.UserPermissionListBanned))})
-					}
+					targetUserPermissions, err = ctx.Database.GetPermission(int64(message.ReplyToMessage.From.ID), message.Chat.ID)
 				}
+				err = ctx.Database.SetPermissions(database.Permission{GroupID: message.Chat.ID, UserID: targetUserID, Permission: int64(utils.RemovePermission(targetUserPermissions, consts.UserPermissionListBanned))})
+				if err == nil {
+					replyDbMessageWithCloseButton(ctx, "userUnbannedFromCalling")
+				} else {
+					replyDbMessageWithCloseButton(ctx, "generalError")
+				}
+			} else {
+				replyDbMessageWithCloseButton(ctx, "notAuthorized")
 			}
 			break
 
