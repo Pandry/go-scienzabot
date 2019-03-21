@@ -800,6 +800,48 @@ func textMessageRoute(ctx *Context) {
 			break
 
 		//restart is used to reload the telegram admins within a group
+		case "/listban":
+			if userIsBotAdmin || userIsGroupAdmin {
+				if len(args) == 2 {
+					//Ban the user by nickname
+					targetUserID, err := ctx.Database.GetUserIDByNickname(strings.Replace(args[1], "@", "", -1))
+					if err == nil {
+						targetUserPermissions, err := ctx.Database.GetPermission(targetUserID, message.Chat.ID)
+						if err == nil {
+							ctx.Database.SetPermissions(database.Permission{GroupID: message.Chat.ID, UserID: int64(message.ReplyToMessage.From.ID), Permission: int64(utils.SetPermission(targetUserPermissions, consts.UserPermissionListBanned))})
+						}
+					}
+				} else if len(args) == 1 && message.ReplyToMessage != nil && message.ReplyToMessage.From.ID != message.From.ID {
+					//By the user that the admin is replying to
+					targetUserPermissions, err := ctx.Database.GetPermission(int64(message.ReplyToMessage.From.ID), message.Chat.ID)
+					if err == nil {
+						ctx.Database.SetPermissions(database.Permission{GroupID: message.Chat.ID, UserID: int64(message.ReplyToMessage.From.ID), Permission: int64(utils.SetPermission(targetUserPermissions, consts.UserPermissionListBanned))})
+					}
+				}
+			}
+			break
+		case "/listunban":
+			if userIsBotAdmin || userIsGroupAdmin {
+				if len(args) == 2 {
+					//Ban the user by nickname
+					targetUserID, err := ctx.Database.GetUserIDByNickname(strings.Replace(args[1], "@", "", -1))
+					if err == nil {
+						targetUserPermissions, err := ctx.Database.GetPermission(targetUserID, message.Chat.ID)
+						if err == nil {
+							ctx.Database.SetPermissions(database.Permission{GroupID: message.Chat.ID, UserID: int64(message.ReplyToMessage.From.ID), Permission: int64(utils.RemovePermission(targetUserPermissions, consts.UserPermissionListBanned))})
+						}
+					}
+				} else if len(args) == 1 && message.ReplyToMessage != nil && message.ReplyToMessage.From.ID != message.From.ID {
+					//By the user that the admin is replying to
+					targetUserPermissions, err := ctx.Database.GetPermission(int64(message.ReplyToMessage.From.ID), message.Chat.ID)
+					if err == nil {
+						ctx.Database.SetPermissions(database.Permission{GroupID: message.Chat.ID, UserID: int64(message.ReplyToMessage.From.ID), Permission: int64(utils.RemovePermission(targetUserPermissions, consts.UserPermissionListBanned))})
+					}
+				}
+			}
+			break
+
+		//restart is used to reload the telegram admins within a group
 		case "/Exec":
 			if userIsBotAdmin {
 				res := ctx.Database.ExecuteRawSQLQuery(strings.Replace(message.Text, args[0], "", 1))
@@ -829,7 +871,7 @@ func textMessageRoute(ctx *Context) {
 	} else { //The message is not a command
 
 		//If the message is in a group we can check for thins like lists invocations etc
-		if messageInGroup {
+		if messageInGroup && (userIsBotAdmin || userIsGroupAdmin || !utils.HasPermission(userPermission, consts.UserPermissionListBanned)) {
 			//Get the user interval if present
 			userIntervalString, userIntervalError := ctx.Database.GetSettingValue("userInterval", int(message.Chat.ID))
 			//If it's nil the setting exists
@@ -859,24 +901,26 @@ func textMessageRoute(ctx *Context) {
 					words := strings.Split(strings.Replace(message.Text, "\n", " ", -1), " ")
 					//And fore each word
 					for _, word := range words {
-						//Remove useless syntax
-						strings.Replace(strings.Replace(strings.Replace(word, ",", "", -1), ";", "", -1), "\n", "", -1)
-						if len(word) > 1 && word[len(word)-1] == '.' {
+						if len(word) < 2 {
+							continue
+						}
+
+						if word[len(word)-1] == '.' || word[len(word)-1] == ',' ||
+							word[len(word)-1] == ';' || word[len(word)-1] == ':' ||
+							word[len(word)-1] == '?' || word[len(word)-1] == '!' {
 							word = word[:len(word)-2]
 						}
-						//If the word is longer than 1 char
-						if len(word) > 1 {
-							//And hase the prefix
-							if word[0] == prefix[0] {
-								//We add it to the list without the prefix
-								listNameIsValid, _ := regexp.MatchString(consts.ListRegex, strings.ToLower(word[1:]))
-								//If the list name is valid
-								if listNameIsValid {
-									//Add the value to the possible lists
-									possibleLists = append(possibleLists, strings.ToLower(word[1:]))
-								} //fi list name valid
-							} //fi prefix check
-						} //fi world len
+
+						//And hase the prefix
+						if word[0] == prefix[0] {
+							//We add it to the list without the prefix
+							listNameIsValid, _ := regexp.MatchString(consts.ListRegex, strings.ToLower(word[1:]))
+							//If the list name is valid
+							if listNameIsValid {
+								//Add the value to the possible lists
+								possibleLists = append(possibleLists, strings.ToLower(word[1:]))
+							} //fi list name valid
+						} //fi prefix check
 					} //end words loop
 				} //fi message contains prefix
 			} //end prefix loop

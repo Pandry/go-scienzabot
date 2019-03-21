@@ -25,6 +25,12 @@ steps:
   image: golang
   commands:
   - CGO_ENABLED=1 GOOS=linux go build -a -ldflags '-extldflags "-static"' .
+  when:
+    branch:
+      - prod
+    event:
+      exclude:
+        - pull_request
   
 - name: Solution executable upload
   image: appleboy/drone-scp

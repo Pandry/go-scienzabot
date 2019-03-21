@@ -6,7 +6,7 @@ package consts
 //Version is the bot version.
 //This number should be incremented for every release
 //Also, this shoud be inserted in the database and be incremented from it
-const Version = "0.0.1-g α"
+const Version = "0.1.0-g α"
 
 //DefaultLocale identifies the default locale of the bot
 const DefaultLocale = "it"
@@ -64,6 +64,7 @@ const (
 	UserPermissionCanCreateList
 	UserPermissionCanRemoveList
 	UserPermissionGroupAdmin
+	UserPermissionListBanned
 )
 
 //ListPropertyGroupIndipendent is the property that defines a list that is available in any group
