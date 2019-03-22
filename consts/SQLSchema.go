@@ -477,6 +477,15 @@ All'utente è nuovamente permesso di invocare liste", "it");
 INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("userUnbannedFromCalling","✅ Success!
 The user can now invoke lists again!", "en");
 
+-- backText
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("backText","⏮ Indietro", "it");
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("backText","⏮ Back", "en");
 
+
+-- bookmarksMessage
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("bookmarksMessage","Qui trovi i gruppi in cui hai salvato dei segnalibri.
+Tappa un gruppo per vedere i segnalibri salvati all'interno", "it");
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("bookmarksMessage","Here yuo can find the groups you saves some messages in.
+Tap on a group name to see the bookmarks saved in the groups.", "en");
 
 `

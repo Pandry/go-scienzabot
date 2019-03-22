@@ -644,6 +644,10 @@ func textMessageRoute(ctx *Context) {
 				//If the message is in a group, we already know the group to subscribe the user to
 				if !messageInGroup {
 					bms, err := ctx.Database.GetUserBookmarks(message.From.ID)
+					if err != nil {
+						replyDbMessageWithCloseButton(ctx, "generalError")
+						return
+					}
 					if len(bms) > 0 {
 						//If there are bookmarks
 						lastGroupID := int64(-1)
@@ -663,7 +667,8 @@ func textMessageRoute(ctx *Context) {
 								rows = append(rows, []tba.InlineKeyboardButton{
 
 									tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("closeMessageText", ctx.Update.Message.From.LanguageCode), "delme-"),
-									tba.NewInlineKeyboardButtonData("➡️", "bo-"+strconv.Itoa(consts.MaximumInlineKeyboardRows-1))})
+									//bookamrks groups offset
+									tba.NewInlineKeyboardButtonData("➡️", "bgo-"+strconv.Itoa(consts.MaximumInlineKeyboardRows-1))})
 								//Then we set the bool to true to say that we added the pagination
 								paginationPresent = true
 								//And interrupt the loop
@@ -671,17 +676,17 @@ func textMessageRoute(ctx *Context) {
 							}
 							b, err := ctx.Database.GetGroup(g)
 							if err == nil {
-								rows = append(rows, []tba.InlineKeyboardButton{tba.NewInlineKeyboardButtonData(b.Title, "bks-"+strconv.FormatInt(g, 10))})
+								rows = append(rows, []tba.InlineKeyboardButton{tba.NewInlineKeyboardButtonData(b.Title, "bk-"+strconv.FormatInt(g, 10)+"-0")})
 							}
 
 							//If the pagination was not added in the loop, we add it here, without adding the button to see the next page
-							if !paginationPresent {
-								rows = append(rows, []tba.InlineKeyboardButton{
-									tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("closeMessageText", ctx.Update.Message.From.LanguageCode), "delme-"),
-									tba.NewInlineKeyboardButtonData("‌‌ ", "ignore")})
-							}
 						}
-						replyMessageDBWithInlineKeyboard(ctx, "bookmarksGroups", tba.InlineKeyboardMarkup{InlineKeyboard: rows})
+						if !paginationPresent {
+							rows = append(rows, []tba.InlineKeyboardButton{
+								tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("closeMessageText", ctx.Update.Message.From.LanguageCode), "delme-"),
+								tba.NewInlineKeyboardButtonData("‌‌ ", "ignore")})
+						}
+						replyMessageDBWithInlineKeyboard(ctx, "bookmarksMessage", tba.InlineKeyboardMarkup{InlineKeyboard: rows})
 					} else {
 						//there are no bookmarks
 					}
