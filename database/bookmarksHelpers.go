@@ -135,7 +135,7 @@ func (db *SQLiteDB) GetUserBookmarks(userid int) ([]Bookmark, error) {
 }
 
 //GetUserGroupBookmarks returns the bookmarks of a user in a given
-func (db *SQLiteDB) GetUserGroupBookmarks(iUserID int64, iGroupID int64) ([]Bookmark, error) {
+func (db *SQLiteDB) GetUserGroupBookmarks(iUserID int, iGroupID int64) ([]Bookmark, error) {
 
 	rows, err := db.Query("SELECT `ID`, `UserID`, `GroupID`, `MessageID`, `Alias`, `Status`, `MessageContent` FROM Bookmarks WHERE `UserID`=? AND `GroupID`=?", iUserID, iGroupID)
 	defer rows.Close()
