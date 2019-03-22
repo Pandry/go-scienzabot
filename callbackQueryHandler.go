@@ -6,7 +6,6 @@ import (
 	"scienzabot/utils"
 	"strconv"
 	"strings"
-	"time"
 
 	tba "github.com/go-telegram-bot-api/telegram-bot-api"
 )
@@ -423,8 +422,8 @@ func callbackQueryRoute(ctx *Context) {
 						if bms[offset].Alias != "" {
 							messageBody += "<b>" + ctx.Database.GetBotStringValueOrDefaultNoError("bookmarkAliasText", locale) + "</b>: " + bms[offset].Alias + "\n"
 						}
-						location, _ := time.LoadLocation("Europe/Rome")
-						messageBody += "<b>" + ctx.Database.GetBotStringValueOrDefaultNoError("bookmarkSavedonText", locale) + "</b>: " + bms[offset].CreationDate.In(location).Format("02/01/2006 15:04") + "\n"
+						//location, _ := time.LoadLocation("Europe/Rome")
+						messageBody += "<b>" + ctx.Database.GetBotStringValueOrDefaultNoError("bookmarkSavedonText", locale) + "</b>: " + bms[offset].CreationDate.In(bms[offset].CreationDate.Location()).Format("02/01/2006 15:04") + "\n"
 						messageBody += "<b>" + ctx.Database.GetBotStringValueOrDefaultNoError("bookmarkContentText", locale) + "</b>: " + bms[offset].MessageContent
 
 						editInlineMessageWithInlineKeyboard(ctx, messageBody, tba.InlineKeyboardMarkup{InlineKeyboard: rows}, tba.ModeHTML)
