@@ -276,7 +276,14 @@ func callbackQueryRoute(ctx *Context) {
 
 				replymessage.ReplyMarkup = rm
 				replymessage.ParseMode = tba.ModeMarkdown
-				ctx.Bot.Send(replymessage)
+				_, err = ctx.Bot.Send(replymessage)
+				if err != nil {
+					ctx.Bot.AnswerCallbackQuery(tba.CallbackConfig{CallbackQueryID: message.ID,
+						Text: ctx.Database.GetBotStringValueOrDefaultNoError("callbackQueryAnswerTagError", locale)})
+				} else {
+					ctx.Bot.AnswerCallbackQuery(tba.CallbackConfig{CallbackQueryID: message.ID,
+						Text: ctx.Database.GetBotStringValueOrDefaultNoError("callbackQueryAnswerSuccess", locale)})
+				}
 
 			}
 

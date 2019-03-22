@@ -344,6 +344,12 @@ Per favore, contattare @Pandry", "it");
 INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("callbackQueryAnswerError","❌ Error
 Please contact @Pandry", "en");
 
+-- callbackQueryAnswerTagError
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("callbackQueryAnswerTagError","❌ Errore
+Probabilmente il messaggio è stato eliminato.", "it");
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("callbackQueryAnswerTagError","❌ Error
+Probably the message was deleted", "en");
+
 -- callbackQueryAnswerError
 INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("noListsLeft","❕ Info
 Non sono presenti (ulteriori) liste che alle quali puoi iscriverti", "it");
