@@ -423,7 +423,8 @@ func callbackQueryRoute(ctx *Context) {
 						if bms[offset].Alias != "" {
 							messageBody += "<b>Alias</b>: " + bms[offset].Alias + "\n"
 						}
-						messageBody += "<b>Saved on</b>: " + bms[offset].CreationDate.Format(time.RFC1123) + "\n"
+						location, _ := time.LoadLocation("Europe/Rome")
+						messageBody += "<b>Saved on</b>: " + bms[offset].CreationDate.In(location).Format("02/01/2006 15:04") + "\n"
 						messageBody += "<b>Content</b>: " + bms[offset].MessageContent
 
 						editInlineMessageWithInlineKeyboard(ctx, messageBody, tba.InlineKeyboardMarkup{InlineKeyboard: rows}, tba.ModeHTML)

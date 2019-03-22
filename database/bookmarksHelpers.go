@@ -1,7 +1,10 @@
 package database
 
 import (
+	"database/sql"
 	"errors"
+	"scienzabot/consts"
+	"time"
 )
 
 //The database package is supposed to contain all the database functions and helpers functions
@@ -18,8 +21,17 @@ import (
 //CreateBookmark takes a database.Bookmark struct as parameter and insert it in the database
 //The ID will not be considered, since it's automatically inrted in database. ALl the other values will be inserted
 func (db *SQLiteDB) CreateBookmark(bkm Bookmark) error {
-	query, err := db.Exec("INSERT INTO Bookmarks (`UserID`, `GroupID`, `MessageID`, `Alias`, `Status`, `MessageContent`) VALUES (?,?,?,?,?,?)",
-		bkm.UserID, bkm.GroupID, bkm.MessageID, bkm.Alias, bkm.Status, bkm.MessageContent)
+	var (
+		query sql.Result
+		err   error
+	)
+	if bkm.CreationDate.Unix() != 0 {
+		query, err = db.Exec("INSERT INTO Bookmarks (`UserID`, `GroupID`, `MessageID`, `Alias`, `Status`, `MessageContent`, `CreationDate`) VALUES (?,?,?,?,?,?,?)",
+			bkm.UserID, bkm.GroupID, bkm.MessageID, bkm.Alias, bkm.Status, bkm.MessageContent, bkm.CreationDate.Format(consts.TimeFormatString))
+	} else {
+		query, err = db.Exec("INSERT INTO Bookmarks (`UserID`, `GroupID`, `MessageID`, `Alias`, `Status`, `MessageContent`) VALUES (?,?,?,?,?,?)",
+			bkm.UserID, bkm.GroupID, bkm.MessageID, bkm.Alias, bkm.Status, bkm.MessageContent)
+	}
 	if err != nil {
 		db.AddLogEvent(Log{Event: "CreateBookmark_QueryFailed", Message: "Impossible to create the execute the query", Error: err.Error()})
 		return err
@@ -76,7 +88,7 @@ func (db *SQLiteDB) RenameBookmark(bkmID int, newAlias string) error {
 
 //GetAllBookmarks returns all the bookmark in the database
 func (db *SQLiteDB) GetAllBookmarks() ([]Bookmark, error) {
-	rows, err := db.Query("SELECT `ID`, `UserID`, `GroupID`, `MessageID`, `Alias`, `Status`, `MessageContent` FROM Bookmarks")
+	rows, err := db.Query("SELECT `ID`, `UserID`, `GroupID`, `MessageID`, `Alias`, `Status`, `MessageContent`, `CreationDate` FROM Bookmarks")
 	defer rows.Close()
 	if err != nil {
 		db.AddLogEvent(Log{Event: "GetAllBookmarks_ErorExecutingTheQuery", Message: "Impossible to get afftected rows", Error: err.Error()})
@@ -86,12 +98,18 @@ func (db *SQLiteDB) GetAllBookmarks() ([]Bookmark, error) {
 	for rows.Next() {
 		var (
 			id, userID, groupID, messageID, status int64
-			messageContent, alias                  string
+			messageContent, alias, creationDateStr string
 		)
-		if err = rows.Scan(&id, &userID, &groupID, &messageID, &alias, &status, &messageContent); err != nil {
+		if err = rows.Scan(&id, &userID, &groupID, &messageID, &alias, &status, &messageContent, &creationDateStr); err != nil {
 			db.AddLogEvent(Log{Event: "GetAllBookmarks_RowQueryFetchResultFailed", Message: "Impossible to get data from the row", Error: err.Error()})
 		} else {
-			bkms = append(bkms, Bookmark{ID: id, UserID: userID, GroupID: groupID, MessageID: messageID, Alias: alias, Status: status, MessageContent: messageContent})
+			time, err := time.Parse(consts.TimeFormatString, creationDateStr)
+			if err != nil {
+				db.AddLogEvent(Log{Event: "GetAllBookmarks_CreationDateParsingError", Message: "Impossible to get data from the row", Error: err.Error()})
+				bkms = append(bkms, Bookmark{ID: id, UserID: userID, GroupID: groupID, MessageID: messageID, Alias: alias, Status: status, MessageContent: messageContent})
+			} else {
+				bkms = append(bkms, Bookmark{ID: id, UserID: userID, GroupID: groupID, MessageID: messageID, Alias: alias, Status: status, MessageContent: messageContent, CreationDate: time})
+			}
 		}
 	}
 	if rows.NextResultSet() {
@@ -106,7 +124,7 @@ func (db *SQLiteDB) GetAllBookmarks() ([]Bookmark, error) {
 //GetUserBookmarks returns all the bookmarks of a user ordered by groupID
 func (db *SQLiteDB) GetUserBookmarks(userid int) ([]Bookmark, error) {
 	iUserID := int64(userid)
-	rows, err := db.Query("SELECT `ID`, `UserID`, `GroupID`, `MessageID`, `Alias`, `Status`, `MessageContent` FROM Bookmarks WHERE `UserID`=? ORDER BY `GroupID`", iUserID)
+	rows, err := db.Query("SELECT `ID`, `UserID`, `GroupID`, `MessageID`, `Alias`, `Status`, `MessageContent`, `CreationDate` FROM Bookmarks WHERE `UserID`=? ORDER BY `GroupID`", iUserID)
 	defer rows.Close()
 	if err != nil {
 		db.AddLogEvent(Log{Event: "GetUserBookmarks_ErorExecutingTheQuery", Message: "Impossible to get afftected rows", Error: err.Error()})
@@ -116,12 +134,20 @@ func (db *SQLiteDB) GetUserBookmarks(userid int) ([]Bookmark, error) {
 	for rows.Next() {
 		var (
 			id, userID, groupID, messageID, status int64
-			messageContent, alias                  string
+			messageContent, alias, creationDateStr string
 		)
-		if err = rows.Scan(&id, &userID, &groupID, &messageID, &alias, &status, &messageContent); err != nil {
+		if err = rows.Scan(&id, &userID, &groupID, &messageID, &alias, &status, &messageContent, &creationDateStr); err != nil {
 			db.AddLogEvent(Log{Event: "GetUserBookmarks_RowQueryFetchResultFailed", Message: "Impossible to get data from the row", Error: err.Error()})
 		} else {
-			bkms = append(bkms, Bookmark{ID: id, UserID: userID, GroupID: groupID, MessageID: messageID, Alias: alias, Status: status, MessageContent: messageContent})
+			time, err := time.Parse(consts.TimeFormatString, creationDateStr)
+			if err != nil {
+				db.AddLogEvent(Log{Event: "GetUserBookmarks_CreationDateParsingError", Message: "Impossible to parse creation date", Error: err.Error()})
+				bkms = append(bkms, Bookmark{ID: id, UserID: userID, GroupID: groupID, MessageID: messageID, Alias: alias, Status: status, MessageContent: messageContent})
+			} else {
+				bkms = append(bkms, Bookmark{ID: id, UserID: userID, GroupID: groupID, MessageID: messageID, Alias: alias, Status: status, MessageContent: messageContent, CreationDate: time})
+			}
+
+			//bkms = append(bkms, Bookmark{ID: id, UserID: userID, GroupID: groupID, MessageID: messageID, Alias: alias, Status: status, MessageContent: messageContent})
 		}
 	}
 	if rows.NextResultSet() {
@@ -137,7 +163,7 @@ func (db *SQLiteDB) GetUserBookmarks(userid int) ([]Bookmark, error) {
 //GetUserGroupBookmarks returns the bookmarks of a user in a given
 func (db *SQLiteDB) GetUserGroupBookmarks(iUserID int, iGroupID int64) ([]Bookmark, error) {
 
-	rows, err := db.Query("SELECT `ID`, `UserID`, `GroupID`, `MessageID`, `Alias`, `Status`, `MessageContent` FROM Bookmarks WHERE `UserID`=? AND `GroupID`=?", iUserID, iGroupID)
+	rows, err := db.Query("SELECT `ID`, `UserID`, `GroupID`, `MessageID`, `Alias`, `Status`, `MessageContent`, `CreationDate` FROM Bookmarks WHERE `UserID`=? AND `GroupID`=?", iUserID, iGroupID)
 	defer rows.Close()
 	if err != nil {
 		db.AddLogEvent(Log{Event: "GetUserGroupBookmarks_ErorExecutingTheQuery", Message: "Impossible to get afftected rows", Error: err.Error()})
@@ -147,12 +173,19 @@ func (db *SQLiteDB) GetUserGroupBookmarks(iUserID int, iGroupID int64) ([]Bookma
 	for rows.Next() {
 		var (
 			id, userID, groupID, messageID, status int64
-			messageContent, alias                  string
+			messageContent, alias, creationDateStr string
 		)
-		if err = rows.Scan(&id, &userID, &groupID, &messageID, &alias, &status, &messageContent); err != nil {
+		if err = rows.Scan(&id, &userID, &groupID, &messageID, &alias, &status, &messageContent, &creationDateStr); err != nil {
 			db.AddLogEvent(Log{Event: "GetUserGroupBookmarks_RowQueryFetchResultFailed", Message: "Impossible to get data from the row", Error: err.Error()})
 		} else {
-			bkms = append(bkms, Bookmark{ID: id, UserID: userID, GroupID: groupID, MessageID: messageID, Alias: alias, Status: status, MessageContent: messageContent})
+			time, err := time.Parse(consts.TimeFormatString, creationDateStr)
+			if err != nil {
+				db.AddLogEvent(Log{Event: "GetUserBookmarks_CreationDateParsingError", Message: "Impossible to parse creation date", Error: err.Error()})
+				bkms = append(bkms, Bookmark{ID: id, UserID: userID, GroupID: groupID, MessageID: messageID, Alias: alias, Status: status, MessageContent: messageContent})
+			} else {
+				bkms = append(bkms, Bookmark{ID: id, UserID: userID, GroupID: groupID, MessageID: messageID, Alias: alias, Status: status, MessageContent: messageContent, CreationDate: time})
+			}
+			//bkms = append(bkms, Bookmark{ID: id, UserID: userID, GroupID: groupID, MessageID: messageID, Alias: alias, Status: status, MessageContent: messageContent})
 		}
 	}
 	if rows.NextResultSet() {
