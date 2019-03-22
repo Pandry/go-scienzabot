@@ -365,6 +365,23 @@ func (db *SQLiteDB) UpdateGroupStatus(groupID int64, status int) error {
 	*/
 }
 
+//GetGroup returns a group from its ID
+func (db *SQLiteDB) GetGroup(groupID int64) (Group, error) {
+	var grp Group
+	err := db.QueryRow("SELECT `ID`,`Title`,`Status`,`Locale`,`Ref` FROM Groups WHERE `ID` = ?", groupID).Scan(&grp.ID, &grp.Title, &grp.Status, &grp.Locale, &grp.Ref)
+	switch {
+	case err == sql.ErrNoRows:
+		db.AddLogEvent(Log{Event: "GetGroup_ErrorNoRows", Message: "Impossible to get rows", Error: err.Error()})
+		return grp, err
+	case err != nil:
+		db.AddLogEvent(Log{Event: "GetGroup_ErrorUnknown", Message: "Uknown error verified", Error: err.Error()})
+		return grp, err
+	default:
+		return grp, err
+	}
+
+}
+
 //GetGroups returns a slice containing all the groups in the database
 func (db *SQLiteDB) GetGroups() ([]Group, error) {
 
