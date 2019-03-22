@@ -643,63 +643,108 @@ func textMessageRoute(ctx *Context) {
 			if userExists {
 				//If the message is in a group, we already know the group to subscribe the user to
 				if !messageInGroup {
-					if len(args) == 1 {
-						bms, err := ctx.Database.GetUserBookmarks(message.From.ID)
-						if err != nil {
-							replyDbMessageWithCloseButton(ctx, "generalError")
-							return
-						}
-						ugrps, err := ctx.Database.GetUserGroups(message.From.ID)
-						if err != nil {
-							replyDbMessageWithCloseButton(ctx, "generalError")
-							return
-						}
-						grps := make([]database.Group, 0)
-						for _, grp := range ugrps {
-							found := false
-							for _, agrp := range grps {
-								if agrp.ID == grp.ID {
-									found = true
-									break
-								}
-							}
-							if !found {
-								grps = append(grps, grp)
+					bms, err := ctx.Database.GetUserBookmarks(message.From.ID)
+					if len(bms) > 0 {
+						//If there are bookmarks
+						lastGroupID := int64(-1)
+						groups := make([]int64, 0)
+						for _, b := range bms {
+							if b.GroupID != lastGroupID {
+								lastGroupID = b.GroupID
+								groups = append(groups, lastGroupID)
 							}
 						}
-						msgBody := ""
-						for _, gp := range grps {
-							messageTitlePresent := false
-							for _, bm := range bms {
-								if gp.ID == bm.GroupID {
-									if !messageTitlePresent {
-										msgBody += "<b>" + gp.Title + "</b>\n\n"
-										messageTitlePresent = true
-									}
-									msgBody += "Name: " + escapeMessage(bm.Alias) + "\n"
-									if gp.Ref != "" {
-										msgBody += "Link: t.me/" + gp.Ref + "/" + strconv.Itoa(int(bm.MessageID)) + " \n"
 
-									}
-									msgBody += "Message:\n" + escapeMessage(bm.MessageContent) + "\n\n"
-								}
-							}
-							msgBody += "\n\n\n"
-						}
-						rm := tba.NewInlineKeyboardMarkup(
-							tba.NewInlineKeyboardRow(
-								tba.NewInlineKeyboardButtonData(
-									ctx.Database.GetBotStringValueOrDefaultNoError("deleteMessageText", ctx.Update.Message.From.LanguageCode), "delme-")))
+						rows := make([][]tba.InlineKeyboardButton, 0)
+						paginationPresent := false
+						for i, g := range groups {
+							if i+2 > consts.MaximumInlineKeyboardRows {
+								//If we are, we add as final row the pagination, to delete the message or show the next page
+								rows = append(rows, []tba.InlineKeyboardButton{
 
-						ctx.Bot.SendLongMessage(message.Chat.ID, msgBody, message.MessageID, rm, tba.ModeHTML)
+									tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("closeMessageText", ctx.Update.Message.From.LanguageCode), "delme-"),
+									tba.NewInlineKeyboardButtonData("➡️", "bo-"+strconv.Itoa(consts.MaximumInlineKeyboardRows-1))})
+								//Then we set the bool to true to say that we added the pagination
+								paginationPresent = true
+								//And interrupt the loop
+								break
+							}
+							b, err := ctx.Database.GetGroup(g)
+							if err == nil {
+								rows = append(rows, []tba.InlineKeyboardButton{tba.NewInlineKeyboardButtonData(b.Title, "bks-"+strconv.FormatInt(g, 10))})
+							}
+
+							//If the pagination was not added in the loop, we add it here, without adding the button to see the next page
+							if !paginationPresent {
+								rows = append(rows, []tba.InlineKeyboardButton{
+									tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("closeMessageText", ctx.Update.Message.From.LanguageCode), "delme-"),
+									tba.NewInlineKeyboardButtonData("‌‌ ", "ignore")})
+							}
+						}
+						replyMessageDBWithInlineKeyboard(ctx, "bookmarksGroups", tba.InlineKeyboardMarkup{InlineKeyboard: rows})
+					} else {
+						//there are no bookmarks
 					}
-				} else {
-					replyDbMessageWithCloseButton(ctx, "onPrivateChatCommand")
 				}
-
-			} else { //User is not in DB
-				replyDbMessageWithCloseButton(ctx, "userNotRegistred")
 			}
+			/*
+						if len(args) == 1 {
+							if err != nil {
+								replyDbMessageWithCloseButton(ctx, "generalError")
+								return
+							}
+							ugrps, err := ctx.Database.GetUserGroups(message.From.ID)
+							if err != nil {
+								replyDbMessageWithCloseButton(ctx, "generalError")
+								return
+							}
+							grps := make([]database.Group, 0)
+							for _, grp := range ugrps {
+								found := false
+								for _, agrp := range grps {
+									if agrp.ID == grp.ID {
+										found = true
+										break
+									}
+								}
+								if !found {
+									grps = append(grps, grp)
+								}
+							}
+							msgBody := ""
+							for _, gp := range grps {
+								messageTitlePresent := false
+								for _, bm := range bms {
+									if gp.ID == bm.GroupID {
+										if !messageTitlePresent {
+											msgBody += "<b>" + gp.Title + "</b>\n\n"
+											messageTitlePresent = true
+										}
+										msgBody += "Name: " + escapeMessage(bm.Alias) + "\n"
+										if gp.Ref != "" {
+											msgBody += "Link: t.me/" + gp.Ref + "/" + strconv.Itoa(int(bm.MessageID)) + " \n"
+
+										}
+										msgBody += "Message:\n" + escapeMessage(bm.MessageContent) + "\n\n"
+									}
+								}
+								msgBody += "\n\n\n"
+							}
+							rm := tba.NewInlineKeyboardMarkup(
+								tba.NewInlineKeyboardRow(
+									tba.NewInlineKeyboardButtonData(
+										ctx.Database.GetBotStringValueOrDefaultNoError("deleteMessageText", ctx.Update.Message.From.LanguageCode), "delme-")))
+
+							ctx.Bot.SendLongMessage(message.Chat.ID, msgBody, message.MessageID, rm, tba.ModeHTML)
+						}
+					} else {
+						replyDbMessageWithCloseButton(ctx, "onPrivateChatCommand")
+					}
+
+				} else { //User is not in DB
+					replyDbMessageWithCloseButton(ctx, "userNotRegistred")
+				}
+			*/
 			break
 
 		//The listinterval is the interval between lists
