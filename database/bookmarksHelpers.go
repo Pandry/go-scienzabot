@@ -103,10 +103,10 @@ func (db *SQLiteDB) GetAllBookmarks() ([]Bookmark, error) {
 	return bkms, err
 }
 
-//GetUserBookmarks returns all the bookmarks of a user
+//GetUserBookmarks returns all the bookmarks of a user ordered by groupID
 func (db *SQLiteDB) GetUserBookmarks(userid int) ([]Bookmark, error) {
 	iUserID := int64(userid)
-	rows, err := db.Query("SELECT `ID`, `UserID`, `GroupID`, `MessageID`, `Alias`, `Status`, `MessageContent` FROM Bookmarks WHERE `UserID`=?", iUserID)
+	rows, err := db.Query("SELECT `ID`, `UserID`, `GroupID`, `MessageID`, `Alias`, `Status`, `MessageContent` FROM Bookmarks WHERE `UserID`=? ORDER BY `GroupID`", iUserID)
 	defer rows.Close()
 	if err != nil {
 		db.AddLogEvent(Log{Event: "GetUserBookmarks_ErorExecutingTheQuery", Message: "Impossible to get afftected rows", Error: err.Error()})
