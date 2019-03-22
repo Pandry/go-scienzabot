@@ -498,48 +498,6 @@ func callbackQueryRoute(ctx *Context) {
 							callbackQueryRoute(ctx)
 							//Redurect to group lists
 						}
-						/*
-							rows := make([][]tba.InlineKeyboardButton, 0)
-							leftOffset := offset - 1
-							if leftOffset < 0 {
-								leftOffset = 0
-							}
-							leftBtn := tba.NewInlineKeyboardButtonData("‌‌ ", "ignore")
-							if offset > 0 {
-								leftBtn = tba.NewInlineKeyboardButtonData("⬅️", "bk-"+strconv.FormatInt(groupID, 10)+"-"+strconv.Itoa(leftOffset))
-							}
-
-							backBtn := tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("backText", locale), "bgo-0")
-							if offset == 0 {
-								leftBtn = backBtn
-							}
-							deleteBookmarkBtn := tba.NewInlineKeyboardButtonData("🗑", "bkd-"+strconv.FormatInt(groupID, 10)+"-"+strconv.Itoa(offset))
-							tagMessageBookmarkBtn := tba.NewInlineKeyboardButtonData("📳", "tbk-"+strconv.FormatInt(groupID, 10)+"-"+strconv.Itoa(offset))
-							rightBtn := tba.NewInlineKeyboardButtonData("‌‌ ", "ignore")
-							if len(bms)-1 > offset {
-								rightBtn = tba.NewInlineKeyboardButtonData("➡️‌‌️️️️️️️", "bk-"+strconv.FormatInt(groupID, 10)+"-"+strconv.Itoa(offset+1))
-							}
-
-							rows = append(rows, []tba.InlineKeyboardButton{leftBtn, deleteBookmarkBtn, tagMessageBookmarkBtn, rightBtn})
-
-							bookmarkedMessageSender, err := ctx.Database.GetUser(int(bms[offset].UserID))
-							messageBody := "<b>From</b>: <a href=\"tg://user?id=" + strconv.Itoa(int(bms[offset].UserID)) + "\">"
-							if err == nil {
-								messageBody += bookmarkedMessageSender.Nickname
-							} else {
-								messageBody += strconv.Itoa(int(bms[offset].UserID))
-							}
-							messageBody += "</a>\n"
-							if bms[offset].Alias != "" {
-								messageBody += "<b>Alias</b>: " + bms[offset].Alias + "\n"
-							}
-							messageBody += "<b>Saved on</b>: " + bms[offset].CreationDate.Format(time.RFC1123) + "\n"
-							messageBody += "<b>Content</b>: " + bms[offset].MessageContent
-
-							editInlineMessageWithInlineKeyboard(ctx, messageBody, tba.InlineKeyboardMarkup{InlineKeyboard: rows}, tba.ModeHTML)
-							//replyMessageDBWithInlineKeyboard(ctx, "bookmarksGroups", tba.InlineKeyboardMarkup{InlineKeyboard: rows})
-							//editInlineMessageDBWithInlineKeyboard(ctx, tba.InlineKeyboardMarkup{InlineKeyboard: rows})
-						*/
 					} else {
 						//there are no bookmarks
 					}
