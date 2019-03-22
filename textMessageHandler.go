@@ -623,7 +623,7 @@ func textMessageRoute(ctx *Context) {
 						if len(args) > 1 {
 							alias = strings.Replace(message.Text, args[0], "", 1)
 						}
-						err = ctx.Database.CreateBookmark(database.Bookmark{GroupID: message.Chat.ID, UserID: int64(message.From.ID), MessageID: int64(message.ReplyToMessage.MessageID), MessageContent: escapeMessage(message.ReplyToMessage.Text), Alias: alias})
+						err = ctx.Database.CreateBookmark(database.Bookmark{GroupID: message.Chat.ID, UserID: int64(message.From.ID), MessageID: int64(message.ReplyToMessage.MessageID), MessageContent: escapeMessage(message.ReplyToMessage.Text), Alias: alias, CreationDate: message.Time()})
 						if err == nil {
 							replyDbMessageWithCloseButton(ctx, "bookmarkAdded")
 						} else {
@@ -970,6 +970,9 @@ func textMessageRoute(ctx *Context) {
 							word[len(word)-1] == ';' || word[len(word)-1] == ':' ||
 							word[len(word)-1] == '?' || word[len(word)-1] == '!' {
 							word = word[:len(word)-2]
+							if len(word) < 2 {
+								continue
+							}
 						}
 
 						//And hase the prefix
