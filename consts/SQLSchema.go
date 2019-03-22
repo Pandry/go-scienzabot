@@ -487,11 +487,26 @@ The user can now invoke lists again!", "en");
 INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("backText","⏮ Indietro", "it");
 INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("backText","⏮ Back", "en");
 
-
 -- bookmarksMessage
 INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("bookmarksMessage","Qui trovi i gruppi in cui hai salvato dei segnalibri.
 Tappa un gruppo per vedere i segnalibri salvati all'interno", "it");
 INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("bookmarksMessage","Here yuo can find the groups you saves some messages in.
 Tap on a group name to see the bookmarks saved in the groups.", "en");
+
+-- bookmarkFromText
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("bookmarkFromText","Da", "it");
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("bookmarkFromText","From", "en");
+
+-- bookmarkAliasText
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("bookmarkAliasText","Nota", "it");
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("bookmarkAliasText","Note", "en");
+
+-- bookmarkSavedonText
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("bookmarkSavedonText","Salvato il", "it");
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("bookmarkSavedonText","Saved on", "en");
+
+-- bookmarkContentText
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("bookmarkContentText","Messaggio salvato", "it");
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("bookmarkContentText","Saved message", "en");
 
 `

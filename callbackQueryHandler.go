@@ -413,7 +413,7 @@ func callbackQueryRoute(ctx *Context) {
 						rows = append(rows, []tba.InlineKeyboardButton{leftBtn, deleteBookmarkBtn, tagMessageBookmarkBtn, rightBtn})
 
 						bookmarkedMessageSender, err := ctx.Database.GetUser(int(bms[offset].UserID))
-						messageBody := "<b>From</b>: <a href=\"tg://user?id=" + strconv.Itoa(int(bms[offset].UserID)) + "\">"
+						messageBody := "<b>" + ctx.Database.GetBotStringValueOrDefaultNoError("bookmarkFromText", locale) + "</b>: <a href=\"tg://user?id=" + strconv.Itoa(int(bms[offset].UserID)) + "\">"
 						if err == nil {
 							messageBody += bookmarkedMessageSender.Nickname
 						} else {
@@ -421,11 +421,11 @@ func callbackQueryRoute(ctx *Context) {
 						}
 						messageBody += "</a>\n"
 						if bms[offset].Alias != "" {
-							messageBody += "<b>Alias</b>: " + bms[offset].Alias + "\n"
+							messageBody += "<b>" + ctx.Database.GetBotStringValueOrDefaultNoError("bookmarkAliasText", locale) + "</b>: " + bms[offset].Alias + "\n"
 						}
 						location, _ := time.LoadLocation("Europe/Rome")
-						messageBody += "<b>Saved on</b>: " + bms[offset].CreationDate.In(location).Format("02/01/2006 15:04") + "\n"
-						messageBody += "<b>Content</b>: " + bms[offset].MessageContent
+						messageBody += "<b>" + ctx.Database.GetBotStringValueOrDefaultNoError("bookmarkSavedonText", locale) + "</b>: " + bms[offset].CreationDate.In(location).Format("02/01/2006 15:04") + "\n"
+						messageBody += "<b>" + ctx.Database.GetBotStringValueOrDefaultNoError("bookmarkContentText", locale) + "</b>: " + bms[offset].MessageContent
 
 						editInlineMessageWithInlineKeyboard(ctx, messageBody, tba.InlineKeyboardMarkup{InlineKeyboard: rows}, tba.ModeHTML)
 						//replyMessageDBWithInlineKeyboard(ctx, "bookmarksGroups", tba.InlineKeyboardMarkup{InlineKeyboard: rows})
@@ -501,7 +501,6 @@ func callbackQueryRoute(ctx *Context) {
 					} else {
 						//there are no bookmarks
 					}
-
 				} //fi err==nil
 
 			} //fi base args check
