@@ -21,7 +21,7 @@ steps:
   - golint .
   - go vet .
   - maligned ./...
-  - (echo "Complexity Package Function File Row Column" && gocyclo -over 15 . | sed "s/:/ /g" ) | column -t -s' '
+  - (echo "Complexity Package Function File Row Column" && gocyclo -over 15 . | sed "s/:/ /g" ) | awk -vOFS='\t' '{ print $1, $2, $3, $4, $5, $6 }'
   when:
     branch:
       exclude:
