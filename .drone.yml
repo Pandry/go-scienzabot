@@ -22,7 +22,7 @@ steps:
   - go vet .
   - maligned ./...
   - go get github.com/Pandry/gocol
-  - (echo "Complexity Package Function File Row Column" && gocyclo -over 15 . | sed "s/:/ /g" ) | gocol
+  - (echo "Complexity Package Function File Row Column" && gocyclo -over 15 . | sed "s/:/ /g" ) | gocol -c " " -d " " -t 4 -p 2
   when:
     branch:
       exclude:
