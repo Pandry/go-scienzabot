@@ -17,9 +17,15 @@ steps:
   commands:
   - go get -u golang.org/x/lint/golint
   - go get github.com/mdempsky/maligned
+  - go get github.com/fzipp/gocyclo
   - golint .
   - go vet .
   - maligned ./...
+  - gocyclo -over 15 .
+  when:
+    branch:
+      exclude:
+        - prod
   
 - name: Statically compiling the solution
   image: golang
