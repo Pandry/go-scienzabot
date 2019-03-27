@@ -21,7 +21,7 @@ steps:
   - golint .
   - go vet .
   - maligned ./...
-  - gocyclo -over 15 .
+  - (echo "Complexity Package Function File Row Column" && gocyclo -over 15 . | sed "s/:/ /g" ) | column -t -s' '
   when:
     branch:
       exclude:
