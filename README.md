@@ -17,9 +17,11 @@ A list is called via a special character prepending the name of the list (`@`, `
 When a list is called, the bot contacts via private message all the users **subscribed** to the list.  
 A **subscription** is the relationship a user creates when he __joins__ a list.
 If the group where the list was called is private, the bot will just say that a list was **invoked**, providing the possibility to see the message by tapping on a inline keyboard button to be tagged at the message:  
+![](https://vgy.me/T3509h.png)
 
 If instead the group is public, the bot will also provide 2 additional buttons; One that takes the user to the group, and the other one the the message in the group:  
-
+![](https://vgy.me/lvcVOh.png)
+  
 The user also provide the possibility too "bookmark" a message.
 Basically the message get saved and a user can see it later in time.
 
