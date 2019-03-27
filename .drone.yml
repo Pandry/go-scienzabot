@@ -21,8 +21,8 @@ steps:
   - golint .
   - go vet .
   - maligned ./...
-  - apt-get install bsdmainutils -y > /dev/null
-  - (echo "Complexity Package Function File Row Column" && gocyclo -over 15 . | sed "s/:/ /g" ) | column -t -s' '
+  - go get github.com/Pandry/gocol
+  - (echo "Complexity Package Function File Row Column" && gocyclo -over 15 . | sed "s/:/ /g" ) | gocol
   when:
     branch:
       exclude:
