@@ -17,9 +17,16 @@ steps:
   commands:
   - go get -u golang.org/x/lint/golint
   - go get github.com/mdempsky/maligned
+  - go get github.com/fzipp/gocyclo
   - golint .
   - go vet .
   - maligned ./...
+  - go get github.com/Pandry/gocol
+  - (echo "Complexity Package Function File Row Column" && gocyclo -over 15 . | sed "s/:/ /g" ) | gocol -c " " -d " " -t 4 -p 2
+  when:
+    branch:
+      exclude:
+        - prod
   
 - name: Statically compiling the solution
   image: golang
