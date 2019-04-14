@@ -34,7 +34,7 @@ func (db *SQLiteDB) SettingExists(key string) bool {
 }
 
 //GetSettingValue searches for the value in the database
-func (db *SQLiteDB) GetSettingValue(key string, group int) (string, error) {
+func (db *SQLiteDB) GetSettingValue(key string, group int64) (string, error) {
 	val := ""
 	err := db.QueryRow("SELECT Value FROM `Settings` WHERE `Key` = ? AND `GroupID` = ?",
 		key, group).Scan(&val)
@@ -69,7 +69,7 @@ func (db *SQLiteDB) GetSettingValue(key string, group int) (string, error) {
 }
 
 //SetSettingValue sets a value in the bot settings table
-func (db *SQLiteDB) SetSettingValue(key string, value string, group int) error {
+func (db *SQLiteDB) SetSettingValue(key string, value string, group int64) error {
 	query, err := db.Exec("INSERT INTO Settings (`Key`, `Value` , `GroupID`) VALUES (?,?,?) "+
 		"ON CONFLICT(`Key`, `GroupID`) DO UPDATE SET `Value` = Excluded.Value", key, value, group)
 	if err != nil {
