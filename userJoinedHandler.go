@@ -60,7 +60,8 @@ func userJoinedRoute(ctx *Context) {
 
 			//The user can't send messages, so he's already limited.
 			//We don't care about him
-			if !chatMemberResult.CanSendMessages {
+			//Can be "member" or "restricted" so far (need to check doc)
+			if chatMemberResult.Status == "restricted" {
 				continue
 			}
 
