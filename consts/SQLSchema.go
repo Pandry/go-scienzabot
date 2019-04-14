@@ -269,9 +269,9 @@ The developer (@Pandry) has been notified.
 You are kindly asked to text him telling what you've done to see this.", "en");
 
 -- generalSuccess
-INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("generalError","✅ Successo!", "it");
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("generalSuccess","✅ Successo!", "it");
 
-INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("generalError","✅ Success!", "en");
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("generalSuccess","✅ Success!", "en");
 
 
 -- User added strings
