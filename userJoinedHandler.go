@@ -43,4 +43,69 @@ func userJoinedRoute(ctx *Context) {
 		}
 	}
 
+	//Let's check if the antibot is enabled
+	botCheckerEnabled, err := ctx.Database.GetSettingValue("botCheckerEnabled", ctx.Update.Message.Chat.ID)
+	if err == nil && botCheckerEnabled == "y" {
+		//Let's block the users
+		falseBool := false
+		for _, usr := range members {
+			//If a user is already subscribed to the bot, he's probably not a userbot
+			_, err := ctx.Database.GetUser(usr.ID)
+			if err == nil {
+				continue
+			}
+
+			// We need to be sure that the user is not already restricted
+			chatMemberResult, err := ctx.Bot.GetChatMember(tba.ChatConfigWithUser{ChatID: ctx.Update.Message.Chat.ID, UserID: usr.ID})
+
+			//The user can't send messages, so he's already limited.
+			//We don't care about him
+			if !chatMemberResult.CanSendMessages {
+				continue
+			}
+
+			resp, err := ctx.Bot.RestrictChatMember(tba.RestrictChatMemberConfig{
+				CanSendMessages: &falseBool,
+				ChatMemberConfig: tba.ChatMemberConfig{
+					ChatID: ctx.Update.Message.Chat.ID,
+					UserID: usr.ID}})
+			//All the new users are now blocked
+			//We then need to send a message to each of them to let them click the button to verify they are not a bot
+			//gotta make this stateless...
+			//
+			//IDEAL CAPTCHA
+			//Thinking about a "easy" number test
+			//Questions like "How may days has the month of feb in the year 2021?" A: 28
+			//Questions like "How may legs had the Napoleon's 3-legs horse?" A: 3
+			//Questions like "How many engineers does it take to change a light bulb?" - A: 2
+			//Questions like "30 + 1"
+			// <message>
+			//[1] [2] [3] [4] [5]
+			//[6] [7] [8] [9] [10]
+			//[11] [12] [13] [14] [15]
+			//[16] [17] [18] [19] [20]
+			//[21] [22] [23] [24] [25]
+			//[26] [27] [28] [29] [30]
+			//[31] [32] [33] [34] [35]
+			//[36] [37] [38] [39] [40]
+
+			//This is a temporary solution; in future it could be a good idea to change it
+			if err == nil && resp.Ok {
+				//TODO: A good idea could be a countdown to delete the message after a while
+				message := tba.NewMessage(ctx.Update.Message.Chat.ID, ctx.Database.GetBotStringValueOrDefaultNoError("captchaMessageText", usr.LanguageCode))
+				message.ReplyToMessageID = ctx.Update.Message.MessageID
+				message.ReplyMarkup = tba.NewInlineKeyboardMarkup(
+					tba.NewInlineKeyboardRow(
+						tba.NewInlineKeyboardButtonData(
+							ctx.Database.GetBotStringValueOrDefaultNoError("captchaVerifyButtonText", usr.LanguageCode), "verify-")))
+				ctx.Bot.Send(message)
+
+				// I gotta be sure a user cannot reproduce the click in case is banned via telegram or another method...
+				// In a stateless way...
+				// TODO: check that the bat can actually see if the user joined the group (for the first time)
+			}
+
+		}
+
+	}
 }

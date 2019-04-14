@@ -528,6 +528,29 @@ func callbackQueryRoute(ctx *Context) {
 			}
 			break
 
+		case "verify":
+			//We check that the user who tapped the message is the same who joined
+			if message.From.ID == message.Message.ReplyToMessage.From.ID {
+				trueBool := true
+				resp, err := ctx.Bot.RestrictChatMember(tba.RestrictChatMemberConfig{
+					CanSendMessages: &trueBool,
+					ChatMemberConfig: tba.ChatMemberConfig{
+						ChatID: ctx.Update.Message.Chat.ID,
+						UserID: message.From.ID}})
+				if err == nil && resp.Ok == true {
+					//Send the success message to the user
+					ctx.Bot.AnswerCallbackQuery(tba.CallbackConfig{CallbackQueryID: message.ID,
+						Text: ctx.Database.GetBotStringValueOrDefaultNoError("callbackQueryAnswerSuccess", locale)})
+
+					ctx.Update.CallbackQuery.Data = "delme-"
+					callbackQueryRoute(ctx)
+				} else {
+					ctx.Bot.AnswerCallbackQuery(tba.CallbackConfig{CallbackQueryID: message.ID,
+						Text: ctx.Database.GetBotStringValueOrDefaultNoError("callbackQueryAnswerError", locale)})
+				}
+			}
+			break
+
 		}
 		break
 
