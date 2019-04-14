@@ -535,7 +535,7 @@ func callbackQueryRoute(ctx *Context) {
 				resp, err := ctx.Bot.RestrictChatMember(tba.RestrictChatMemberConfig{
 					CanSendMessages: &trueBool,
 					ChatMemberConfig: tba.ChatMemberConfig{
-						ChatID: ctx.Update.Message.Chat.ID,
+						ChatID: message.Message.Chat.ID,
 						UserID: message.From.ID}})
 				if err == nil && resp.Ok {
 					//Send the success message to the user
