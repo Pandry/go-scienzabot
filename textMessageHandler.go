@@ -767,7 +767,7 @@ func textMessageRoute(ctx *Context) {
 						return
 					}
 					//If there was no issue, update the setting in the database
-					err = ctx.Database.SetSettingValue("listInterval", args[1], int(message.Chat.ID))
+					err = ctx.Database.SetSettingValue("listInterval", args[1], message.Chat.ID)
 					if err == nil {
 						replyDbMessageWithCloseButton(ctx, "listintervalSuccess")
 						//Send success command
@@ -797,7 +797,7 @@ func textMessageRoute(ctx *Context) {
 						return
 					}
 					//If there was no issue, update the setting in the database
-					err = ctx.Database.SetSettingValue("userInterval", args[1], int(message.Chat.ID))
+					err = ctx.Database.SetSettingValue("userInterval", args[1], message.Chat.ID)
 					if err == nil {
 						replyDbMessageWithCloseButton(ctx, "userintervalSuccess")
 						//Send success command
@@ -827,7 +827,7 @@ func textMessageRoute(ctx *Context) {
 						return
 					}
 					//If there was no issue, update the setting in the database
-					err = ctx.Database.SetSettingValue("userActivity", args[1], int(message.Chat.ID))
+					err = ctx.Database.SetSettingValue("userActivity", args[1], message.Chat.ID)
 					if err == nil {
 						replyDbMessageWithCloseButton(ctx, "useractivitySuccess")
 						//Send success command
