@@ -934,7 +934,7 @@ func textMessageRoute(ctx *Context) {
 		//If the message is in a group we can check for thins like lists invocations etc
 		if messageInGroup && (userIsBotAdmin || userIsGroupAdmin || !utils.HasPermission(userPermission, consts.UserPermissionListBanned)) {
 			//Get the user interval if present
-			userIntervalString, userIntervalError := ctx.Database.GetSettingValue("userInterval", int(message.Chat.ID))
+			userIntervalString, userIntervalError := ctx.Database.GetSettingValue("userInterval", message.Chat.ID)
 			//If it's nil the setting exists
 			if userIntervalError == nil {
 				//Convert the string to a timespan
@@ -1035,7 +1035,7 @@ func textMessageRoute(ctx *Context) {
 
 			var listInterval time.Duration
 			//We get the minimum interval a list should be called
-			intervalString, intervalError := ctx.Database.GetSettingValue("listInterval", int(message.Chat.ID))
+			intervalString, intervalError := ctx.Database.GetSettingValue("listInterval", message.Chat.ID)
 			if intervalError == nil {
 				listInterval, intervalError = time.ParseDuration(intervalString)
 			}
@@ -1067,7 +1067,7 @@ func textMessageRoute(ctx *Context) {
 				{
 					var maxAbsencePeriodString string
 					//Get the max absence period of the group
-					maxAbsencePeriodString, intervalError = ctx.Database.GetSettingValue("userActivity", int(message.Chat.ID))
+					maxAbsencePeriodString, intervalError = ctx.Database.GetSettingValue("userActivity", message.Chat.ID)
 					//If there's no error
 					if intervalError == nil {
 						//Set the max absence period
