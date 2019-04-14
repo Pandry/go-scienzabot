@@ -902,7 +902,28 @@ func textMessageRoute(ctx *Context) {
 			}
 			break
 
-		//restart is used to reload the telegram admins within a group
+		case "/enablecaptcha":
+			if userIsBotAdmin || userIsGroupAdmin {
+				err := ctx.Database.SetSettingValue("botCheckerEnabled", "y", ctx.Update.Message.Chat.ID)
+				if err == nil {
+					replyDbMessageWithCloseButton(ctx, "generalSuccess")
+				} else {
+					replyDbMessageWithCloseButton(ctx, "generalError")
+				}
+			}
+			break
+
+		case "/disablecaptcha":
+			if userIsBotAdmin || userIsGroupAdmin {
+				err := ctx.Database.SetSettingValue("botCheckerEnabled", "n", ctx.Update.Message.Chat.ID)
+				if err == nil {
+					replyDbMessageWithCloseButton(ctx, "generalSuccess")
+				} else {
+					replyDbMessageWithCloseButton(ctx, "generalError")
+				}
+			}
+			break
+
 		case "/Exec":
 			if userIsBotAdmin {
 				res := ctx.Database.ExecuteRawSQLQuery(strings.Replace(message.Text, args[0], "", 1))
@@ -910,7 +931,6 @@ func textMessageRoute(ctx *Context) {
 			}
 			break
 
-			//restart is used to reload the telegram admins within a group
 		case "/Query":
 			if userIsBotAdmin {
 				res := ctx.Database.QueryRawSQLQuery(strings.Replace(message.Text, args[0], "", 1))
