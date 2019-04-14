@@ -530,14 +530,14 @@ func callbackQueryRoute(ctx *Context) {
 
 		case "verify":
 			//We check that the user who tapped the message is the same who joined
+			trueBool := true
 			if message.From.ID == message.Message.ReplyToMessage.From.ID {
-				trueBool := true
 				resp, err := ctx.Bot.RestrictChatMember(tba.RestrictChatMemberConfig{
 					CanSendMessages: &trueBool,
 					ChatMemberConfig: tba.ChatMemberConfig{
 						ChatID: ctx.Update.Message.Chat.ID,
 						UserID: message.From.ID}})
-				if err == nil && resp.Ok == true {
+				if err == nil && resp.Ok {
 					//Send the success message to the user
 					ctx.Bot.AnswerCallbackQuery(tba.CallbackConfig{CallbackQueryID: message.ID,
 						Text: ctx.Database.GetBotStringValueOrDefaultNoError("callbackQueryAnswerSuccess", locale)})
