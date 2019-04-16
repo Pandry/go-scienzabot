@@ -15,7 +15,17 @@
      Dato che il gruppo per il quale il bot è stato creato ([@Scienza](https://t.me/Scienza)) è molto grande e vengono affrontati molti argomenti eterogenei, il bot si prefigge di contattare le persone competenti o interessate in un determinato argomento.  
      Ogni argomento è astratto mediante il concetto di "lista".  
      Una lista è fondamentalmente un topic, e quando questa viene "invocata" (richiamata), tutte le persone "iscritte" alla lista (le persone interessate in un argomento), vengono contattate in chat privata e notificate riguardo la richiesta della loro attenzione alla luce di un determinato argomento.  
+  </details>
 
+  <details>
+  <summary>Come si usa? </summary>
+     Per prima cosa occorre registrarsi.  
+     La registrazione è un processo semplice e rapido, e consiste nell'inviare in **chat privata** al bot il comando `/signup`.  
+     Una volta registrati, sarà possibile fare uso delle funzioni del bot.
+     Per __iscriversi__ ad una lista (esprimendo interesse verso un argomento), è sufficiente scrivere nel gruppo in questione il comando `/join`. Il bot replicherà con un messaggio nel quale, mediante i bottoni presenti nel messaggio di risposta, sarà possibile visualizzare tutte le __liste__ presenti nel gruppo ed iscriversi "tappando" su ogni lista alla quale si è interessati.  
+     Quando un argomento viene trattato, è sufficiente scrivere il nome dell'argomento (della lista) preceduto da un cancelletto (`#`).
+     È possibile richiamare più liste in un solo messaggio.  
+     Così facendo, il bot contatterà tutte le persone interessate all'argomento in chat privata, e sarà possibile interagire con persone interessate all'argomento in questione.
   </details>
 
   <details>
@@ -27,7 +37,7 @@
 
   <details>
   <summary>Posso utilizzare il bot in un mio gruppo? </summary>
-     Il bot è stato scritto con più gruppi in mente, senza necessità di intervento da parte mia.  
+     Il bot è stato scritto con l possibilità di usare gruppi, senza necessità di intervento da parte di terzi.  
      Tuttavia una notifica riguardo l'utlizzo del bot nel vostro gruppo è comunque gradita e mi fa piacere sapere che è usato :)  
    </details>
 
