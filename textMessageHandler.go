@@ -116,21 +116,19 @@ func textMessageRoute(ctx *Context) {
 		//Remove an eventual @botusername from the string
 		// Then split the message using spaces as separators and use the switch to select the command, if exists
 		switch args := strings.Split(strings.Replace(message.Text, "@"+ctx.Bot.Self.UserName, "", 1), " "); args[0] {
-		case "/start":
-			break
 
 		//Exists just shows if a user exists in the database
-		case "/exists":
-			msg := "You do "
-			if !userExists {
-				msg += "not "
-			}
-			msg += "exist."
-			replyMessageWithCloseButton(ctx, msg)
-			break
+		/*case "/exists":
+		msg := "You do "
+		if !userExists {
+			msg += "not "
+		}
+		msg += "exist."
+		replyMessageWithCloseButton(ctx, msg)
+		break*/
 
 		// Help message
-		case "/help", "/aiuto", "/aiutami":
+		case "/help", "/aiuto", "/aiutami", "/start":
 			if messageInGroup {
 				messageBody = "onPrivateChatCommand"
 			} else {
