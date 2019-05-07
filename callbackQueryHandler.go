@@ -533,7 +533,10 @@ func callbackQueryRoute(ctx *Context) {
 			trueBool := true
 			if message.From.ID == message.Message.ReplyToMessage.From.ID {
 				resp, err := ctx.Bot.RestrictChatMember(tba.RestrictChatMemberConfig{
-					CanSendMessages: &trueBool,
+					CanAddWebPagePreviews: &trueBool,
+					CanSendMessages:       &trueBool,
+					CanSendMediaMessages:  &trueBool,
+					CanSendOtherMessages:  &trueBool,
 					ChatMemberConfig: tba.ChatMemberConfig{
 						ChatID: message.Message.Chat.ID,
 						UserID: message.From.ID}})
@@ -544,6 +547,8 @@ func callbackQueryRoute(ctx *Context) {
 
 					ctx.Update.CallbackQuery.Data = "delme-"
 					callbackQueryRoute(ctx)
+
+					replyToMessageWithDBText(ctx, ctx.Update.CallbackQuery.Message.ReplyToMessage, "userVerifiedSuccessfully")
 				} else {
 					ctx.Bot.AnswerCallbackQuery(tba.CallbackConfig{CallbackQueryID: message.ID,
 						Text: ctx.Database.GetBotStringValueOrDefaultNoError("callbackQueryAnswerError", locale)})
