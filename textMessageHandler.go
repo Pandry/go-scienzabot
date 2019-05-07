@@ -1261,6 +1261,14 @@ func replyDbMessage(ctx *Context, keyString string) {
 	messageToSend.ReplyToMessageID = ctx.Update.Message.MessageID
 	ctx.Bot.Send(messageToSend)
 }
+
+func replyToMessageWithDBText(ctx *Context, message *tba.Message, keyString string) {
+	messageBody := ctx.Database.GetBotStringValueOrDefaultNoError(keyString, message.From.LanguageCode)
+	messageToSend := tba.NewMessage(message.Chat.ID, messageBody)
+	messageToSend.ReplyToMessageID = message.MessageID
+	ctx.Bot.Send(messageToSend)
+}
+
 func replyDbMessageWithCloseButton(ctx *Context, keyString string) {
 	messageBody := ctx.Database.GetBotStringValueOrDefaultNoError(keyString, ctx.Update.Message.From.LanguageCode)
 	messageToSend := tba.NewMessage(ctx.Update.Message.Chat.ID, messageBody)
