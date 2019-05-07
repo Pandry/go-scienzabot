@@ -517,8 +517,14 @@ INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("bookmarkContentTe
 -- captchaMessageText
 INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("captchaMessageText","Per favore, clicca sul bottone sottostante per verificarti e poter interagire nel gruppo.", "it");
 INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("captchaMessageText","Please, tap on the button below to verify yourself and be able to chat in the group.", "en");
+
 -- captchaVerifyButtonText
 INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("captchaVerifyButtonText","✅ Verificami ", "it");
 INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("captchaVerifyButtonText","✅ Verify me", "en");
+
+-- userVerifiedSuccessfully
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("userVerifiedSuccessfully","✅ Utente verificato con successo ", "it");
+INSERT OR IGNORE INTO BotStrings (Key, Value, Locale) VALUES ("userVerifiedSuccessfully","✅ User verified successfully", "en");
+
 
 `
