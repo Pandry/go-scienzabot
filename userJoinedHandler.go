@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	tba "github.com/go-telegram-bot-api/telegram-bot-api"
 	"time"
 )
@@ -94,23 +95,45 @@ func userJoinedRoute(ctx *Context) {
 			//This is a temporary solution; in future it could be a good idea to change it
 			if err == nil && resp.Ok {
 				//TODO: A good idea could be a countdown to delete the message after a while
+
+				waitDuration, _ := time.ParseDuration("10s")
+
 				message := tba.NewMessage(ctx.Update.Message.Chat.ID, ctx.Database.GetBotStringValueOrDefaultNoError("captchaMessageText", usr.LanguageCode))
 				message.ReplyToMessageID = ctx.Update.Message.MessageID
+				message.ReplyMarkup = tba.NewInlineKeyboardMarkup(
+					tba.NewInlineKeyboardRow(
+						tba.NewInlineKeyboardButtonData(
+							fmt.Sprintf("%f:%f:%f", waitDuration.Hours(), waitDuration.Minutes(), waitDuration.Seconds()), "lolnothing-")))
 				m, err := ctx.Bot.Send(message)
 				if err == nil {
+
+					unlockButtonTimer, timerIsStopped := time.NewTimer(waitDuration), false
 					//If we had no issues sending the message, we start an async function
-					//ACTUALLY, the message  elaboration is already inside a goroutine per itself, so
-					// another async is just a waste
+					go func() {
+						<-unlockButtonTimer.C
+						timerIsStopped = true
+						ctx.Bot.Send(
+							tba.NewEditMessageReplyMarkup(m.Chat.ID, m.MessageID,
+								tba.NewInlineKeyboardMarkup(
+									tba.NewInlineKeyboardRow(
+										tba.NewInlineKeyboardButtonData(
+											ctx.Database.GetBotStringValueOrDefaultNoError("captchaVerifyButtonText", usr.LanguageCode), "verify-")))))
+					}()
+
+					for !timerIsStopped {
+						//timer is running
+						time.Sleep(1 * time.Second)
+						waitDuration = (time.Duration)(waitDuration.Nanoseconds() - 1*time.Second.Nanoseconds())
+						ctx.Bot.Send(
+							tba.NewEditMessageReplyMarkup(m.Chat.ID, m.MessageID,
+								tba.NewInlineKeyboardMarkup(
+									tba.NewInlineKeyboardRow(
+										tba.NewInlineKeyboardButtonData(
+											fmt.Sprintf("%f:%f:%f", waitDuration.Hours(), waitDuration.Minutes(), waitDuration.Seconds()), "lolnothing-")))))
+					}
 
 					//Here we're waiting 10 seconds to put the button in the message...
 					// Hopefully, userbots aren't clever enough to consider this...
-					time.Sleep(10 * time.Second)
-					ctx.Bot.Send(
-						tba.NewEditMessageReplyMarkup(m.Chat.ID, m.MessageID,
-							tba.NewInlineKeyboardMarkup(
-								tba.NewInlineKeyboardRow(
-									tba.NewInlineKeyboardButtonData(
-										ctx.Database.GetBotStringValueOrDefaultNoError("captchaVerifyButtonText", usr.LanguageCode), "verify-")))))
 				}
 
 				// I gotta be sure a user cannot reproduce the click in case is banned via telegram or another method...
