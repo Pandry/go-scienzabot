@@ -103,7 +103,7 @@ func userJoinedRoute(ctx *Context) {
 				message.ReplyMarkup = tba.NewInlineKeyboardMarkup(
 					tba.NewInlineKeyboardRow(
 						tba.NewInlineKeyboardButtonData(
-							fmt.Sprintf("%f:%f:%f", waitDuration.Hours(), waitDuration.Minutes(), waitDuration.Seconds()), "lolnothing-")))
+							fmt.Sprintf("%.0f:%.0f:%.0f", waitDuration.Hours(), waitDuration.Minutes(), waitDuration.Seconds()), "lolnothing-")))
 				m, err := ctx.Bot.Send(message)
 				if err == nil {
 
@@ -112,6 +112,7 @@ func userJoinedRoute(ctx *Context) {
 					go func() {
 						<-unlockButtonTimer.C
 						timerIsStopped = true
+						time.Sleep(500 * time.Millisecond)
 						ctx.Bot.Send(
 							tba.NewEditMessageReplyMarkup(m.Chat.ID, m.MessageID,
 								tba.NewInlineKeyboardMarkup(
@@ -129,7 +130,7 @@ func userJoinedRoute(ctx *Context) {
 								tba.NewInlineKeyboardMarkup(
 									tba.NewInlineKeyboardRow(
 										tba.NewInlineKeyboardButtonData(
-											fmt.Sprintf("%f:%f:%f", waitDuration.Hours(), waitDuration.Minutes(), waitDuration.Seconds()), "lolnothing-")))))
+											fmt.Sprintf("%.0f:%.0f:%.0f", waitDuration.Hours(), waitDuration.Minutes(), waitDuration.Seconds()), "lolnothing-")))))
 					}
 
 					//Here we're waiting 10 seconds to put the button in the message...
