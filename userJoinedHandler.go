@@ -112,7 +112,6 @@ func userJoinedRoute(ctx *Context) {
 					go func() {
 						<-unlockButtonTimer.C
 						timerIsStopped = true
-						time.Sleep(500 * time.Millisecond)
 						ctx.Bot.Send(
 							tba.NewEditMessageReplyMarkup(m.Chat.ID, m.MessageID,
 								tba.NewInlineKeyboardMarkup(
@@ -121,6 +120,7 @@ func userJoinedRoute(ctx *Context) {
 											ctx.Database.GetBotStringValueOrDefaultNoError("captchaVerifyButtonText", usr.LanguageCode), "verify-")))))
 					}()
 
+					waitDuration = (time.Duration)(waitDuration.Nanoseconds() - 1*time.Second.Nanoseconds())
 					for !timerIsStopped {
 						//timer is running
 						time.Sleep(1 * time.Second)
