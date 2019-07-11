@@ -98,15 +98,19 @@ func userJoinedRoute(ctx *Context) {
 				message.ReplyToMessageID = ctx.Update.Message.MessageID
 				m, err := ctx.Bot.Send(message)
 				if err == nil {
-					go func() {
-						time.Sleep(10 * time.Second)
-						ctx.Bot.Send(
-							tba.NewEditMessageReplyMarkup(m.Chat.ID, m.MessageID,
-								tba.NewInlineKeyboardMarkup(
-									tba.NewInlineKeyboardRow(
-										tba.NewInlineKeyboardButtonData(
-											ctx.Database.GetBotStringValueOrDefaultNoError("captchaVerifyButtonText", usr.LanguageCode), "verify-")))))
-					}()
+					//If we had no issues sending the message, we start an async function
+					//ACTUALLY, the message  elaboration is already inside a goroutine per itself, so
+					// another async is just a waste
+
+					//Here we're waiting 10 seconds to put the button in the message...
+					// Hopefully, userbots aren't clever enough to consider this...
+					time.Sleep(10 * time.Second)
+					ctx.Bot.Send(
+						tba.NewEditMessageReplyMarkup(m.Chat.ID, m.MessageID,
+							tba.NewInlineKeyboardMarkup(
+								tba.NewInlineKeyboardRow(
+									tba.NewInlineKeyboardButtonData(
+										ctx.Database.GetBotStringValueOrDefaultNoError("captchaVerifyButtonText", usr.LanguageCode), "verify-")))))
 				}
 
 				// I gotta be sure a user cannot reproduce the click in case is banned via telegram or another method...
