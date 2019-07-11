@@ -2,6 +2,7 @@ package main
 
 import (
 	tba "github.com/go-telegram-bot-api/telegram-bot-api"
+	"time"
 )
 
 func userJoinedRoute(ctx *Context) {
@@ -95,11 +96,18 @@ func userJoinedRoute(ctx *Context) {
 				//TODO: A good idea could be a countdown to delete the message after a while
 				message := tba.NewMessage(ctx.Update.Message.Chat.ID, ctx.Database.GetBotStringValueOrDefaultNoError("captchaMessageText", usr.LanguageCode))
 				message.ReplyToMessageID = ctx.Update.Message.MessageID
-				message.ReplyMarkup = tba.NewInlineKeyboardMarkup(
-					tba.NewInlineKeyboardRow(
-						tba.NewInlineKeyboardButtonData(
-							ctx.Database.GetBotStringValueOrDefaultNoError("captchaVerifyButtonText", usr.LanguageCode), "verify-")))
-				ctx.Bot.Send(message)
+				m, err := ctx.Bot.Send(message)
+				if err == nil {
+					go func() {
+						time.Sleep(10 * time.Second)
+						ctx.Bot.Send(
+							tba.NewEditMessageReplyMarkup(m.Chat.ID, m.MessageID,
+								tba.NewInlineKeyboardMarkup(
+									tba.NewInlineKeyboardRow(
+										tba.NewInlineKeyboardButtonData(
+											ctx.Database.GetBotStringValueOrDefaultNoError("captchaVerifyButtonText", usr.LanguageCode), "verify-")))))
+					}()
+				}
 
 				// I gotta be sure a user cannot reproduce the click in case is banned via telegram or another method...
 				// In a stateless way...
