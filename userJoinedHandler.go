@@ -125,12 +125,14 @@ func userJoinedRoute(ctx *Context) {
 						//timer is running
 						time.Sleep(1 * time.Second)
 						waitDuration = (time.Duration)(waitDuration.Nanoseconds() - 1*time.Second.Nanoseconds())
-						ctx.Bot.Send(
-							tba.NewEditMessageReplyMarkup(m.Chat.ID, m.MessageID,
-								tba.NewInlineKeyboardMarkup(
-									tba.NewInlineKeyboardRow(
-										tba.NewInlineKeyboardButtonData(
-											fmt.Sprintf("%.0f:%.0f:%.0f", waitDuration.Hours(), waitDuration.Minutes(), waitDuration.Seconds()), "lolnothing-")))))
+						if waitDuration.Seconds() < 0 {
+							ctx.Bot.Send(
+								tba.NewEditMessageReplyMarkup(m.Chat.ID, m.MessageID,
+									tba.NewInlineKeyboardMarkup(
+										tba.NewInlineKeyboardRow(
+											tba.NewInlineKeyboardButtonData(
+												fmt.Sprintf("%.0f:%.0f:%.0f", waitDuration.Hours(), waitDuration.Minutes(), waitDuration.Seconds()), "lolnothing-")))))
+						}
 					}
 
 					//Here we're waiting 10 seconds to put the button in the message...
