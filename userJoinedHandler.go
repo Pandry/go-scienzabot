@@ -125,7 +125,7 @@ func userJoinedRoute(ctx *Context) {
 						//timer is running
 						time.Sleep(1 * time.Second)
 						waitDuration = (time.Duration)(waitDuration.Nanoseconds() - 1*time.Second.Nanoseconds())
-						if waitDuration.Seconds() < 0 {
+						if waitDuration.Seconds() > 0 {
 							ctx.Bot.Send(
 								tba.NewEditMessageReplyMarkup(m.Chat.ID, m.MessageID,
 									tba.NewInlineKeyboardMarkup(
