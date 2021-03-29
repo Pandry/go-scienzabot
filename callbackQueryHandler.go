@@ -44,161 +44,188 @@ func callbackQueryRoute(ctx *Context) {
 
 		case "unsub":
 			if message.Message != nil && userExists {
-				if messageInGroup {
-					if message.Message.ReplyToMessage != nil && message.Message.ReplyToMessage.From.ID == message.From.ID {
-						if len(args) == 2 {
-							listID, err := strconv.Atoi(args[1])
-							if err == nil {
-								//TODO: check if user in group
-								err = ctx.Database.RemoveSubscriptionByListAndUserID(listID, message.From.ID)
-								if err == nil {
-									//callbackQueryAnswerSuccess
+				//if messageInGroup {
+				//	if message.Message.ReplyToMessage != nil && message.Message.ReplyToMessage.From.ID == message.From.ID {
+				if len(args) == 2 {
+					listID, err := strconv.Atoi(args[1])
+					if err == nil {
+						//TODO: check if user in group
+						err = ctx.Database.RemoveSubscriptionByListAndUserID(listID, message.From.ID)
+						if err == nil {
+							//callbackQueryAnswerSuccess
 
-									ctx.Bot.AnswerCallbackQuery(tba.CallbackConfig{CallbackQueryID: message.ID,
-										Text: ctx.Database.GetBotStringValueOrDefaultNoError("callbackQueryAnswerSuccess", locale)})
+							ctx.Bot.AnswerCallbackQuery(tba.CallbackConfig{CallbackQueryID: message.ID,
+								Text: ctx.Database.GetBotStringValueOrDefaultNoError("callbackQueryAnswerSuccess", locale)})
 
-									//lists, _ := ctx.Database.GetAvailableLists(message.Message.Chat.ID, message.From.ID, consts.MaximumInlineKeyboardRows+1, 0)
-									lists, _ := ctx.Database.GetUserGroupListsWithLimits(int64(message.From.ID), message.Message.Chat.ID, consts.MaximumInlineKeyboardRows+1, 0)
+							//lists, _ := ctx.Database.GetAvailableLists(message.Message.Chat.ID, message.From.ID, consts.MaximumInlineKeyboardRows+1, 0)
 
-									if len(lists) == 0 {
-										editInlineMessageDBWithCloseButton(ctx, "noSubscription")
-										return
-									}
-
-									rows := make([][]tba.InlineKeyboardButton, 0)
-									paginationPresent := false
-									locale, _ := ctx.Database.GetUserLocale(message.Message.From.ID)
-									for i, lst := range lists {
-										if i+2 > consts.MaximumInlineKeyboardRows {
-											rows = append(rows, []tba.InlineKeyboardButton{
-												//tba.NewInlineKeyboardButtonData("‌‌ ", "ignore"),
-												tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("closeMessageText", locale), "delme-"),
-												tba.NewInlineKeyboardButtonData("➡️", "uo-"+strconv.Itoa(consts.MaximumInlineKeyboardRows-1))})
-											paginationPresent = true
-											break
-										}
-										rows = append(rows, []tba.InlineKeyboardButton{tba.NewInlineKeyboardButtonData(lst.Name, "unsub-"+strconv.Itoa(int(lst.ID)))})
-									}
-									if !paginationPresent {
-										rows = append(rows, []tba.InlineKeyboardButton{
-											tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("closeMessageText", locale), "delme-"),
-											tba.NewInlineKeyboardButtonData("‌‌ ", "ignore")})
-									}
-
-									editInlineMessageInlineKeyboard(ctx, tba.InlineKeyboardMarkup{InlineKeyboard: rows})
-
-								} else {
-									ctx.Bot.AnswerCallbackQuery(tba.CallbackConfig{CallbackQueryID: message.ID, ShowAlert: true,
-										Text: ctx.Database.GetBotStringValueOrDefaultNoError("callbackQueryAnswerError", locale)})
-								}
+							chat, err := ctx.Database.GetList(int64(listID))
+							if err != nil {
+								//TODO: send toast error
+								return
 							}
+							//groupID := message.Message.Chat.ID
+							groupID := chat.GroupID
+
+							lists, _ := ctx.Database.GetUserGroupListsWithLimits(int64(message.From.ID), groupID, consts.MaximumInlineKeyboardRows+1, 0)
+
+							if len(lists) == 0 {
+								editInlineMessageDBWithCloseButton(ctx, "noSubscription")
+								return
+							}
+
+							rows := make([][]tba.InlineKeyboardButton, 0)
+							paginationPresent := false
+							locale, _ := ctx.Database.GetUserLocale(message.Message.From.ID)
+							for i, lst := range lists {
+								if i+2 > consts.MaximumInlineKeyboardRows {
+									rows = append(rows, []tba.InlineKeyboardButton{
+										//tba.NewInlineKeyboardButtonData("‌‌ ", "ignore"),
+										tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("closeMessageText", locale), "delme-"),
+										tba.NewInlineKeyboardButtonData("➡️", "uo-"+strconv.Itoa(consts.MaximumInlineKeyboardRows-1)+"-"+args[2])})
+									paginationPresent = true
+									break
+								}
+								rows = append(rows, []tba.InlineKeyboardButton{tba.NewInlineKeyboardButtonData(lst.Name, "unsub-"+strconv.Itoa(int(lst.ID)))})
+							}
+							if !paginationPresent {
+								rows = append(rows, []tba.InlineKeyboardButton{
+									tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("closeMessageText", locale), "delme-"),
+									tba.NewInlineKeyboardButtonData("‌‌ ", "ignore")})
+							}
+
+							editInlineMessageInlineKeyboard(ctx, tba.InlineKeyboardMarkup{InlineKeyboard: rows})
+
+						} else {
+							ctx.Bot.AnswerCallbackQuery(tba.CallbackConfig{CallbackQueryID: message.ID, ShowAlert: true,
+								Text: ctx.Database.GetBotStringValueOrDefaultNoError("callbackQueryAnswerError", locale)})
 						}
 					}
 				}
+				//}
+				//}
 			}
 
 			break
 
 		case "uo":
 			if message.Message != nil && userExists {
-				if messageInGroup {
-					if message.Message.ReplyToMessage != nil && message.Message.ReplyToMessage.From.ID == message.From.ID {
-						if len(args) == 2 {
+				//if messageInGroup {
+				//From the moment the messege is in private, nobody else can be the one
+				//	if message.Message.ReplyToMessage != nil && message.Message.ReplyToMessage.From.ID == message.From.ID {
+				if len(args) == 3 {
+					offset, err := strconv.Atoi(args[1])
 
-							offset, err := strconv.Atoi(args[1])
-							if err == nil {
-								//lists, _ := ctx.Database.GetUserLists(message.Message.Chat.ID, message.From.ID, consts.MaximumInlineKeyboardRows+1, offset)
-								lists, _ := ctx.Database.GetUserGroupListsWithLimits(int64(message.From.ID), message.Message.Chat.ID, consts.MaximumInlineKeyboardRows+1, offset)
-
-								rows := make([][]tba.InlineKeyboardButton, 0)
-								paginationPresent := false
-								leftOffset := offset - (consts.MaximumInlineKeyboardRows - 1)
-								if leftOffset <= 0 {
-									leftOffset = 0
-								}
-								leftBtn := tba.NewInlineKeyboardButtonData("⬅️", "uo-"+strconv.Itoa(leftOffset))
-								closeBtn := tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("closeMessageText", locale), "delme-")
-								if offset-leftOffset < consts.MaximumInlineKeyboardRows-1 {
-									leftBtn = closeBtn
-								}
-
-								for i, lst := range lists {
-									if i+2 > consts.MaximumInlineKeyboardRows {
-										rows = append(rows, []tba.InlineKeyboardButton{
-											//tba.NewInlineKeyboardButtonData("‌‌ ", "ignore"),
-											leftBtn,
-											tba.NewInlineKeyboardButtonData("➡️", "uo-"+strconv.Itoa(offset+consts.MaximumInlineKeyboardRows-1))})
-										paginationPresent = true
-										break
-									}
-									rows = append(rows, []tba.InlineKeyboardButton{tba.NewInlineKeyboardButtonData(lst.Name, "unsub-"+strconv.Itoa(int(lst.ID)))})
-								}
-								if !paginationPresent {
-									rows = append(rows, []tba.InlineKeyboardButton{
-										leftBtn,
-										tba.NewInlineKeyboardButtonData("‌‌ ", "ignore")})
-								}
-
-								editInlineMessageInlineKeyboard(ctx, tba.InlineKeyboardMarkup{InlineKeyboard: rows})
-								return
-							}
+					if err == nil {
+						groupID, err := strconv.ParseInt(strings.Replace(args[2], "$", "-", 1), 10, 64)
+						if err != nil {
+							return
 						}
+						//lists, _ := ctx.Database.GetUserLists(message.Message.Chat.ID, message.From.ID, consts.MaximumInlineKeyboardRows+1, offset)
+
+						//basing myself on the educated guess that software works fine AND the first button is a list
+						//InlineKeyboardMarkup
+						//replymarkup
+
+						//groupID := message.Message.Chat.ID
+						//groupID := chat.GroupID
+						lists, _ := ctx.Database.GetUserGroupListsWithLimits(int64(message.From.ID), groupID, consts.MaximumInlineKeyboardRows+1, offset)
+
+						rows := make([][]tba.InlineKeyboardButton, 0)
+						paginationPresent := false
+						leftOffset := offset - (consts.MaximumInlineKeyboardRows - 1)
+						if leftOffset <= 0 {
+							leftOffset = 0
+						}
+						leftBtn := tba.NewInlineKeyboardButtonData("⬅️", "uo-"+strconv.Itoa(leftOffset)+"-"+args[2])
+						closeBtn := tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("closeMessageText", locale), "delme-")
+						if offset-leftOffset < consts.MaximumInlineKeyboardRows-1 {
+							leftBtn = closeBtn
+						}
+
+						for i, lst := range lists {
+							if i+2 > consts.MaximumInlineKeyboardRows {
+								rows = append(rows, []tba.InlineKeyboardButton{
+									//tba.NewInlineKeyboardButtonData("‌‌ ", "ignore"),
+									leftBtn,
+									tba.NewInlineKeyboardButtonData("➡️", "uo-"+strconv.Itoa(offset+consts.MaximumInlineKeyboardRows-1)+"-"+args[2])})
+								paginationPresent = true
+								break
+							}
+							rows = append(rows, []tba.InlineKeyboardButton{tba.NewInlineKeyboardButtonData(lst.Name, "unsub-"+strconv.Itoa(int(lst.ID)))})
+						}
+						if !paginationPresent {
+							rows = append(rows, []tba.InlineKeyboardButton{
+								leftBtn,
+								tba.NewInlineKeyboardButtonData("‌‌ ", "ignore")})
+						}
+
+						editInlineMessageInlineKeyboard(ctx, tba.InlineKeyboardMarkup{InlineKeyboard: rows})
+						return
 					}
 				}
+				//	}
+				//}
 			}
 			break
 
 		case "sub":
 			if message.Message != nil && userExists {
-				if messageInGroup {
-					if message.Message.ReplyToMessage != nil && message.Message.ReplyToMessage.From.ID == message.From.ID {
-						if len(args) == 2 {
-							listID, err := strconv.Atoi(args[1])
-							if err == nil {
-								//TODO: check if user in group
-								err = ctx.Database.AddSubscription(message.From.ID, listID)
-								if err == nil {
-									//callbackQueryAnswerSuccess
+				//if messageInGroup {
+				//if message.Message.ReplyToMessage != nil && message.Message.ReplyToMessage.From.ID == message.From.ID {
+				if len(args) == 2 {
+					listID, err := strconv.Atoi(args[1])
+					if err == nil {
+						//TODO: check if user in group
+						err = ctx.Database.AddSubscription(message.From.ID, listID)
+						if err == nil {
+							//callbackQueryAnswerSuccess
 
-									ctx.Bot.AnswerCallbackQuery(tba.CallbackConfig{CallbackQueryID: message.ID,
-										Text: ctx.Database.GetBotStringValueOrDefaultNoError("callbackQueryAnswerSuccess", locale)})
+							ctx.Bot.AnswerCallbackQuery(tba.CallbackConfig{CallbackQueryID: message.ID,
+								Text: ctx.Database.GetBotStringValueOrDefaultNoError("callbackQueryAnswerSuccess", locale)})
 
-									lists, _ := ctx.Database.GetAvailableLists(message.Message.Chat.ID, message.From.ID, consts.MaximumInlineKeyboardRows+1, 0)
-
-									if len(lists) == 0 {
-										editInlineMessageDBWithCloseButton(ctx, "noListsLeft")
-										return
-									}
-
-									rows := make([][]tba.InlineKeyboardButton, 0)
-									paginationPresent := false
-									for i, lst := range lists {
-										if len(lists) > consts.MaximumInlineKeyboardRows && i+2 > consts.MaximumInlineKeyboardRows {
-											rows = append(rows, []tba.InlineKeyboardButton{
-												//tba.NewInlineKeyboardButtonData("‌‌ ", "ignore"),
-												tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("closeMessageText", locale), "delme-"),
-												tba.NewInlineKeyboardButtonData("➡️", "jo-"+strconv.Itoa(consts.MaximumInlineKeyboardRows-1))})
-											paginationPresent = true
-											break
-										}
-										rows = append(rows, []tba.InlineKeyboardButton{tba.NewInlineKeyboardButtonData(lst.Name, "sub-"+strconv.Itoa(int(lst.ID)))})
-									}
-									if !paginationPresent {
-										rows = append(rows, []tba.InlineKeyboardButton{
-											tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("closeMessageText", locale), "delme-"),
-											tba.NewInlineKeyboardButtonData("‌‌ ", "ignore")})
-									}
-
-									editInlineMessageInlineKeyboard(ctx, tba.InlineKeyboardMarkup{InlineKeyboard: rows})
-
-								} else {
-									ctx.Bot.AnswerCallbackQuery(tba.CallbackConfig{CallbackQueryID: message.ID, ShowAlert: true,
-										Text: ctx.Database.GetBotStringValueOrDefaultNoError("callbackQueryAnswerError", locale)})
-								}
+							//chatID := message.Message.Chat.ID
+							chat, err := ctx.Database.GetList(int64(listID))
+							if err != nil {
+								//TODO: send toast error
+								return
 							}
+							lists, _ := ctx.Database.GetAvailableLists(chat.GroupID, message.From.ID, consts.MaximumInlineKeyboardRows+1, 0)
+
+							if len(lists) == 0 {
+								editInlineMessageDBWithCloseButton(ctx, "noListsLeft")
+								return
+							}
+
+							rows := make([][]tba.InlineKeyboardButton, 0)
+							paginationPresent := false
+							for i, lst := range lists {
+								if len(lists) > consts.MaximumInlineKeyboardRows && i+2 > consts.MaximumInlineKeyboardRows {
+									rows = append(rows, []tba.InlineKeyboardButton{
+										//tba.NewInlineKeyboardButtonData("‌‌ ", "ignore"),
+										tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("closeMessageText", locale), "delme-"),
+										tba.NewInlineKeyboardButtonData("➡️", "jo-"+strconv.Itoa(consts.MaximumInlineKeyboardRows-1))})
+									paginationPresent = true
+									break
+								}
+								rows = append(rows, []tba.InlineKeyboardButton{tba.NewInlineKeyboardButtonData(lst.Name, "sub-"+strconv.Itoa(int(lst.ID)))})
+							}
+							if !paginationPresent {
+								rows = append(rows, []tba.InlineKeyboardButton{
+									tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("closeMessageText", locale), "delme-"),
+									tba.NewInlineKeyboardButtonData("‌‌ ", "ignore")})
+							}
+
+							editInlineMessageInlineKeyboard(ctx, tba.InlineKeyboardMarkup{InlineKeyboard: rows})
+
+						} else {
+							ctx.Bot.AnswerCallbackQuery(tba.CallbackConfig{CallbackQueryID: message.ID, ShowAlert: true,
+								Text: ctx.Database.GetBotStringValueOrDefaultNoError("callbackQueryAnswerError", locale)})
 						}
 					}
 				}
+				//}
+				//}
 			}
 
 			break
