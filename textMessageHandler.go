@@ -1166,7 +1166,8 @@ func textMessageRoute(ctx *Context) {
 								messageToSend.ReplyMarkup = ikm
 							}*/
 						//We then send the message to the user
-						ctx.Bot.Send(messageToSend)
+						//ctx.Bot.Send(messageToSend)
+						ctx.SendQueue <- &messageToSend
 						//And add the ID of the user to the slice of the contacted users
 						contactedUsers = append(contactedUsers, sub.UserID)
 					} //fi user found
@@ -1249,14 +1250,16 @@ func replyMessageDBWithInlineKeyboard(ctx *Context, keyString string, ikm tba.In
 	messageToSend := tba.NewMessage(ctx.Update.Message.Chat.ID, messageBody)
 	messageToSend.ReplyMarkup = ikm
 	messageToSend.ReplyToMessageID = ctx.Update.Message.MessageID
-	ctx.Bot.Send(messageToSend)
+	ctx.SendQueue <- &messageToSend
+	//ctx.Bot.Send(messageToSend)
 }
 
 func replyMessageInPrivateWithInlineKeyboard(ctx *Context, keyString string, ikm tba.InlineKeyboardMarkup) {
 	messageBody := ctx.Database.GetBotStringValueOrDefaultNoError(keyString, ctx.Update.Message.From.LanguageCode)
 	messageToSend := tba.NewMessage(int64(ctx.Update.Message.From.ID), messageBody)
 	messageToSend.ReplyMarkup = ikm
-	ctx.Bot.Send(messageToSend)
+	ctx.SendQueue <- &messageToSend
+	//ctx.Bot.Send(messageToSend)
 }
 
 func replyMessageWithCloseButton(ctx *Context, messageBody string) {
@@ -1267,21 +1270,24 @@ func replyMessageWithCloseButton(ctx *Context, messageBody string) {
 				ctx.Database.GetBotStringValueOrDefaultNoError("deleteMessageText", ctx.Update.Message.From.LanguageCode), "delme-")))
 	messageToSend.ReplyMarkup = rm
 	messageToSend.ReplyToMessageID = ctx.Update.Message.MessageID
-	ctx.Bot.Send(messageToSend)
+	ctx.SendQueue <- &messageToSend
+	//ctx.Bot.Send(messageToSend)
 }
 
 func replyDbMessage(ctx *Context, keyString string) {
 	messageBody := ctx.Database.GetBotStringValueOrDefaultNoError(keyString, ctx.Update.Message.From.LanguageCode)
 	messageToSend := tba.NewMessage(ctx.Update.Message.Chat.ID, messageBody)
 	messageToSend.ReplyToMessageID = ctx.Update.Message.MessageID
-	ctx.Bot.Send(messageToSend)
+	ctx.SendQueue <- &messageToSend
+	//ctx.Bot.Send(messageToSend)
 }
 
 func replyToMessageWithDBText(ctx *Context, message *tba.Message, keyString string) {
 	messageBody := ctx.Database.GetBotStringValueOrDefaultNoError(keyString, message.From.LanguageCode)
 	messageToSend := tba.NewMessage(message.Chat.ID, messageBody)
 	messageToSend.ReplyToMessageID = message.MessageID
-	ctx.Bot.Send(messageToSend)
+	ctx.SendQueue <- &messageToSend
+	//ctx.Bot.Send(messageToSend)
 }
 
 func replyDbMessageInPrivateWithCloseButton(ctx *Context, keyString string) {
@@ -1293,7 +1299,8 @@ func replyDbMessageInPrivateWithCloseButton(ctx *Context, keyString string) {
 				ctx.Database.GetBotStringValueOrDefaultNoError("deleteMessageText", ctx.Update.Message.From.LanguageCode), "delme-")))
 	messageToSend.ReplyMarkup = rm
 	//messageToSend.ReplyToMessageID = ctx.Update.Message.MessageID
-	ctx.Bot.Send(messageToSend)
+	ctx.SendQueue <- &messageToSend
+	//ctx.Bot.Send(messageToSend)
 }
 
 func replyDbMessageWithCloseButton(ctx *Context, keyString string) {
@@ -1305,7 +1312,8 @@ func replyDbMessageWithCloseButton(ctx *Context, keyString string) {
 				ctx.Database.GetBotStringValueOrDefaultNoError("deleteMessageText", ctx.Update.Message.From.LanguageCode), "delme-")))
 	messageToSend.ReplyMarkup = rm
 	messageToSend.ReplyToMessageID = ctx.Update.Message.MessageID
-	ctx.Bot.Send(messageToSend)
+	ctx.SendQueue <- &messageToSend
+	//ctx.Bot.Send(messageToSend)
 }
 
 //escapeMessage returns a HTML escaped string

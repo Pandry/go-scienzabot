@@ -4,6 +4,8 @@ import (
 	"flag"
 	"log"
 	"os"
+	"strconv"
+	"time"
 
 	"scienzabot/database"
 	"scienzabot/embtypes"
@@ -77,7 +79,22 @@ func main() {
 
 	//initializing the context.
 	//See the context comment for more info
-	ctx := Context{bot, nil, db}
+	messageQueue := make(chan *tba.MessageConfig, 10000)
+	ctx := Context{bot, nil, db, messageQueue}
+
+	go func(c Context) {
+		//Limit is 30 messages per second
+		//TODO: Implement limits against same user
+		for {
+			select {
+			case m := <-c.SendQueue:
+				log.Printf("Sending message from queue to list. Sending to " + strconv.FormatInt(m.ChatID, 10))
+				ctx.Bot.Send(m)
+				break
+			}
+			time.Sleep(time.Second / 20)
+		}
+	}(ctx)
 
 	//Assinging the debug variable to the lib.
 	//This will tell if the library will print the updates it receives and send

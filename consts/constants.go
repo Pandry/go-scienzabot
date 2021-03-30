@@ -6,7 +6,7 @@ package consts
 //Version is the bot version.
 //This number should be incremented for every release
 //Also, this shoud be inserted in the database and be incremented from it
-const Version = "0.2.5-g α 8:04:51-12/7/19"
+const Version = "0.3.00 α 210330135500"
 
 //DefaultLocale identifies the default locale of the bot
 const DefaultLocale = "it"
