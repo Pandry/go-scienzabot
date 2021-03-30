@@ -13,7 +13,7 @@ steps:
   - go test ./...
     
 - name: Doing Static Analysis
-  image: golang
+  image: golang:1.15
   commands:
   - go get -u golang.org/x/lint/golint
   - go get github.com/mdempsky/maligned
@@ -29,7 +29,7 @@ steps:
         - prod
   
 - name: Statically compiling the solution
-  image: golang
+  image: golang:1.15
   commands:
   - CGO_ENABLED=1 GOOS=linux go build -a -ldflags '-extldflags "-static"' .
   when:
