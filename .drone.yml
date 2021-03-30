@@ -7,7 +7,7 @@ workspace:
 
 steps:
 - name: Running Unit Tests
-  image: golang
+  image: golang:1.15
   commands:
   - go get
   - go test ./...
