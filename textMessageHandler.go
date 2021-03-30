@@ -550,7 +550,8 @@ func textMessageRoute(ctx *Context) {
 							tba.NewInlineKeyboardButtonData("‌‌ ", "ignore")})
 					}
 					//Then we send the message
-					replyMessageDBWithInlineKeyboard(ctx, "availableLists", tba.InlineKeyboardMarkup{InlineKeyboard: rows})
+					//replyMessageDBWithInlineKeyboard(ctx, "availableLists", tba.InlineKeyboardMarkup{InlineKeyboard: rows})
+					replyMessageInPrivateWithInlineKeyboard(ctx, "availableLists", tba.InlineKeyboardMarkup{InlineKeyboard: rows})
 					return
 				} //fi messageInGroup
 
@@ -589,7 +590,7 @@ func textMessageRoute(ctx *Context) {
 							rows = append(rows, []tba.InlineKeyboardButton{
 								//tba.NewInlineKeyboardButtonData("‌‌ ", "ignore"),
 								tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("closeMessageText", ctx.Update.Message.From.LanguageCode), "delme-"),
-								tba.NewInlineKeyboardButtonData("➡️", "uo-"+strconv.Itoa(consts.MaximumInlineKeyboardRows-1))})
+								tba.NewInlineKeyboardButtonData("➡️", "uo-"+strconv.Itoa(consts.MaximumInlineKeyboardRows-1)+"-"+strings.Replace(strconv.FormatInt(message.Chat.ID, 10), "-", "$", 1))})
 							paginationPresent = true
 							break
 						}
@@ -601,7 +602,8 @@ func textMessageRoute(ctx *Context) {
 							tba.NewInlineKeyboardButtonData("‌‌ ", "ignore")})
 					}
 
-					replyMessageDBWithInlineKeyboard(ctx, "subscribedLists", tba.InlineKeyboardMarkup{InlineKeyboard: rows})
+					//replyMessageDBWithInlineKeyboard(ctx, "subscribedLists", tba.InlineKeyboardMarkup{InlineKeyboard: rows})
+					replyMessageInPrivateWithInlineKeyboard(ctx, "subscribedLists", tba.InlineKeyboardMarkup{InlineKeyboard: rows})
 					return
 				} //fi message in group
 
@@ -1241,6 +1243,13 @@ func replyMessageDBWithInlineKeyboard(ctx *Context, keyString string, ikm tba.In
 	messageToSend := tba.NewMessage(ctx.Update.Message.Chat.ID, messageBody)
 	messageToSend.ReplyMarkup = ikm
 	messageToSend.ReplyToMessageID = ctx.Update.Message.MessageID
+	ctx.Bot.Send(messageToSend)
+}
+
+func replyMessageInPrivateWithInlineKeyboard(ctx *Context, keyString string, ikm tba.InlineKeyboardMarkup) {
+	messageBody := ctx.Database.GetBotStringValueOrDefaultNoError(keyString, ctx.Update.Message.From.LanguageCode)
+	messageToSend := tba.NewMessage(int64(ctx.Update.Message.From.ID), messageBody)
+	messageToSend.ReplyMarkup = ikm
 	ctx.Bot.Send(messageToSend)
 }
 

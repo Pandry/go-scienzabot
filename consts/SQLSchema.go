@@ -66,7 +66,7 @@ CREATE TABLE IF NOT EXISTS 'Lists' (
 	'GroupID'	INTEGER NOT NULL,
 	'Properties'  INTEGER DEFAULT 0,
 	'CreationDate' TEXT DEFAULT CURRENT_TIMESTAMP,
-	'LatestInvocation' TEXT,
+	'LatestInvocation' TEXT DEFAULT 0,
 	'Parent' INTEGER,
 	FOREIGN KEY('GroupID') REFERENCES Groups('ID'),
 	FOREIGN KEY('Parent') REFERENCES Lists('ID'),

@@ -92,6 +92,55 @@ func (db *SQLiteDB) GetLists(groupID int64) ([]List, error) {
 	return resultLists, err
 }
 
+//GetList returns a list given its ID
+func (db *SQLiteDB) GetList(listID int64) (List, error) {
+	l := List{}
+	var li sql.NullString
+	var p sql.NullInt64
+	err := db.QueryRow("SELECT `Name`,`GroupID`, `Properties`, `CreationDate`, `LatestInvocation`, `Parent` FROM Lists WHERE `ID` = ? LIMIT 1", listID).
+		Scan(&l.Name, &l.GroupID, &l.Properties, &l.CreationDate, &li, &p)
+		//TODO: Handle the error
+	l.LatestInvocation, _ = time.Parse(consts.TimeFormatString, li.String)
+
+	l.Parent = p.Int64
+	switch {
+	case err == sql.ErrNoRows:
+		db.AddLogEvent(Log{Event: "GetList_ErrorNoRows", Message: "Impossible to get rows", Error: err.Error()})
+		return l, err
+	case err != nil:
+		db.AddLogEvent(Log{Event: "GetList_ErrorUnknown", Message: "Uknown error verified", Error: err.Error()})
+		return l, err
+	default:
+		return l, nil
+	}
+
+	/*resultLists := make([]List, 0)
+	if err != nil {
+		db.AddLogEvent(Log{Event: "GetLists_ErorExecutingTheQuery", Message: "Impossible to get afftected rows", Error: err.Error()})
+		return resultLists, err
+	}
+	for rows.Next() {
+		var (
+			inv     sql.NullString
+			tmpList List
+		)
+
+		if err = rows.Scan(&tmpList.ID, &tmpList.Name, &tmpList.Properties, &inv); err != nil {
+			db.AddLogEvent(Log{Event: "GetLists_RowQueryFetchResultFailed", Message: "Impossible to get data from the row", Error: err.Error()})
+		} else {
+			tmpList.LatestInvocation, _ = time.Parse(consts.TimeFormatString, inv.String)
+			resultLists = append(resultLists, tmpList)
+		}
+	}
+	if rows.NextResultSet() {
+		db.AddLogEvent(Log{Event: "GetLists_RowsNotFetched", Message: "Some rows in the query were not fetched"})
+	} else if err := rows.Err(); err != nil {
+		db.AddLogEvent(Log{Event: "GetLists_UnknowQueryError", Message: "An unknown error was thrown", Error: err.Error()})
+	}
+
+	return resultLists, err*/
+}
+
 //AddList takes a a database.List struct as parameter and insert it in the database
 func (db *SQLiteDB) AddList(lst List) error {
 	//lst.Name, lst.GroupID, lst.GroupIndipendent, lst.InviteOnly

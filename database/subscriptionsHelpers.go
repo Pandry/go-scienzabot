@@ -244,7 +244,7 @@ func (db *SQLiteDB) GetUserLists(usrID int64) ([]List, error) {
 }
 
 //GetList returns a list given its ID
-func (db *SQLiteDB) GetList(lstID int64) (Subscription, error) {
+func (db *SQLiteDB) GetSubscriptionFromList(lstID int64) (Subscription, error) {
 	var sub Subscription
 	err := db.QueryRow("SELECT `ID`,`ListID`,`UserID` FROM Subscriptions WHERE `ID`=?", lstID).Scan(&sub.ID, &sub.ListID, &sub.UserID)
 	switch {
