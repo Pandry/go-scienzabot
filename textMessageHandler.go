@@ -295,6 +295,10 @@ func textMessageRoute(ctx *Context) {
 					} //end of group loop
 
 					//Send the message
+
+					//TODO: This needs to use the long message since is way too long
+					//chatID int64, message string, ReplyToMessageID int, replyMarkup interface{}, parseMode string
+					//t.SendLongMessage()
 					replyMessageWithCloseButton(ctx, messageBody)
 				}
 			}
@@ -514,7 +518,7 @@ func textMessageRoute(ctx *Context) {
 					lists, _ := ctx.Database.GetAvailableLists(message.Chat.ID, message.From.ID, consts.MaximumInlineKeyboardRows+1, 0)
 					//If there's no list left, reply with another message
 					if len(lists) == 0 {
-						replyDbMessageWithCloseButton(ctx, "noListsLeft")
+						replyDbMessageInPrivateWithCloseButton(ctx, "noListsLeft")
 						return
 					}
 					//We then create the inline keyboard
@@ -1133,32 +1137,34 @@ func textMessageRoute(ctx *Context) {
 						//Then we get the message to send to the user from the database, and replace the keywords
 						//  such as {{categoryName}} with the real category name
 						messageToSend := tba.NewMessage(sub.UserID, strings.Replace(strings.Replace(ctx.Database.GetBotStringValueOrDefaultNoError("tagNotification", user.Locale), "{{categoryName}}", list.Name, -1), "{{groupName}}", message.Chat.Title, -1))
-						//If the message is in a supergroup, it's possible to get a link to the message
+						//Every group now has a link
+						//If the group has a username
+
 						if message.Chat.IsSuperGroup() {
-							//If the group has a username
-							if message.Chat.UserName != "" {
-								//We generate the links, always by taking from the database the strings
-								ikm1 := tba.NewInlineKeyboardButtonURL(ctx.Database.GetBotStringValueOrDefaultNoError("tagNotificationGroupLink", user.Locale), "t.me/"+message.Chat.UserName)
-								ikm2 := tba.NewInlineKeyboardButtonURL(ctx.Database.GetBotStringValueOrDefaultNoError("tagNotificationMessageLink", user.Locale), "t.me/"+message.Chat.UserName+"/"+strconv.Itoa(message.MessageID))
-								ikm3 := tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("tagNotificationTag", user.Locale), "tag-"+strconv.FormatInt(message.Chat.ID, 10)+"-"+strconv.Itoa(message.MessageID))
-								ikl := []tba.InlineKeyboardButton{ikm1, ikm2, ikm3}
-								ikm := tba.NewInlineKeyboardMarkup(ikl)
-								//And add to the message the buttons
-								messageToSend.ReplyMarkup = ikm
-							} else { //The chat hasn't a nickname
-								//We add the button to be tagged from the bot at the mesage
-								ikm3 := tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("tagNotificationTag", user.Locale), "tag-"+strconv.FormatInt(message.Chat.ID, 10)+"-"+strconv.Itoa(message.MessageID))
-								ikl := []tba.InlineKeyboardButton{ikm3}
-								ikm := tba.NewInlineKeyboardMarkup(ikl)
-								//And add to the message the buttons
-								messageToSend.ReplyMarkup = ikm
-							}
+							//if message.Chat.UserName != "" {
+							//We generate the links, always by taking from the database the strings
+							//ikm1 := tba.NewInlineKeyboardButtonURL(ctx.Database.GetBotStringValueOrDefaultNoError("tagNotificationGroupLink", user.Locale), "t.me/"+message.Chat.UserName)
+							ikm2 := tba.NewInlineKeyboardButtonURL(ctx.Database.GetBotStringValueOrDefaultNoError("tagNotificationMessageLink", user.Locale), "t.me/c/"+strconv.FormatInt(message.Chat.ID, 10)[4:]+"/"+strconv.Itoa(message.MessageID))
+							//ikm3 := tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("tagNotificationTag", user.Locale), "tag-"+strconv.FormatInt(message.Chat.ID, 10)+"-"+strconv.Itoa(message.MessageID))
+							ikl := []tba.InlineKeyboardButton{ikm2}
+							ikm := tba.NewInlineKeyboardMarkup(ikl)
+							//And add to the message the buttons
+							messageToSend.ReplyMarkup = ikm
 						} else { //The message is not a supergroup
+							//We add the button to be tagged from the bot at the mesage
 							ikm3 := tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("tagNotificationTag", user.Locale), "tag-"+strconv.FormatInt(message.Chat.ID, 10)+"-"+strconv.Itoa(message.MessageID))
 							ikl := []tba.InlineKeyboardButton{ikm3}
 							ikm := tba.NewInlineKeyboardMarkup(ikl)
+							//And add to the message the buttons
 							messageToSend.ReplyMarkup = ikm
 						}
+						/*
+							} else { //
+								ikm3 := tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("tagNotificationTag", user.Locale), "tag-"+strconv.FormatInt(message.Chat.ID, 10)+"-"+strconv.Itoa(message.MessageID))
+								ikl := []tba.InlineKeyboardButton{ikm3}
+								ikm := tba.NewInlineKeyboardMarkup(ikl)
+								messageToSend.ReplyMarkup = ikm
+							}*/
 						//We then send the message to the user
 						ctx.Bot.Send(messageToSend)
 						//And add the ID of the user to the slice of the contacted users
@@ -1275,6 +1281,18 @@ func replyToMessageWithDBText(ctx *Context, message *tba.Message, keyString stri
 	messageBody := ctx.Database.GetBotStringValueOrDefaultNoError(keyString, message.From.LanguageCode)
 	messageToSend := tba.NewMessage(message.Chat.ID, messageBody)
 	messageToSend.ReplyToMessageID = message.MessageID
+	ctx.Bot.Send(messageToSend)
+}
+
+func replyDbMessageInPrivateWithCloseButton(ctx *Context, keyString string) {
+	messageBody := ctx.Database.GetBotStringValueOrDefaultNoError(keyString, ctx.Update.Message.From.LanguageCode)
+	messageToSend := tba.NewMessage(int64(ctx.Update.Message.From.ID), messageBody)
+	rm := tba.NewInlineKeyboardMarkup(
+		tba.NewInlineKeyboardRow(
+			tba.NewInlineKeyboardButtonData(
+				ctx.Database.GetBotStringValueOrDefaultNoError("deleteMessageText", ctx.Update.Message.From.LanguageCode), "delme-")))
+	messageToSend.ReplyMarkup = rm
+	//messageToSend.ReplyToMessageID = ctx.Update.Message.MessageID
 	ctx.Bot.Send(messageToSend)
 }
 
