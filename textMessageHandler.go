@@ -340,7 +340,7 @@ func textMessageRoute(ctx *Context) {
 					//Create the button to delete the message
 					rm := tba.NewInlineKeyboardMarkup(
 						tba.NewInlineKeyboardRow(
-							tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("deleteMessageText", message.From.LanguageCode), "delme-")))
+							tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("deleteMessageText", message.From.LanguageCode), consts.CallbackTypeDeleteSelf+"-")))
 					//Add the button to the message
 					messageToSend.ReplyMarkup = rm
 					//Add the message to reply to
@@ -370,7 +370,7 @@ func textMessageRoute(ctx *Context) {
 					//Create the keyboard
 					rm := tba.NewInlineKeyboardMarkup(
 						tba.NewInlineKeyboardRow(
-							tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("deleteMessageText", message.From.LanguageCode), "delme-")))
+							tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("deleteMessageText", message.From.LanguageCode), consts.CallbackTypeDeleteSelf+"-")))
 					//assign the keyboard to the message
 					messageToSend.ReplyMarkup = rm
 					//Set the message to reply to as the command message
@@ -535,8 +535,8 @@ func textMessageRoute(ctx *Context) {
 							//If we are, we add as final row the pagination, to delete the message or show the next page
 							rows = append(rows, []tba.InlineKeyboardButton{
 
-								tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("closeMessageText", ctx.Update.Message.From.LanguageCode), "delme-"),
-								tba.NewInlineKeyboardButtonData("➡️", "jo-"+strconv.Itoa(consts.MaximumInlineKeyboardRows-1))})
+								tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("closeMessageText", ctx.Update.Message.From.LanguageCode), consts.CallbackTypeDeleteSelf+"-"),
+								tba.NewInlineKeyboardButtonData("➡️", consts.CallbackTypeSubscribePagination+"-"+strconv.Itoa(consts.MaximumInlineKeyboardRows-1))})
 							//Then we set the bool to true to say that we added the pagination
 							paginationPresent = true
 							//And interrupt the loop
@@ -545,12 +545,12 @@ func textMessageRoute(ctx *Context) {
 						//if the list number is not exceeding the maximum button number, we add the list name
 						//KeyboardButtonData is just a way to pass a string to the bot itself
 						//  The login behind the button data is shown in the callbackQueryhandler.go file
-						rows = append(rows, []tba.InlineKeyboardButton{tba.NewInlineKeyboardButtonData(lst.Name, "sub-"+strconv.Itoa(int(lst.ID)))})
+						rows = append(rows, []tba.InlineKeyboardButton{tba.NewInlineKeyboardButtonData(lst.Name, consts.CallbackTypeSubscribe+"-"+strconv.Itoa(int(lst.ID)))})
 					}
 					//If the pagination was not added in the loop, we add it here, without adding the button to see the next page
 					if !paginationPresent {
 						rows = append(rows, []tba.InlineKeyboardButton{
-							tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("closeMessageText", ctx.Update.Message.From.LanguageCode), "delme-"),
+							tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("closeMessageText", ctx.Update.Message.From.LanguageCode), consts.CallbackTypeDeleteSelf+"-"),
 							tba.NewInlineKeyboardButtonData("‌‌ ", "ignore")})
 					}
 					//Then we send the message
@@ -593,16 +593,16 @@ func textMessageRoute(ctx *Context) {
 						if i+2 > consts.MaximumInlineKeyboardRows {
 							rows = append(rows, []tba.InlineKeyboardButton{
 								//tba.NewInlineKeyboardButtonData("‌‌ ", "ignore"),
-								tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("closeMessageText", ctx.Update.Message.From.LanguageCode), "delme-"),
-								tba.NewInlineKeyboardButtonData("➡️", "uo-"+strconv.Itoa(consts.MaximumInlineKeyboardRows-1)+"-"+strings.Replace(strconv.FormatInt(message.Chat.ID, 10), "-", "$", 1))})
+								tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("closeMessageText", ctx.Update.Message.From.LanguageCode), consts.CallbackTypeDeleteSelf+"-"),
+								tba.NewInlineKeyboardButtonData("➡️", consts.CallbackTypeUnsubscribePagination+"-"+strconv.Itoa(consts.MaximumInlineKeyboardRows-1)+"-"+strings.Replace(strconv.FormatInt(message.Chat.ID, 10), "-", "$", 1))})
 							paginationPresent = true
 							break
 						}
-						rows = append(rows, []tba.InlineKeyboardButton{tba.NewInlineKeyboardButtonData(lst.Name, "unsub-"+strconv.Itoa(int(lst.ID)))})
+						rows = append(rows, []tba.InlineKeyboardButton{tba.NewInlineKeyboardButtonData(lst.Name, consts.CallbackTypeUnsubscribe+"-"+strconv.Itoa(int(lst.ID)))})
 					}
 					if !paginationPresent {
 						rows = append(rows, []tba.InlineKeyboardButton{
-							tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("closeMessageText", ctx.Update.Message.From.LanguageCode), "delme-"),
+							tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("closeMessageText", ctx.Update.Message.From.LanguageCode), consts.CallbackTypeDeleteSelf+"-"),
 							tba.NewInlineKeyboardButtonData("‌‌ ", "ignore")})
 					}
 
@@ -670,9 +670,9 @@ func textMessageRoute(ctx *Context) {
 								//If we are, we add as final row the pagination, to delete the message or show the next page
 								rows = append(rows, []tba.InlineKeyboardButton{
 
-									tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("closeMessageText", ctx.Update.Message.From.LanguageCode), "delme-"),
+									tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("closeMessageText", ctx.Update.Message.From.LanguageCode), consts.CallbackTypeDeleteSelf+"-"),
 									//bookamrks groups offset
-									tba.NewInlineKeyboardButtonData("➡️", "bgo-"+strconv.Itoa(consts.MaximumInlineKeyboardRows-1))})
+									tba.NewInlineKeyboardButtonData("➡️", consts.CallbackTypeGroupPagination+"-"+strconv.Itoa(consts.MaximumInlineKeyboardRows-1))})
 								//Then we set the bool to true to say that we added the pagination
 								paginationPresent = true
 								//And interrupt the loop
@@ -680,14 +680,14 @@ func textMessageRoute(ctx *Context) {
 							}
 							b, err := ctx.Database.GetGroup(g)
 							if err == nil {
-								rows = append(rows, []tba.InlineKeyboardButton{tba.NewInlineKeyboardButtonData(b.Title, "bk-"+strconv.FormatInt(g, 10)+"-0")})
+								rows = append(rows, []tba.InlineKeyboardButton{tba.NewInlineKeyboardButtonData(b.Title, consts.CallbackTypeBookmarkPagination+"-"+strconv.FormatInt(g, 10)+"-0")})
 							}
 
 							//If the pagination was not added in the loop, we add it here, without adding the button to see the next page
 						}
 						if !paginationPresent {
 							rows = append(rows, []tba.InlineKeyboardButton{
-								tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("closeMessageText", ctx.Update.Message.From.LanguageCode), "delme-"),
+								tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("closeMessageText", ctx.Update.Message.From.LanguageCode), consts.CallbackTypeDeleteSelf+"-"),
 								tba.NewInlineKeyboardButtonData("‌‌ ", "ignore")})
 						}
 						replyMessageDBWithInlineKeyboard(ctx, "bookmarksMessage", tba.InlineKeyboardMarkup{InlineKeyboard: rows})
@@ -742,7 +742,7 @@ func textMessageRoute(ctx *Context) {
 							rm := tba.NewInlineKeyboardMarkup(
 								tba.NewInlineKeyboardRow(
 									tba.NewInlineKeyboardButtonData(
-										ctx.Database.GetBotStringValueOrDefaultNoError("deleteMessageText", ctx.Update.Message.From.LanguageCode), "delme-")))
+										ctx.Database.GetBotStringValueOrDefaultNoError("deleteMessageText", ctx.Update.Message.From.LanguageCode), consts.CallbackTypeDeleteSelf + "-")))
 
 							ctx.Bot.SendLongMessage(message.Chat.ID, msgBody, message.MessageID, rm, tba.ModeHTML)
 						}
@@ -941,7 +941,7 @@ func textMessageRoute(ctx *Context) {
 				rm := tba.NewInlineKeyboardMarkup(
 					tba.NewInlineKeyboardRow(
 						tba.NewInlineKeyboardButtonData(
-							ctx.Database.GetBotStringValueOrDefaultNoError("deleteMessageText", ctx.Update.Message.From.LanguageCode), "delme-")))
+							ctx.Database.GetBotStringValueOrDefaultNoError("deleteMessageText", ctx.Update.Message.From.LanguageCode), consts.CallbackTypeDeleteSelf+"-")))
 
 				ctx.Bot.SendLongMessage(message.Chat.ID, res, message.MessageID, rm, "")
 
@@ -1145,14 +1145,14 @@ func textMessageRoute(ctx *Context) {
 							//We generate the links, always by taking from the database the strings
 							//ikm1 := tba.NewInlineKeyboardButtonURL(ctx.Database.GetBotStringValueOrDefaultNoError("tagNotificationGroupLink", user.Locale), "t.me/"+message.Chat.UserName)
 							ikm2 := tba.NewInlineKeyboardButtonURL(ctx.Database.GetBotStringValueOrDefaultNoError("tagNotificationMessageLink", user.Locale), "t.me/c/"+strconv.FormatInt(message.Chat.ID, 10)[4:]+"/"+strconv.Itoa(message.MessageID))
-							//ikm3 := tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("tagNotificationTag", user.Locale), "tag-"+strconv.FormatInt(message.Chat.ID, 10)+"-"+strconv.Itoa(message.MessageID))
+							//ikm3 := tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("tagNotificationTag", user.Locale), consts.CallbackTypeTagUser+"-"+strconv.FormatInt(message.Chat.ID, 10)+"-"+strconv.Itoa(message.MessageID))
 							ikl := []tba.InlineKeyboardButton{ikm2}
 							ikm := tba.NewInlineKeyboardMarkup(ikl)
 							//And add to the message the buttons
 							messageToSend.ReplyMarkup = ikm
 						} else { //The message is not a supergroup
 							//We add the button to be tagged from the bot at the mesage
-							ikm3 := tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("tagNotificationTag", user.Locale), "tag-"+strconv.FormatInt(message.Chat.ID, 10)+"-"+strconv.Itoa(message.MessageID))
+							ikm3 := tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("tagNotificationTag", user.Locale), consts.CallbackTypeTagUser+"-"+strconv.FormatInt(message.Chat.ID, 10)+"-"+strconv.Itoa(message.MessageID))
 							ikl := []tba.InlineKeyboardButton{ikm3}
 							ikm := tba.NewInlineKeyboardMarkup(ikl)
 							//And add to the message the buttons
@@ -1160,7 +1160,7 @@ func textMessageRoute(ctx *Context) {
 						}
 						/*
 							} else { //
-								ikm3 := tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("tagNotificationTag", user.Locale), "tag-"+strconv.FormatInt(message.Chat.ID, 10)+"-"+strconv.Itoa(message.MessageID))
+								ikm3 := tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("tagNotificationTag", user.Locale), consts.CallbackTypeTagUser+"-"+strconv.FormatInt(message.Chat.ID, 10)+"-"+strconv.Itoa(message.MessageID))
 								ikl := []tba.InlineKeyboardButton{ikm3}
 								ikm := tba.NewInlineKeyboardMarkup(ikl)
 								messageToSend.ReplyMarkup = ikm
@@ -1267,7 +1267,7 @@ func replyMessageWithCloseButton(ctx *Context, messageBody string) {
 	rm := tba.NewInlineKeyboardMarkup(
 		tba.NewInlineKeyboardRow(
 			tba.NewInlineKeyboardButtonData(
-				ctx.Database.GetBotStringValueOrDefaultNoError("deleteMessageText", ctx.Update.Message.From.LanguageCode), "delme-")))
+				ctx.Database.GetBotStringValueOrDefaultNoError("deleteMessageText", ctx.Update.Message.From.LanguageCode), consts.CallbackTypeDeleteSelf+"-")))
 	messageToSend.ReplyMarkup = rm
 	messageToSend.ReplyToMessageID = ctx.Update.Message.MessageID
 	ctx.SendQueue <- &messageToSend
@@ -1296,7 +1296,7 @@ func replyDbMessageInPrivateWithCloseButton(ctx *Context, keyString string) {
 	rm := tba.NewInlineKeyboardMarkup(
 		tba.NewInlineKeyboardRow(
 			tba.NewInlineKeyboardButtonData(
-				ctx.Database.GetBotStringValueOrDefaultNoError("deleteMessageText", ctx.Update.Message.From.LanguageCode), "delme-")))
+				ctx.Database.GetBotStringValueOrDefaultNoError("deleteMessageText", ctx.Update.Message.From.LanguageCode), consts.CallbackTypeDeleteSelf+"-")))
 	messageToSend.ReplyMarkup = rm
 	//messageToSend.ReplyToMessageID = ctx.Update.Message.MessageID
 	ctx.SendQueue <- &messageToSend
@@ -1309,7 +1309,7 @@ func replyDbMessageWithCloseButton(ctx *Context, keyString string) {
 	rm := tba.NewInlineKeyboardMarkup(
 		tba.NewInlineKeyboardRow(
 			tba.NewInlineKeyboardButtonData(
-				ctx.Database.GetBotStringValueOrDefaultNoError("deleteMessageText", ctx.Update.Message.From.LanguageCode), "delme-")))
+				ctx.Database.GetBotStringValueOrDefaultNoError("deleteMessageText", ctx.Update.Message.From.LanguageCode), consts.CallbackTypeDeleteSelf+"-")))
 	messageToSend.ReplyMarkup = rm
 	messageToSend.ReplyToMessageID = ctx.Update.Message.MessageID
 	ctx.SendQueue <- &messageToSend

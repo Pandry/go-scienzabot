@@ -2,8 +2,10 @@ package main
 
 import (
 	"fmt"
-	tba "github.com/go-telegram-bot-api/telegram-bot-api"
+	"scienzabot/consts"
 	"time"
+
+	tba "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
 func userJoinedRoute(ctx *Context) {
@@ -117,7 +119,7 @@ func userJoinedRoute(ctx *Context) {
 								tba.NewInlineKeyboardMarkup(
 									tba.NewInlineKeyboardRow(
 										tba.NewInlineKeyboardButtonData(
-											ctx.Database.GetBotStringValueOrDefaultNoError("captchaVerifyButtonText", usr.LanguageCode), "verify-")))))
+											ctx.Database.GetBotStringValueOrDefaultNoError("captchaVerifyButtonText", usr.LanguageCode), consts.CallbackTypeVerifyUser+"-")))))
 					}()
 
 					waitDuration = (time.Duration)(waitDuration.Nanoseconds() - 1*time.Second.Nanoseconds())
