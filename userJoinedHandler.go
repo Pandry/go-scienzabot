@@ -105,7 +105,7 @@ func userJoinedRoute(ctx *Context) {
 				message.ReplyMarkup = tba.NewInlineKeyboardMarkup(
 					tba.NewInlineKeyboardRow(
 						tba.NewInlineKeyboardButtonData(
-							fmt.Sprintf("%2.0f:%2.0f:%2.0f", waitDuration.Hours(), waitDuration.Minutes(), waitDuration.Seconds()), "lolnothing-")))
+							fmt.Sprintf("%02.0f:%02.0f:%02.0f", waitDuration.Hours(), waitDuration.Minutes(), waitDuration.Seconds()), "lolnothing-")))
 				m, err := ctx.Bot.Send(message)
 				if err == nil {
 
