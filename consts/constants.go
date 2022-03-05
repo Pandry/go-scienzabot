@@ -96,3 +96,9 @@ const (
 	CallbackTypeVerifyUser = "verify"
 	CallbackTypeTagUser    = "tag"
 )
+
+const (
+	RightArrow = "➡️"
+	LeftArrow  = "⬅️"
+	BlankChar  = "‌‌ "
+)

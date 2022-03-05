@@ -78,7 +78,7 @@ func callbackQueryRoute(ctx *Context) {
 									rows = append(rows, []tba.InlineKeyboardButton{
 										//tba.NewInlineKeyboardButtonData("‌‌ ", "ignore"),
 										tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("closeMessageText", locale), consts.CallbackTypeDeleteSelf+"-"),
-										tba.NewInlineKeyboardButtonData("➡️", consts.CallbackTypeUnsubscribePagination+"-"+strconv.Itoa(consts.MaximumInlineKeyboardRows-1)+"-"+args[2])})
+										tba.NewInlineKeyboardButtonData(consts.RightArrow, consts.CallbackTypeUnsubscribePagination+"-"+strconv.Itoa(consts.MaximumInlineKeyboardRows-1)+"-"+args[2])})
 									paginationPresent = true
 									break
 								}
@@ -87,7 +87,7 @@ func callbackQueryRoute(ctx *Context) {
 							if !paginationPresent {
 								rows = append(rows, []tba.InlineKeyboardButton{
 									tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("closeMessageText", locale), consts.CallbackTypeDeleteSelf+"-"),
-									tba.NewInlineKeyboardButtonData("‌‌ ", "ignore")})
+									tba.NewInlineKeyboardButtonData(consts.BlankChar, "ignore")})
 							}
 
 							editInlineMessageInlineKeyboard(ctx, tba.InlineKeyboardMarkup{InlineKeyboard: rows})
@@ -126,7 +126,7 @@ func callbackQueryRoute(ctx *Context) {
 						if leftOffset <= 0 {
 							leftOffset = 0
 						}
-						leftBtn := tba.NewInlineKeyboardButtonData("⬅️", consts.CallbackTypeUnsubscribePagination+"-"+strconv.Itoa(leftOffset)+"-"+args[2])
+						leftBtn := tba.NewInlineKeyboardButtonData(consts.LeftArrow, consts.CallbackTypeUnsubscribePagination+"-"+strconv.Itoa(leftOffset)+"-"+args[2])
 						closeBtn := tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("closeMessageText", locale), consts.CallbackTypeDeleteSelf+"-")
 						if offset-leftOffset < consts.MaximumInlineKeyboardRows-1 {
 							leftBtn = closeBtn
@@ -137,7 +137,7 @@ func callbackQueryRoute(ctx *Context) {
 								rows = append(rows, []tba.InlineKeyboardButton{
 									//tba.NewInlineKeyboardButtonData("‌‌ ", "ignore"),
 									leftBtn,
-									tba.NewInlineKeyboardButtonData("➡️", consts.CallbackTypeUnsubscribePagination+"-"+strconv.Itoa(offset+consts.MaximumInlineKeyboardRows-1)+"-"+args[2])})
+									tba.NewInlineKeyboardButtonData(consts.RightArrow, consts.CallbackTypeUnsubscribePagination+"-"+strconv.Itoa(offset+consts.MaximumInlineKeyboardRows-1)+"-"+args[2])})
 								paginationPresent = true
 								break
 							}
@@ -146,7 +146,7 @@ func callbackQueryRoute(ctx *Context) {
 						if !paginationPresent {
 							rows = append(rows, []tba.InlineKeyboardButton{
 								leftBtn,
-								tba.NewInlineKeyboardButtonData("‌‌ ", "ignore")})
+								tba.NewInlineKeyboardButtonData(consts.BlankChar, "ignore")})
 						}
 
 						editInlineMessageInlineKeyboard(ctx, tba.InlineKeyboardMarkup{InlineKeyboard: rows})
@@ -191,7 +191,7 @@ func callbackQueryRoute(ctx *Context) {
 									rows = append(rows, []tba.InlineKeyboardButton{
 										//tba.NewInlineKeyboardButtonData("‌‌ ", "ignore"),
 										tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("closeMessageText", locale), consts.CallbackTypeDeleteSelf+"-"),
-										tba.NewInlineKeyboardButtonData("➡️", consts.CallbackTypeSubscribePagination+"-"+strconv.Itoa(consts.MaximumInlineKeyboardRows-1))})
+										tba.NewInlineKeyboardButtonData(consts.RightArrow, consts.CallbackTypeSubscribePagination+"-"+strconv.Itoa(consts.MaximumInlineKeyboardRows-1))})
 									paginationPresent = true
 									break
 								}
@@ -200,7 +200,7 @@ func callbackQueryRoute(ctx *Context) {
 							if !paginationPresent {
 								rows = append(rows, []tba.InlineKeyboardButton{
 									tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("closeMessageText", locale), consts.CallbackTypeDeleteSelf+"-"),
-									tba.NewInlineKeyboardButtonData("‌‌ ", "ignore")})
+									tba.NewInlineKeyboardButtonData(consts.BlankChar, "ignore")})
 							}
 
 							editInlineMessageInlineKeyboard(ctx, tba.InlineKeyboardMarkup{InlineKeyboard: rows})
@@ -233,9 +233,9 @@ func callbackQueryRoute(ctx *Context) {
 							if leftOffset <= 0 {
 								leftOffset = 0
 							}
-							leftBtn := tba.NewInlineKeyboardButtonData("⬅️", consts.CallbackTypeSubscribePagination+"-"+strconv.Itoa(leftOffset))
+							leftBtn := tba.NewInlineKeyboardButtonData(consts.LeftArrow, consts.CallbackTypeSubscribePagination+"-"+strconv.Itoa(leftOffset))
 							closeBtn := tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("closeMessageText", locale), consts.CallbackTypeDeleteSelf+"-")
-							rightBtn := tba.NewInlineKeyboardButtonData("‌‌ ", "ignore")
+							rightBtn := tba.NewInlineKeyboardButtonData(consts.BlankChar, "ignore")
 							if offset-leftOffset < consts.MaximumInlineKeyboardRows-1 {
 								leftBtn = closeBtn
 							}
@@ -245,7 +245,7 @@ func callbackQueryRoute(ctx *Context) {
 									rows = append(rows, []tba.InlineKeyboardButton{
 										//tba.NewInlineKeyboardButtonData("‌‌ ", "ignore"),
 										leftBtn,
-										tba.NewInlineKeyboardButtonData("➡️", consts.CallbackTypeSubscribePagination+"-"+strconv.Itoa(offset+consts.MaximumInlineKeyboardRows-1))})
+										tba.NewInlineKeyboardButtonData(consts.RightArrow, consts.CallbackTypeSubscribePagination+"-"+strconv.Itoa(offset+consts.MaximumInlineKeyboardRows-1))})
 									paginationPresent = true
 									break
 								}
@@ -329,9 +329,9 @@ func callbackQueryRoute(ctx *Context) {
 						if leftOffset <= 0 {
 							leftOffset = 0
 						}
-						leftBtn := tba.NewInlineKeyboardButtonData("⬅️", consts.CallbackTypeGroupPagination+"-"+strconv.Itoa(leftOffset))
+						leftBtn := tba.NewInlineKeyboardButtonData(consts.LeftArrow, consts.CallbackTypeGroupPagination+"-"+strconv.Itoa(leftOffset))
 						closeBtn := tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("closeMessageText", locale), consts.CallbackTypeDeleteSelf+"-")
-						rightBtn := tba.NewInlineKeyboardButtonData("‌‌ ", "ignore")
+						rightBtn := tba.NewInlineKeyboardButtonData(consts.BlankChar, "ignore")
 						if offset-leftOffset < consts.MaximumInlineKeyboardRows-1 {
 							leftBtn = closeBtn
 						}
@@ -347,7 +347,7 @@ func callbackQueryRoute(ctx *Context) {
 
 									tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("closeMessageText", ctx.Update.Message.From.LanguageCode), consts.CallbackTypeDeleteSelf+"-"),
 									//bookamrks groups offset
-									tba.NewInlineKeyboardButtonData("➡️", consts.CallbackTypeGroupPagination+"-"+strconv.Itoa(consts.MaximumInlineKeyboardRows-1+offset))})
+									tba.NewInlineKeyboardButtonData(consts.RightArrow, consts.CallbackTypeGroupPagination+"-"+strconv.Itoa(consts.MaximumInlineKeyboardRows-1+offset))})
 								//Then we set the bool to true to say that we added the pagination
 								paginationPresent = true
 								//And interrupt the loop
@@ -407,9 +407,9 @@ func callbackQueryRoute(ctx *Context) {
 						if leftOffset < 0 {
 							leftOffset = 0
 						}
-						leftBtn := tba.NewInlineKeyboardButtonData("‌‌ ", "ignore")
+						leftBtn := tba.NewInlineKeyboardButtonData(consts.BlankChar, "ignore")
 						if offset > 0 {
-							leftBtn = tba.NewInlineKeyboardButtonData("⬅️", consts.CallbackTypeBookmarkPagination+"-"+strconv.FormatInt(groupID, 10)+"-"+strconv.Itoa(leftOffset))
+							leftBtn = tba.NewInlineKeyboardButtonData(consts.LeftArrow, consts.CallbackTypeBookmarkPagination+"-"+strconv.FormatInt(groupID, 10)+"-"+strconv.Itoa(leftOffset))
 						}
 
 						backBtn := tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("backText", locale), consts.CallbackTypeGroupPagination+"-0")
@@ -418,7 +418,7 @@ func callbackQueryRoute(ctx *Context) {
 						}
 						deleteBookmarkBtn := tba.NewInlineKeyboardButtonData("🗑", consts.CallbackTypeBookmarkDelete+"-"+strconv.FormatInt(groupID, 10)+"-"+strconv.Itoa(offset))
 						tagMessageBookmarkBtn := tba.NewInlineKeyboardButtonData("📳", consts.CallbackTypeTagUser+"-"+strconv.FormatInt(groupID, 10)+"-"+strconv.FormatInt(bms[offset].MessageID, 10))
-						rightBtn := tba.NewInlineKeyboardButtonData("‌‌ ", "ignore")
+						rightBtn := tba.NewInlineKeyboardButtonData(consts.BlankChar, "ignore")
 						if len(bms)-1 > offset {
 							rightBtn = tba.NewInlineKeyboardButtonData("➡️‌‌️️️️️️️", consts.CallbackTypeBookmarkPagination+"-"+strconv.FormatInt(groupID, 10)+"-"+strconv.Itoa(offset+1))
 						}
