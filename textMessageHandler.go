@@ -536,7 +536,8 @@ func textMessageRoute(ctx *Context) {
 							rows = append(rows, []tba.InlineKeyboardButton{
 
 								tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("closeMessageText", ctx.Update.Message.From.LanguageCode), consts.CallbackTypeDeleteSelf+"-"),
-								tba.NewInlineKeyboardButtonData(consts.RightArrow, consts.CallbackTypeSubscribePagination+"-"+strconv.Itoa(consts.MaximumInlineKeyboardRows-1))})
+								tba.NewInlineKeyboardButtonData(consts.RightArrow, consts.CallbackTypeSubscribePagination+"-"+strconv.Itoa(consts.MaximumInlineKeyboardRows-1)+"-"+strings.Replace(strconv.FormatInt(message.Chat.ID, 10), "-", "$", 1))})
+							//tba.NewInlineKeyboardButtonData(consts.RightArrow, consts.CallbackTypeSubscribePagination+"-"+strconv.Itoa(consts.MaximumInlineKeyboardRows-1))})
 							//Then we set the bool to true to say that we added the pagination
 							paginationPresent = true
 							//And interrupt the loop

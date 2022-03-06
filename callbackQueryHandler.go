@@ -57,7 +57,8 @@ func callbackQueryRoute(ctx *Context) {
 
 							chat, err := ctx.Database.GetList(int64(listID))
 							if err != nil {
-								//TODO: send toast error
+								ctx.Bot.AnswerCallbackQuery(tba.CallbackConfig{CallbackQueryID: message.ID, ShowAlert: true,
+									Text: ctx.Database.GetBotStringValueOrDefaultNoError("callbackQueryAnswerError", locale)})
 								return
 							}
 							//groupID := message.Message.Chat.ID
@@ -219,44 +220,52 @@ func callbackQueryRoute(ctx *Context) {
 
 		case consts.CallbackTypeSubscribePagination:
 			if message.Message != nil && userExists {
-				if len(args) == 2 {
-
+				if len(args) == 3 {
 					offset, err := strconv.Atoi(args[1])
 					if err == nil {
-						lists, _ := ctx.Database.GetAvailableLists(message.Message.Chat.ID, message.From.ID, consts.MaximumInlineKeyboardRows+1, offset)
-
-						rows := make([][]tba.InlineKeyboardButton, 0)
-						paginationPresent := false
-						leftOffset := offset - (consts.MaximumInlineKeyboardRows - 1)
-						if leftOffset <= 0 {
-							leftOffset = 0
-						}
-						leftBtn := tba.NewInlineKeyboardButtonData(consts.LeftArrow, consts.CallbackTypeSubscribePagination+"-"+strconv.Itoa(leftOffset))
-						closeBtn := tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("closeMessageText", locale), consts.CallbackTypeDeleteSelf+"-")
-						rightBtn := tba.NewInlineKeyboardButtonData(consts.BlankChar, "ignore")
-						if offset-leftOffset < consts.MaximumInlineKeyboardRows-1 {
-							leftBtn = closeBtn
-						}
-
-						for i, lst := range lists {
-							if len(lists) > consts.MaximumInlineKeyboardRows && i+2 > consts.MaximumInlineKeyboardRows {
-								rows = append(rows, []tba.InlineKeyboardButton{
-									//tba.NewInlineKeyboardButtonData("‌‌ ", "ignore"),
-									leftBtn,
-									tba.NewInlineKeyboardButtonData(consts.RightArrow, consts.CallbackTypeSubscribePagination+"-"+strconv.Itoa(offset+consts.MaximumInlineKeyboardRows-1))})
-								paginationPresent = true
-								break
+						if err == nil {
+							groupID, err := strconv.ParseInt(strings.Replace(args[2], "$", "-", 1), 10, 64)
+							if err != nil {
+								return
 							}
-							rows = append(rows, []tba.InlineKeyboardButton{tba.NewInlineKeyboardButtonData(lst.Name, consts.CallbackTypeSubscribe+"-"+strconv.Itoa(int(lst.ID)))})
-						}
-						if !paginationPresent {
-							rows = append(rows, []tba.InlineKeyboardButton{
-								leftBtn,
-								rightBtn})
-						}
+							//																											Why + 1??
+							lists, _ := ctx.Database.GetAvailableLists(groupID, message.From.ID, consts.MaximumInlineKeyboardRows+1, offset)
 
-						editInlineMessageInlineKeyboard(ctx, tba.InlineKeyboardMarkup{InlineKeyboard: rows})
+							rows := make([][]tba.InlineKeyboardButton, 0)
+							paginationPresent := false
+							leftOffset := offset - (consts.MaximumInlineKeyboardRows - 1)
+							if leftOffset <= 0 {
+								leftOffset = 0
+							}
+							leftBtn := tba.NewInlineKeyboardButtonData(consts.LeftArrow, consts.CallbackTypeSubscribePagination+"-"+strconv.Itoa(leftOffset)+"-"+args[2])
 
+							closeBtn := tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("closeMessageText", locale), consts.CallbackTypeDeleteSelf+"-")
+							rightBtn := tba.NewInlineKeyboardButtonData(consts.BlankChar, "ignore")
+							if offset-leftOffset < consts.MaximumInlineKeyboardRows-1 {
+								leftBtn = closeBtn
+							}
+
+							for i, lst := range lists {
+								if len(lists) > consts.MaximumInlineKeyboardRows && i+2 > consts.MaximumInlineKeyboardRows {
+									rows = append(rows, []tba.InlineKeyboardButton{
+										//tba.NewInlineKeyboardButtonData("‌‌ ", "ignore"),
+										leftBtn,
+										tba.NewInlineKeyboardButtonData(consts.RightArrow, consts.CallbackTypeSubscribePagination+"-"+strconv.Itoa(offset+consts.MaximumInlineKeyboardRows-1)+"-"+args[2]),
+									})
+									paginationPresent = true
+									break
+								}
+								rows = append(rows, []tba.InlineKeyboardButton{tba.NewInlineKeyboardButtonData(lst.Name, consts.CallbackTypeSubscribe+"-"+strconv.Itoa(int(lst.ID)))})
+							}
+							if !paginationPresent {
+								rows = append(rows, []tba.InlineKeyboardButton{
+									leftBtn,
+									rightBtn})
+							}
+
+							editInlineMessageInlineKeyboard(ctx, tba.InlineKeyboardMarkup{InlineKeyboard: rows})
+
+						}
 					}
 				}
 			}
