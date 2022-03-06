@@ -672,7 +672,7 @@ func textMessageRoute(ctx *Context) {
 
 									tba.NewInlineKeyboardButtonData(ctx.Database.GetBotStringValueOrDefaultNoError("closeMessageText", ctx.Update.Message.From.LanguageCode), consts.CallbackTypeDeleteSelf+"-"),
 									//bookamrks groups offset
-									tba.NewInlineKeyboardButtonData(consts.RightArrow, consts.CallbackTypeGroupPagination+"-"+strconv.Itoa(consts.MaximumInlineKeyboardRows-1))})
+									tba.NewInlineKeyboardButtonData(consts.RightArrow, consts.CallbackTypeBookmarksGroupPagination+"-"+strconv.Itoa(consts.MaximumInlineKeyboardRows-1))})
 								//Then we set the bool to true to say that we added the pagination
 								paginationPresent = true
 								//And interrupt the loop

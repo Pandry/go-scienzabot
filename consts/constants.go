@@ -88,9 +88,9 @@ const (
 	CallbackTypeSubscribe             = "sub"
 	CallbackTypeSubscribePagination   = "jo"
 	////bookmark group offset - shows groups
-	CallbackTypeGroupPagination    = "bgo"
-	CallbackTypeBookmarkPagination = "bk"
-	CallbackTypeBookmarkDelete     = "bkd"
+	CallbackTypeBookmarksGroupPagination = "bgo"
+	CallbackTypeBookmarkPagination       = "bk"
+	CallbackTypeBookmarkDelete           = "bkd"
 	//Deletes current message
 	CallbackTypeDeleteSelf = "delme"
 	CallbackTypeVerifyUser = "verify"
