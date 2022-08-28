@@ -958,6 +958,8 @@ func textMessageRoute(ctx *Context) {
 
 		//If the message is in a group we can check for thins like lists invocations etc
 		if messageInGroup && (userIsBotAdmin || userIsGroupAdmin || !utils.HasPermission(userPermission, consts.UserPermissionListBanned)) {
+			//Ratelimit per user
+
 			//Get the user interval if present
 			userIntervalString, userIntervalError := ctx.Database.GetSettingValue("userInterval", message.Chat.ID)
 			//If it's nil the setting exists
@@ -965,7 +967,7 @@ func textMessageRoute(ctx *Context) {
 				//Convert the string to a timespan
 				userInterval, _ := time.ParseDuration(userIntervalString)
 				//Get the last time the user invoked a list
-				lastInvocation, _ := ctx.Database.GetLastListInvocation(message.From.ID, message.Chat.ID)
+				lastInvocation, _ := ctx.Database.GetUserLastListInvocation(message.From.ID, message.Chat.ID)
 				//If the time is greater than the message, the user shouldn't be able to call a list and should be ignored
 				if userInterval.Seconds() > 0 && lastInvocation.Add(userInterval).Unix() > message.Time().Unix() {
 					return
@@ -1040,7 +1042,7 @@ func textMessageRoute(ctx *Context) {
 						if userIntervalError == nil {
 							ctx.Database.IncrementListsInvokedCount(message.From.ID, message.Chat.ID)
 							//and updated the last time the user contacted a list
-							ctx.Database.UpdateLastInvocation(message.From.ID, message.Chat.ID, message.Time())
+							ctx.Database.UpdateUserLastInvocation(message.From.ID, message.Chat.ID, message.Time())
 						}
 						//And we interrupt the iteration
 						break
@@ -1317,7 +1319,7 @@ func replyDbMessageWithCloseButton(ctx *Context, keyString string) {
 	//ctx.Bot.Send(messageToSend)
 }
 
-//escapeMessage returns a HTML escaped string
+// escapeMessage returns a HTML escaped string
 func escapeMessage(s string) string {
 	return strings.Replace(strings.Replace(strings.Replace(strings.Replace(s, "\"", "&quot;", -1), "&", "&amp;", -1), ">", "&gt;", -1), "<", "&lt;", -1)
 }

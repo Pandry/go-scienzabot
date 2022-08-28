@@ -18,7 +18,7 @@ import (
 // The messageCount feaure is used to count the number of messages of each subscribed user
 //	in every group the bot is in
 
-//GetMessageCount returns the message number of a user in a group
+// GetMessageCount returns the message number of a user in a group
 func (db *SQLiteDB) GetMessageCount(user int, group int64) (int64, error) {
 	var messageCount int64
 	err := db.QueryRow("SELECT MessageCount FROM Stats WHERE `UserID` AND `GroupID`", user, group).Scan(&messageCount)
@@ -34,7 +34,7 @@ func (db *SQLiteDB) GetMessageCount(user int, group int64) (int64, error) {
 	}
 }
 
-//GetListsInvokedCount returns the number of lists invoked by a user in a group
+// GetListsInvokedCount returns the number of lists invoked by a user in a group
 func (db *SQLiteDB) GetListsInvokedCount(user int, group int64) (int64, error) {
 	var listInvocations int64
 	err := db.QueryRow("SELECT ListsInvoked FROM Stats WHERE `UserID` = ? AND `GroupID` = ?", user, group).Scan(&listInvocations)
@@ -50,7 +50,7 @@ func (db *SQLiteDB) GetListsInvokedCount(user int, group int64) (int64, error) {
 	}
 }
 
-//SetMessageCount sets the message of a user in a group
+// SetMessageCount sets the message of a user in a group
 func (db *SQLiteDB) SetMessageCount(user int, group int64, messageCount int64) error {
 	query, err := db.Exec(
 		"INSERT INTO Stats (`UserID`, `GroupID`, `MessageCount`) VALUES (?,?,?) "+
@@ -72,7 +72,7 @@ func (db *SQLiteDB) SetMessageCount(user int, group int64, messageCount int64) e
 	return err
 }
 
-//SetListsInvokedCount sets the number of lists invoked of a user
+// SetListsInvokedCount sets the number of lists invoked of a user
 func (db *SQLiteDB) SetListsInvokedCount(user int, group int64, listsInvoked int64) error {
 	query, err := db.Exec(
 		"INSERT INTO Stats (`UserID`, `GroupID`, `ListsInvoked`) VALUES (?,?,?) "+
@@ -94,7 +94,7 @@ func (db *SQLiteDB) SetListsInvokedCount(user int, group int64, listsInvoked int
 	return err
 }
 
-//IncrementMessageCount increments by 1 the number of messages from a user
+// IncrementMessageCount increments by 1 the number of messages from a user
 func (db *SQLiteDB) IncrementMessageCount(user int, group int64) error {
 	msgCnt, err := db.GetMessageCount(user, group)
 	/*if err != nil {
@@ -105,14 +105,14 @@ func (db *SQLiteDB) IncrementMessageCount(user int, group int64) error {
 	return err
 }
 
-//IncrementListsInvokedCount increments by 1 the number of messages from a user
+// IncrementListsInvokedCount increments by 1 the number of messages from a user
 func (db *SQLiteDB) IncrementListsInvokedCount(user int, group int64) error {
 	lstsCnt, err := db.GetListsInvokedCount(user, group)
 	err = db.SetListsInvokedCount(user, group, lstsCnt+1)
 	return err
 }
 
-//GetUserGroups returns the groups a user is in
+// GetUserGroups returns the groups a user is in
 func (db *SQLiteDB) GetUserGroups(user int) ([]Group, error) {
 	gprs := make([]Group, 0)
 	rows, err := db.Query("SELECT Groups.ID, Groups.Title,Groups.Status, Groups.Locale, Groups.Ref FROM Stats INNER JOIN Groups ON Stats.GroupID = Groups.ID  WHERE `UserID`=?", user)
@@ -137,8 +137,8 @@ func (db *SQLiteDB) GetUserGroups(user int) ([]Group, error) {
 	return gprs, err
 }
 
-//UpdateLastInvocation updates the lastseen field
-func (db *SQLiteDB) UpdateLastInvocation(userID int, groupID int64, lstInv time.Time) error {
+// UpdateUserLastInvocation updates the lastseen field
+func (db *SQLiteDB) UpdateUserLastInvocation(userID int, groupID int64, lstInv time.Time) error {
 	lastInvocation := lstInv.Format(consts.TimeFormatString)
 	query, err := db.Exec("UPDATE Stats SET `LatestListInvocation` = ? WHERE `UserID` = ? AND `GroupID` = ?", lastInvocation, userID, groupID)
 	if err != nil {
@@ -157,11 +157,11 @@ func (db *SQLiteDB) UpdateLastInvocation(userID int, groupID int64, lstInv time.
 	return err
 }
 
-//GetLastListInvocation returns the last time when the user invoked a list
-func (db *SQLiteDB) GetLastListInvocation(user int, group int64) (time.Time, error) {
+// GetUserLastListInvocation returns the last time when the user invoked a list
+func (db *SQLiteDB) GetUserLastListInvocation(user int, group int64) (time.Time, error) {
 	var listInvocation time.Time
 	var timeStr sql.NullString
-	err := db.QueryRow("SELECT LatestListInvocation FROM Stats WHERE `UserID` AND `GroupID`", user, group).Scan(&timeStr)
+	err := db.QueryRow("SELECT LatestListInvocation FROM Stats WHERE `UserID`=? AND `GroupID`=?", user, group).Scan(&timeStr)
 	listInvocation, _ = time.Parse(consts.TimeFormatString, timeStr.String)
 	switch {
 	case err == sql.ErrNoRows:
@@ -175,7 +175,7 @@ func (db *SQLiteDB) GetLastListInvocation(user int, group int64) (time.Time, err
 	}
 }
 
-//UpdateLastSeen updates the lastseen field, that indicates the last time the user was seen on the group
+// UpdateLastSeen updates the lastseen field, that indicates the last time the user was seen on the group
 func (db *SQLiteDB) UpdateLastSeen(userID int, groupID int64, lstInv time.Time) error {
 	lastSeen := lstInv.Format(consts.TimeFormatString)
 	query, err := db.Exec("UPDATE Stats SET `LastSeen` = ? WHERE `UserID` = ? AND `GroupID` = ?", lastSeen, userID, groupID)
@@ -195,7 +195,7 @@ func (db *SQLiteDB) UpdateLastSeen(userID int, groupID int64, lstInv time.Time) 
 	return err
 }
 
-//GetLastSeen returns the last time when the user inwas seen on a group
+// GetLastSeen returns the last time when the user inwas seen on a group
 func (db *SQLiteDB) GetLastSeen(user int, group int64) (time.Time, error) {
 	var lastSeen time.Time
 	var timeStr sql.NullString
