@@ -48,3 +48,7 @@ COPY ./scienzabot /
 CMD [ "/scienzabot", "-database", "/db/sqlite", "-vv" ]
 
 ```
+
+## License
+
+AGPL-3.0
